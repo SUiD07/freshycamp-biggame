@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import React from "react";
+import NodeUpdater from "@/components/NodeUpdater";
 
 
 export default function admin() {
@@ -21,13 +22,13 @@ export default function admin() {
   return (
     <>
       <div>admin</div>
-      <table>
+      {/* <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Top</th>
-              <th>Left</th>
-              <th>Value</th>
+              <th>ID</th> */}
+              {/* <th>Top</th> */}
+              {/* <th>Left</th> */}
+              {/* <th>Value</th>
               <th>SElected car</th>
               <th>tower</th>
               <th>ship</th>
@@ -37,17 +38,19 @@ export default function admin() {
           <tbody>
             {nodes.map((node: any) => (
               <tr>
-                <td>{node.id}</td>
-                <td>{node.top}</td>
-                <td>{node.left}</td>
-                <td>{node.value}</td>
-                <td>{node.selectedCar}</td>
-                <td>{node.ship}</td>
-                <td>{node.fight}</td>
+                <td className="border-2">{node.id}</td> */}
+                {/* <td>{node.top}</td> */}
+                {/* <td>{node.left}</td> */}
+                {/* <td className="border-2">{node.value}</td>
+                <td className="border-2">{node.selectedCar}</td>
+                <td className="border-2">{node.tower}</td>
+                <td className="border-2">{node.ship}</td>
+                <td className="border-2">{node.fight}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </table> */}
+        <NodeUpdater/>
     </>
   );
 }
