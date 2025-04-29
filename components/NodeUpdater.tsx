@@ -59,6 +59,15 @@ export default function NodeUpdater() {
       [nodeId]: newValue,
     }));
   };
+  // Toggle tower ของ node
+  const toggleTower = async (id: string, currentValue: boolean) => {
+    const { error } = await supabase
+      .from("nodes")
+      .update({ tower: !currentValue })
+      .eq("id", id);
+    if (error) console.error("Toggle tower error:", error);
+    else fetchNodes();
+  };
 
   return (
     <div className="p-4">
@@ -130,6 +139,25 @@ export default function NodeUpdater() {
         <ul className="space-y-1">
           {selectedNodeIds.map((id) => (
             <li key={id}>Node {id}</li>
+          ))}
+        </ul>
+      </div>
+      <div className="mt-6">
+        <h3 className="text-md mb-2">รายการ Nodes:</h3>
+        <ul className="space-y-1">
+          {nodes.map((node) => (
+            <li key={node.id} className="flex items-center gap-4">
+              <span>
+                ID: {node.id}, selectedcar: {node.selectedcar}, value:{" "}
+                {node.value}, tower: {node.tower ? "✅" : "❌"}
+              </span>
+              <Button
+                onClick={() => toggleTower(node.id, node.tower)}
+                className="text-xs"
+              >
+                {node.tower ? "ปิด Tower" : "เปิด Tower"}
+              </Button>
+            </li>
           ))}
         </ul>
       </div>
