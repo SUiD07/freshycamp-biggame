@@ -159,6 +159,7 @@ export default function NodeUpdater() {
           onChange={(e) => setSelectedcar(e.target.value)}
           className="p-2 border border-gray-300 rounded"
         >
+          <option value="">-- ไม่มี --</option>
           {Array.from({ length: 12 }, (_, i) => `B${i + 1}`).map((b) => (
             <option key={b} value={b}>
               {b}
@@ -193,75 +194,77 @@ export default function NodeUpdater() {
 
       {/* เลือกบ้านเรือใหม่ */}
       {/* เพิ่มเรือหลายลำไปยัง Node ที่เลือก */}
-<div className="mb-6">
-  <h3 className="text-md font-semibold mb-2">เพิ่มเรือหลายลำไปยัง Node ที่เลือก:</h3>
+      <div className="mb-6">
+        <h3 className="text-md font-semibold mb-2">
+          เพิ่มเรือหลายลำไปยัง Node ที่เลือก:
+        </h3>
 
-  {/* เลือก Node ที่จะเพิ่มเรือ */}
-  <div className="mb-4 flex items-center gap-2">
-    <span>เลือก Node:</span>
-    <select
-      value={selectedNode}
-      onChange={(e) => setSelectedNode(e.target.value)}
-      className="p-2 border border-gray-300 rounded"
-    >
-      <option value="">-- เลือก Node --</option>
-      {nodes.map((node) => (
-        <option key={node.id} value={node.id}>
-          Node {node.id}
-        </option>
-      ))}
-    </select>
-  </div>
+        {/* เลือก Node ที่จะเพิ่มเรือ */}
+        <div className="mb-4 flex items-center gap-2">
+          <span>เลือก Node:</span>
+          <select
+            value={selectedNode}
+            onChange={(e) => setSelectedNode(e.target.value)}
+            className="p-2 border border-gray-300 rounded"
+          >
+            <option value="">-- เลือก Node --</option>
+            {nodes.map((node) => (
+              <option key={node.id} value={node.id}>
+                Node {node.id}
+              </option>
+            ))}
+          </select>
+        </div>
 
-  {/* แสดงเรือที่มีอยู่แล้วใน Node */}
-  {selectedNode && (
-    <div className="mb-4 text-sm">
-      <strong>เรือที่มีอยู่แล้วใน Node {selectedNode}:</strong>{" "}
-      {
-        nodes.find((n) => n.id === selectedNode)?.ship?.map((s: string, idx: number) => (
-          <span key={idx} className="mr-2">
-            {s}
-          </span>
-        )) ?? "ไม่มีเรือ"
-      }
-    </div>
-  )}
+        {/* แสดงเรือที่มีอยู่แล้วใน Node */}
+        {selectedNode && (
+          <div className="mb-4 text-sm">
+            <strong>เรือที่มีอยู่แล้วใน Node {selectedNode}:</strong>{" "}
+            {nodes
+              .find((n) => n.id === selectedNode)
+              ?.ship?.map((s: string, idx: number) => (
+                <span key={idx} className="mr-2">
+                  {s}
+                </span>
+              )) ?? "ไม่มีเรือ"}
+          </div>
+        )}
 
-  {/* เลือกบ้านเรือใหม่ที่จะเพิ่ม */}
-  {newShips.map((ship, index) => (
-    <div key={index} className="flex items-center gap-2 mb-2">
-      <select
-        value={ship.house}
-        onChange={(e) => handleNewShipChange(index, e.target.value)}
-        className="p-2 border border-gray-300 rounded"
-      >
-        {Array.from({ length: 12 }, (_, i) => `B${i + 1}`).map((b) => (
-          <option key={b} value={b}>
-            {b}
-          </option>
+        {/* เลือกบ้านเรือใหม่ที่จะเพิ่ม */}
+        {newShips.map((ship, index) => (
+          <div key={index} className="flex items-center gap-2 mb-2">
+            <select
+              value={ship.house}
+              onChange={(e) => handleNewShipChange(index, e.target.value)}
+              className="p-2 border border-gray-300 rounded"
+            >
+              {Array.from({ length: 12 }, (_, i) => `B${i + 1}`).map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => removeNewShipField(index)}
+            >
+              ลบลำนี้
+            </Button>
+          </div>
         ))}
-      </select>
-      <Button
-        variant="destructive"
-        size="sm"
-        onClick={() => removeNewShipField(index)}
-      >
-        ลบลำนี้
-      </Button>
-    </div>
-  ))}
-  <Button className="mt-2 mr-2" onClick={addNewShipField}>
-    ➕ เพิ่มเรือ
-  </Button>
+        <Button className="mt-2 mr-2" onClick={addNewShipField}>
+          ➕ เพิ่มเรือ
+        </Button>
 
-  <Button
-    onClick={() => selectedNode && addShips(selectedNode)}
-    disabled={!selectedNode || newShips.length === 0}
-    className="mt-2"
-  >
-    ✅ เพิ่มเรือไปยัง Node {selectedNode}
-  </Button>
-</div>
+        <Button
+          onClick={() => selectedNode && addShips(selectedNode)}
+          disabled={!selectedNode || newShips.length === 0}
+          className="mt-2"
+        >
+          ✅ เพิ่มเรือไปยัง Node {selectedNode}
+        </Button>
+      </div>
 
       {/* รายการ Node */}
       {/* <div className="mb-6">
@@ -280,13 +283,13 @@ export default function NodeUpdater() {
                 >
                   {node.tower ? "🔒 ปิด Tower" : "🔓 เปิด Tower"}
                 </Button> */}
-                {/* <Button
+      {/* <Button
                   size="sm"
                   onClick={() => toggleField(node.id, "bost", node.bost)}
                 >
                   {node.bost ? "🚫 ปิด Bost" : "✅ เปิด Bost"}
                 </Button> */}
-                {/* <Button
+      {/* <Button
                   size="sm"
                   onClick={() => addShips(node.id)}
                   disabled={newShips.length === 0}
@@ -312,8 +315,9 @@ export default function NodeUpdater() {
               )}
             </li>
           ))} */}
-        {/* </ul> */}
+      {/* </ul> */}
       {/* </div> */}
+      {/* เลือกป้อม */}
       <div className="mt-6">
         <h3 className="text-md mb-2">รายการ Nodes:</h3>
         <ul className="space-y-1">
