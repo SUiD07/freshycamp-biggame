@@ -12,6 +12,9 @@ export default function NodeUpdater() {
   const [selectedcar, setSelectedcar] = useState<string>("B1");
   const [nodeValues, setNodeValues] = useState<Record<string, string>>({});
   const [newShips, setNewShips] = useState<{ house: string }[]>([]);
+  const [newFight, setNewFight] = useState<{
+    [key: string]: { house: string; count: number }[];
+  }>({});
 
   useEffect(() => {
     fetchNodes();
@@ -125,6 +128,22 @@ export default function NodeUpdater() {
     const updated = [...newShips];
     updated.splice(index, 1);
     setNewShips(updated);
+  };
+
+  const updateTowerOwner = async (id: string, towerOwner: string) => {
+    const { error } = await supabase
+      .from("nodes")
+      .update({ towerOwner })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Update tower owner failed:", error);
+      return;
+    }
+
+    setNodes((prev: any[]) =>
+      prev.map((node) => (node.id === id ? { ...node, towerOwner } : node))
+    );
   };
 
   return (
@@ -324,8 +343,9 @@ export default function NodeUpdater() {
           {nodes.map((node) => (
             <li key={node.id} className="flex items-center gap-4">
               <span>
-                ID: {node.id}, selectedcar: {node.selectedcar}, value:{" "}
-                {node.value}, tower: {node.tower ? "✅" : "❌"}
+                ID: {node.id},
+                 {/* selectedcar: {node.selectedcar}, value:{" "}{node.value},  */}
+                tower: {node.tower ? "✅" : "❌"}
               </span>
               <Button
                 onClick={() => toggleTower(node.id, node.tower)}
@@ -333,6 +353,104 @@ export default function NodeUpdater() {
               >
                 {node.tower ? "ปิด Tower" : "เปิด Tower"}
               </Button>
+              {node.tower && (
+                <select
+                  value={node.towerOwner || ""}
+                  onChange={(e) => updateTowerOwner(node.id, e.target.value)}
+                  className="ml-2 p-1 text-sm border rounded"
+                >
+                  <option value="">-- ไม่มีเจ้าของ --</option>
+                  {Array.from({ length: 12 }, (_, i) => `B${i + 1}`).map(
+                    (b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    )
+                  )}
+                </select>
+              )}
+              <div className="flex flex-col gap-2 text-sm ml-6">
+                <div className="font-semibold">เพิ่มการต่อสู้:</div>
+                {(newFight[node.id] || []).map((fight, i) => (
+                  <div key={i} className="flex gap-2 items-center">
+                    <select
+                      value={fight.house}
+                      onChange={(e) => {
+                        const updated = [...(newFight[node.id] || [])];
+                        updated[i].house = e.target.value;
+                        setNewFight({ ...newFight, [node.id]: updated });
+                      }}
+                      className="border p-1 rounded"
+                    >
+                      <option value="">เลือกบ้าน</option>
+                      {Array.from({ length: 12 }, (_, j) => `B${j + 1}`).map(
+                        (b) => (
+                          <option key={b} value={b}>
+                            {b}
+                          </option>
+                        )
+                      )}
+                    </select>
+                    <input
+                      type="number"
+                      value={fight.count}
+                      onChange={(e) => {
+                        const updated = [...(newFight[node.id] || [])];
+                        updated[i].count = parseInt(e.target.value) || 0;
+                        setNewFight({ ...newFight, [node.id]: updated });
+                      }}
+                      className="w-20 border p-1 rounded"
+                      placeholder="จำนวน"
+                    />
+                    <button
+                      onClick={() => {
+                        const updated = [...(newFight[node.id] || [])];
+                        updated.splice(i, 1);
+                        setNewFight({ ...newFight, [node.id]: updated });
+                      }}
+                      className="text-red-600 text-xs"
+                    >
+                      ลบ
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  onClick={() => {
+                    const current = newFight[node.id] || [];
+                    setNewFight({
+                      ...newFight,
+                      [node.id]: [...current, { house: "", count: 0 }],
+                    });
+                  }}
+                  className="mt-1 text-blue-600 text-xs"
+                >
+                  + เพิ่มบ้าน
+                </button>
+
+                <Button
+                  onClick={async () => {
+                    const newData = newFight[node.id] || [];
+                    const { error } = await supabase
+                      .from("nodes")
+                      .update({ fight: newData })
+                      .eq("id", node.id);
+                    if (!error) {
+                      setNodes((prev) =>
+                        prev.map((n) =>
+                          n.id === node.id ? { ...n, fight: newData } : n
+                        )
+                      );
+                      setNewFight({ ...newFight, [node.id]: [] });
+                    } else {
+                      console.error("Error updating fight:", error);
+                    }
+                  }}
+                  className="text-xs mt-2"
+                >
+                  บันทึกการต่อสู้
+                </Button>
+              </div>
             </li>
           ))}
         </ul>

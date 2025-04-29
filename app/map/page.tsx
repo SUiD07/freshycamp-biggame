@@ -24,7 +24,6 @@ export default function map() {
     fetchUser();
   }, []);
 
-
   const houseColorMap: Record<string, string> = {
     B1: "#c00000",
     B2: "#ff6600",
@@ -43,8 +42,8 @@ export default function map() {
     <>
       <div className="text-center">map</div>
       {/* <div className="flex gap-2 [&>input]:mb-3 mt-8"> */}
-        {/* <Label htmlFor="search" className="">Search</Label> */}
-        {/* <Input name="search" placeholder="search" required />
+      {/* <Label htmlFor="search" className="">Search</Label> */}
+      {/* <Input name="search" placeholder="search" required />
         <Button>Search</Button> */}
       {/* </div> */}
       <main>
@@ -56,11 +55,12 @@ export default function map() {
               className="inline-block w-[90%] h-auto"
             />
           </div>
-          {nodes.map((node:any, index:any) => (
+          {nodes.map((node: any, index: any) => (
             <div
               key={index}
               style={{
-                backgroundColor: houseColorMap[node.selectedcar?.trim()] ?? "transparent",
+                backgroundColor:
+                  houseColorMap[node.selectedcar?.trim()] ?? "transparent",
                 fontSize: "1vw",
                 padding: "0.1em",
                 // borderRadius: "0.5em",
@@ -77,7 +77,8 @@ export default function map() {
             {node.value !== "0" && ")"} */}
             </div>
           ))}
-          {nodes.map((node:any, index:any) => (
+          {/* node ที่ */}
+          {nodes.map((node: any, index: any) => (
             <div
               key={index}
               style={{
@@ -88,95 +89,109 @@ export default function map() {
                 top: node.top,
                 left: node.left,
               }}
-              className="absolute p-2 rounded-md transform -translate-x-1/2 -translate-y-1/2 text-[clamp(10px,2.5vw,16px)]"
+              className="font-bold absolute p-2 rounded-md transform -translate-x-1/2 -translate-y-1/2 text-[clamp(10px,2.5vw,16px)]"
             >
               {node.id}
             </div>
           ))}
-          
-        {nodes.map((node:any) => (
-          <React.Fragment key={node.id}>
-            {/* ป้อม */}
-            <img
-              src="/fortress.svg"
-              alt="fortress"
-              className="absolute"
-              style={{
-                top: node.top,
-                left: `${parseFloat(node.left) -1.9}%`,
-                opacity: node.tower ? 1 : 0,
-                transform: "translate(-50%, -50%)",
-                transition: "opacity 0.3s",
-                zIndex: 10,
-                width: "3vw",
-                height: "3vw",
-              }}
-            />
-            {/* เรือ */}
-            {node.ship &&
-              node.ship.map((ship:any, index:any) => (
+
+          {nodes.map((node: any) => (
+            <React.Fragment key={node.id}>
+              {/* ป้อม */}
+              <img
+                src="/fortress.svg"
+                alt="fortress"
+                className="absolute"
+                style={{
+                  top: node.top,
+                  left: `${parseFloat(node.left) - 1.9}%`,
+                  opacity: node.tower ? 1 : 0,
+                  transform: "translate(-50%, -50%)",
+                  transition: "opacity 0.3s",
+                  zIndex: 10,
+                  width: "3vw",
+                  height: "3vw",
+                }}
+              />
+              {node.tower && node.towerOwner && (
                 <div
-                  key={index}
-                  className="absolute"
+                  className="absolute text-xs text-black font-semibold text-center"
                   style={{
-                    top:`${parseFloat(node.top)-6}%`,
-                    left: `${parseFloat(node.left) + index * 2}%`,
+                    top: `${parseFloat(node.top) + 4}%`,
+                    left: `${parseFloat(node.left)-2}%`,
                     transform: "translate(-50%, -50%)",
+                    fontSize: "0.8vw",
                   }}
                 >
-                  <div
-                    className="text-center text-black text-xs mt-1"
-                    style={{ fontSize: "1vw", padding: "0em" }}
-                  >
-                    {ship}
-                  </div>
-                  <img
-                    src="/boat.svg"
-                    alt="ship"
-                    className="w-8 h-8"
-                    style={{ width: "3vw", height: "3vw" }}
-                  />
+                  {node.towerOwner}
                 </div>
-              ))}
+              )}
 
-            {/* การสู้ */}
-            {node.fight &&
-              node.fight.map((f:any, idx:any) => (
-                <>
-                  {idx === 0 && (
-                    <img
-                      src="/sword.svg"
-                      alt="fight"
-                      className="w-8 h-8 absolute"
-                      style={{
-                        top: `${parseFloat(node.top) + idx * 2}%`,
-                        left: `${parseFloat(node.left) + 2}%`,
-                        transform: "translate(-50%, -50%)",
-                        width: "1.7vw",
-                        height: "1.7vw",
-                      }}
-                    />
-                  )}
+              {/* เรือ */}
+              {node.ship &&
+                node.ship.map((ship: any, index: any) => (
                   <div
-                    key={idx}
+                    key={index}
                     className="absolute"
                     style={{
-                      top: `${parseFloat(node.top) + 1.7 + idx * 2}%`,
-                      left: `${parseFloat(node.left) + 2.5}%`,
+                      top: `${parseFloat(node.top) - 6}%`,
+                      left: `${parseFloat(node.left) + index * 2}%`,
                       transform: "translate(-50%, -50%)",
                     }}
                   >
                     <div
-                      className="text-center text-red-600 font-bold text-xs mt-1"
-                      style={{ fontSize: "1vw" }}
+                      className="text-center text-purple-600 text-xs mt-1"
+                      style={{ fontSize: "1vw", padding: "0em" }}
                     >
-                      {f.house} ({f.count})
+                      {ship}
                     </div>
+                    <img
+                      src="/boat.svg"
+                      alt="ship"
+                      className="w-8 h-8"
+                      style={{ width: "3vw", height: "3vw" }}
+                    />
                   </div>
-                </>
-              ))}
-          </React.Fragment>
-        ))}
+                ))}
+
+              {/* การสู้ */}
+              {node.fight &&
+                node.fight.map((f: any, idx: any) => (
+                  <>
+                    {idx === 0 && (
+                      <img
+                        src="/sword.svg"
+                        alt="fight"
+                        className="w-8 h-8 absolute"
+                        style={{
+                          top: `${parseFloat(node.top) + idx * 2}%`,
+                          left: `${parseFloat(node.left) + 2}%`,
+                          transform: "translate(-50%, -50%)",
+                          width: "1.7vw",
+                          height: "1.7vw",
+                        }}
+                      />
+                    )}
+                    <div
+                      key={idx}
+                      className="absolute"
+                      style={{
+                        top: `${parseFloat(node.top) + 1.7 + idx * 2}%`,
+                        left: `${parseFloat(node.left) + 2.5}%`,
+                        transform: "translate(-50%, -50%)",
+                      }}
+                    >
+                      <div
+                        className="text-center text-red-600 font-bold text-xs mt-1"
+                        style={{ fontSize: "1vw" }}
+                      >
+                        {f.house} ({f.count})
+                      </div>
+                    </div>
+                  </>
+                ))}
+            </React.Fragment>
+          ))}
         </div>
 
         {/* <table>
