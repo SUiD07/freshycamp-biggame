@@ -23,6 +23,12 @@ export default async function Home() {
               <span>Map</span>
             </div>
           </NextLink>
+          <NextLink href="/admin">
+            <div className="flex items-center space-x-2 hover:underline">
+              <LinkIcon size={20} />
+              <span>Admin</span>
+            </div>
+          </NextLink>
         </div>
         {/* <h2 className="font-medium text-xl mb-4">Next steps</h2> */}
         {/* {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />} */}
