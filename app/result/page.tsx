@@ -23,7 +23,7 @@ export default function admin() {
     }, []);
   return (
     <>
-      <div className="font-bold text-2xl text-center">ดูผลการกรอก</div>
+      <div className="font-bold text-2xl text-center bg-gray-300">ดูผลการกรอก</div>
         <h2 className="text-lg font-semibold">สรุปสถานะ</h2>
         <RoundResult/>
     </>

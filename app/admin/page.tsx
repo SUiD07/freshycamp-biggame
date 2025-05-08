@@ -23,7 +23,7 @@ export default function admin() {
     }, []);
   return (
     <>
-      <div>admin</div>
+      <div className="font-bold text-center text-xl bg-gray-300">admin</div>
       {/* <table>
           <thead>
             <tr>
@@ -52,7 +52,7 @@ export default function admin() {
             ))}
           </tbody>
         </table> */}
-        <h2 className="text-lg font-semibold">สรุปสถานะรอบ {round}</h2>
+        {/* <h2 className="text-lg font-semibold">สรุปสถานะรอบ {round}</h2> */}
         <NodeUpdater/>
     </>
   );

@@ -1,52 +1,56 @@
-'use client'
-import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+"use client";
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function MoveForm({ house }: { house: string }) {
-  const [round, setRound] = useState(1) // ผู้ใช้เลือก
-  const [nodes, setNodes] = useState([{ node: 1, count: 1 }]) // ✅ array ของ node
-  const [message, setMessage] = useState('')
+  const [round, setRound] = useState(1); // ผู้ใช้เลือก
+  const [nodes, setNodes] = useState([{ node: 1, count: 1 }]); // ✅ array ของ node
+  const [message, setMessage] = useState("");
 
-  const handleNodeChange = (index: number, key: 'node' | 'count', value: number) => {
-    const updated = [...nodes]
-    updated[index][key] = value
-    setNodes(updated)
-  }
+  const handleNodeChange = (
+    index: number,
+    key: "node" | "count",
+    value: number
+  ) => {
+    const updated = [...nodes];
+    updated[index][key] = value;
+    setNodes(updated);
+  };
 
   const addNode = () => {
-    setNodes([...nodes, { node: 1, count: 1 }])
-  }
+    setNodes([...nodes, { node: 1, count: 1 }]);
+  };
 
   const removeNode = (index: number) => {
-    setNodes(nodes.filter((_, i) => i !== index))
-  }
+    setNodes(nodes.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // ✅ ตรวจสอบว่าบ้านนี้ส่งรอบนี้แล้วหรือยัง
     const { data: existing } = await supabase
-      .from('moves')
-      .select('*')
-      .eq('house', house)
-      .eq('round', round)
+      .from("moves")
+      .select("*")
+      .eq("house", house)
+      .eq("round", round);
 
     if (existing && existing.length > 0) {
-      setMessage(`❌ บ้าน ${house} ส่งข้อมูลรอบนี้ไปแล้ว`)
-      return
+      setMessage(`❌ ${house} ส่งข้อมูลรอบนี้ไปแล้ว`);
+      return;
     }
 
     // ✅ เตรียมข้อมูล insert
-    const insertData = nodes.map(n => ({
+    const insertData = nodes.map((n) => ({
       node: n.node,
       count: n.count,
       round,
       house,
-    }))
+    }));
 
-    const { error } = await supabase.from('moves').insert(insertData)
-    setMessage(error ? '❌ เกิดข้อผิดพลาด' : '✅ บันทึกสำเร็จ')
-  }
+    const { error } = await supabase.from("moves").insert(insertData);
+    setMessage(error ? "❌ เกิดข้อผิดพลาด" : "✅ บันทึกสำเร็จ");
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -55,7 +59,7 @@ export default function MoveForm({ house }: { house: string }) {
         <input
           type="number"
           value={round}
-          onChange={e => setRound(+e.target.value)}
+          onChange={(e) => setRound(+e.target.value)}
           className="border px-2"
         />
       </div>
@@ -67,7 +71,7 @@ export default function MoveForm({ house }: { house: string }) {
             <input
               type="number"
               value={item.node}
-              onChange={e => handleNodeChange(index, 'node', +e.target.value)}
+              onChange={(e) => handleNodeChange(index, "node", +e.target.value)}
               min={1}
               className="border px-2"
             />
@@ -77,7 +81,9 @@ export default function MoveForm({ house }: { house: string }) {
             <input
               type="number"
               value={item.count}
-              onChange={e => handleNodeChange(index, 'count', +e.target.value)}
+              onChange={(e) =>
+                handleNodeChange(index, "count", +e.target.value)
+              }
               min={1}
               className="border px-2"
             />
@@ -106,8 +112,12 @@ export default function MoveForm({ house }: { house: string }) {
       >
         ส่งข้อมูล
       </button>
-
+      <div className="text-red-700">
+        ใน 1 รอบทุกบ้านสามารถกรอกข้อมูลได้เพียง
+        <span className="font-bold text-xl">ครั้งเดียวเท่านั้น</span>
+        <div>ตรวจสอบข้อมูลให้ดีก่อนกดส่งข้อมูล</div>
+      </div>
       {message && <p>{message}</p>}
     </form>
-  )
+  );
 }

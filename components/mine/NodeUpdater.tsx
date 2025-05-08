@@ -150,6 +150,23 @@ export default function NodeUpdater() {
     <div className="p-4">
       <h2 className="text-lg mb-4">Node Updater</h2>
 
+
+      {/* เลือกรถ */}
+      <div className="mb-4">
+        <label className="block mb-2">เลือกบ้านที่จะ update:</label>
+        <select
+          value={selectedcar}
+          onChange={(e) => setSelectedcar(e.target.value)}
+          className="p-2 border border-gray-300 rounded"
+        >
+          <option value="">-- ไม่มี --</option>
+          {Array.from({ length: 12 }, (_, i) => `B${i + 1}`).map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
+        </select>
+      </div>
       {/* เลือก Node */}
       <div className="mb-4">
         <label className="block mb-2">เลือก Node ที่จะ update:</label>
@@ -168,23 +185,6 @@ export default function NodeUpdater() {
           </select>
           <Button onClick={handleAddNode}>เพิ่ม</Button>
         </div>
-      </div>
-
-      {/* เลือกรถ */}
-      <div className="mb-4">
-        <label className="block mb-2">เลือกบ้านที่จะ update:</label>
-        <select
-          value={selectedcar}
-          onChange={(e) => setSelectedcar(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
-        >
-          <option value="">-- ไม่มี --</option>
-          {Array.from({ length: 12 }, (_, i) => `B${i + 1}`).map((b) => (
-            <option key={b} value={b}>
-              {b}
-            </option>
-          ))}
-        </select>
       </div>
 
       {/* ป้อนค่าแต่ละ Node */}
