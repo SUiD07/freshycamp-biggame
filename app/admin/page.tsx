@@ -54,7 +54,7 @@ export default function admin() {
           </tbody>
         </table> */}
         <h2 className="text-lg font-semibold">สรุปสถานะรอบ {round}</h2>
-        <RoundResult round={round} />
+        <RoundResult/>
         <NodeUpdater/>
     </>
   );
