@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import React from "react";
 import NodeUpdater from "@/components/mine/NodeUpdater";
-import RoundResult from "@/components/mine/RoundResult";
 
 
 export default function admin() {
@@ -54,7 +53,6 @@ export default function admin() {
           </tbody>
         </table> */}
         <h2 className="text-lg font-semibold">สรุปสถานะรอบ {round}</h2>
-        <RoundResult/>
         <NodeUpdater/>
     </>
   );
