@@ -10,7 +10,7 @@ export default function Home() {
         กรอกการเคลื่อนที่
         {/* (รอบ {round}) */}
       </h1>
-      <MoveForm round={round} house={house} />
+      <MoveForm house={house} />
       <hr />
     </main>
   );
