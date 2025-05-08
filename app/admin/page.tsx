@@ -2,10 +2,13 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import React from "react";
-import NodeUpdater from "@/components/NodeUpdater";
+import NodeUpdater from "@/components/mine/NodeUpdater";
+import RoundResult from "@/components/mine/RoundResult";
 
 
 export default function admin() {
+  const round = 1;
+  //const house = "บ้าน 01"; // ปรับตามผู้ใช้งานที่ login
   const supabase = createClient();
     const [nodes, setNodes] = useState<any>([]);
     const fetchUser = async () => {
@@ -50,6 +53,8 @@ export default function admin() {
             ))}
           </tbody>
         </table> */}
+        <h2 className="text-lg font-semibold">สรุปสถานะรอบ {round}</h2>
+        <RoundResult round={round} />
         <NodeUpdater/>
     </>
   );
