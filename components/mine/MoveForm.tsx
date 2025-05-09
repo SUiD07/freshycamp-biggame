@@ -117,6 +117,7 @@ export default function MoveForm({ house }: { house: string }) {
         <span className="font-bold text-xl">ครั้งเดียวเท่านั้น</span>
         <div>ตรวจสอบข้อมูลให้ดีก่อนกดส่งข้อมูล</div>
       </div>
+      <div>บ้านเดียวกัน รอบเดียวกัน node เดียวกัน insert ซ้ำ จะขึ้น error</div>
       {message && <p>{message}</p>}
     </form>
   );

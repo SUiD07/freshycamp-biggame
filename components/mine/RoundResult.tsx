@@ -41,8 +41,7 @@ export default function RoundResult() {
           };
         }
       });
-      
-      
+
       setResult(output);
 
       // ✅ กำหนดบ้านทั้งหมดล่วงหน้า (1-12)
@@ -100,24 +99,26 @@ export default function RoundResult() {
 
       {/* แสดงผลการกรอก */}
       <div className="max-h-[200px] overflow-x-auto">
-  {result.map((item, i) => (
-    <div key={i} className="p-2 border rounded mb-1">
-      {item.type === "fight" ? (
-        <span>
-          ⚔️ Node {item.node}: Fight between{" "}
-          {item.houses
-            .map((h: { house: string; count: number }) => `${h.house} (${h.count} คน)`) 
-            .join(", ")}
-        </span>
-      ) : (
-        <span>
-          🚶 Node {item.node}: {item.count} คน - {item.house}
-        </span>
-      )}
-    </div>
-  ))}
-</div>
-
+        {result.map((item, i) => (
+          <div key={i} className="p-2 border rounded mb-1">
+            {item.type === "fight" ? (
+              <span>
+                ⚔️ Node {item.node}: Fight between{" "}
+                {item.houses
+                  .map(
+                    (h: { house: string; count: number }) =>
+                      `${h.house} (${h.count} คน)`
+                  )
+                  .join(", ")}
+              </span>
+            ) : (
+              <span>
+                🚶 Node {item.node}: {item.count} คน - {item.house}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
 
       {/* ตาราง Matrix */}
       <div className="mt-6 overflow-auto">
