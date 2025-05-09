@@ -145,11 +145,37 @@ export default function NodeUpdater() {
       prev.map((node) => (node.id === id ? { ...node, towerOwner } : node))
     );
   };
+  //เริ่มลบเรืออกจากmap
+  const handleRemoveShipFromNode = async (nodeId: string, shipName: string) => {
+    const node = nodes.find((n) => n.id === nodeId);
+    if (!node) return;
+
+    // เอา shipName ออกจาก array
+    const updatedShips = node.ship.filter((s: string) => s !== shipName);
+
+    // update ใน supabase
+    const { error } = await supabase
+      .from("nodes")
+      .update({ ship: updatedShips.length > 0 ? updatedShips : null }) // ถ้า array ว่างให้เก็บเป็น null
+      .eq("id", nodeId);
+
+    if (error) {
+      alert("เกิดข้อผิดพลาด: " + error.message);
+      return;
+    }
+
+    // update ใน state
+    const updatedNodes = nodes.map((n) =>
+      n.id === nodeId ? { ...n, ship: updatedShips } : n
+    );
+    setNodes(updatedNodes);
+
+    alert(`ลบเรือ ${shipName} ออกจาก Node ${nodeId} สำเร็จ!`);
+  };
 
   return (
     <div className="p-4">
       <h2 className="text-lg mb-4">Node Updater</h2>
-
 
       {/* เลือกรถ */}
       <div className="mb-4">
@@ -242,8 +268,15 @@ export default function NodeUpdater() {
             {nodes
               .find((n) => n.id === selectedNode)
               ?.ship?.map((s: string, idx: number) => (
-                <span key={idx} className="mr-2">
+                <span key={idx} className="mr-2 inline-flex items-center gap-1">
                   {s}
+                  <button
+                    onClick={() => handleRemoveShipFromNode(selectedNode, s)}
+                    className="text-red-500 hover:text-red-700 text-xs"
+                    title={`ลบ ${s}`}
+                  >
+                    ❌
+                  </button>
                 </span>
               )) ?? "ไม่มีเรือ"}
           </div>
@@ -344,8 +377,8 @@ export default function NodeUpdater() {
             <li key={node.id} className="flex items-center gap-4">
               <span>
                 Node: {node.id},
-                 {/* selectedcar: {node.selectedcar}, value:{" "}{node.value},  */}
-                {" "}tower: {node.tower ? "✅" : "❌"}
+                {/* selectedcar: {node.selectedcar}, value:{" "}{node.value},  */}{" "}
+                tower: {node.tower ? "✅" : "❌"}
               </span>
               <Button
                 onClick={() => toggleTower(node.id, node.tower)}
