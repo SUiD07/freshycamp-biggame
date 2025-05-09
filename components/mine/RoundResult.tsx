@@ -76,14 +76,16 @@ export default function RoundResult() {
   const handleCopy = () => {
     let text = "";
     nodes.forEach((node) => {
-      const row = houses.map((house) => matrix[node]?.[house] ?? 0).join("\t");
+      const row = houses
+        .map((house) => (matrix[node]?.[house] === 0 ? "" : matrix[node]?.[house]))
+        .join("\t");
       text += row + "\n";
     });
-
+  
     navigator.clipboard.writeText(text).then(() => {
       alert("คัดลอกตัวเลขในตารางเรียบร้อยแล้ว!");
     });
-  };
+  };  
 
   return (
     <div>
@@ -146,7 +148,7 @@ export default function RoundResult() {
                 <td className="border p-2 font-semibold">Node {node}</td>
                 {houses.map((house) => (
                   <td key={house} className="border p-2 text-center">
-                    {matrix[node]?.[house] ?? 0}
+                    {matrix[node]?.[house] === 0 ? "" : matrix[node]?.[house]}
                   </td>
                 ))}
               </tr>
