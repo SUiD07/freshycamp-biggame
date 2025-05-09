@@ -30,7 +30,7 @@ export default function RoundResult() {
           return {
             node: +node,
             type: "fight",
-            houses: moves.map((m) => m.house),
+            houses: moves.map((m) => ({ house: m.house, count: m.count })), // ✅ เก็บทั้ง house & count
           };
         } else {
           return {
@@ -41,6 +41,8 @@ export default function RoundResult() {
           };
         }
       });
+      
+      
       setResult(output);
 
       // ✅ กำหนดบ้านทั้งหมดล่วงหน้า (1-12)
@@ -73,18 +75,14 @@ export default function RoundResult() {
   }, [round]);
 
   const handleCopy = () => {
-    let text = "Node \\ บ้าน\t" + houses.join("\t") + "\n";
+    let text = "";
     nodes.forEach((node) => {
-      text += `Node ${node}\t`;
-      houses.forEach((house) => {
-        text += `${matrix[node]?.[house] ?? 0}\t`;
-      });
-      text += "\n";
+      const row = houses.map((house) => matrix[node]?.[house] ?? 0).join("\t");
+      text += row + "\n";
     });
 
-    // คัดลอกไปยัง clipboard
     navigator.clipboard.writeText(text).then(() => {
-      alert("คัดลอกตารางเรียบร้อยแล้ว!");
+      alert("คัดลอกตัวเลขในตารางเรียบร้อยแล้ว!");
     });
   };
 
@@ -101,19 +99,25 @@ export default function RoundResult() {
       </div>
 
       {/* แสดงผลการกรอก */}
-      {result.map((item, i) => (
-        <div key={i} className="p-2 border rounded mb-1">
-          {item.type === "fight" ? (
-            <span>
-              ⚔️ Node {item.node}: Fight between {item.houses.join(", ")}
-            </span>
-          ) : (
-            <span>
-              🚶 Node {item.node}: {item.count} from {item.house}
-            </span>
-          )}
-        </div>
-      ))}
+      <div className="max-h-[200px] overflow-x-auto">
+  {result.map((item, i) => (
+    <div key={i} className="p-2 border rounded mb-1">
+      {item.type === "fight" ? (
+        <span>
+          ⚔️ Node {item.node}: Fight between{" "}
+          {item.houses
+            .map((h: { house: string; count: number }) => `${h.house} (${h.count} คน)`) 
+            .join(", ")}
+        </span>
+      ) : (
+        <span>
+          🚶 Node {item.node}: {item.count} คน - {item.house}
+        </span>
+      )}
+    </div>
+  ))}
+</div>
+
 
       {/* ตาราง Matrix */}
       <div className="mt-6 overflow-auto">

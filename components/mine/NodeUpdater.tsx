@@ -343,9 +343,9 @@ export default function NodeUpdater() {
           {nodes.map((node) => (
             <li key={node.id} className="flex items-center gap-4">
               <span>
-                ID: {node.id},
+                Node: {node.id},
                  {/* selectedcar: {node.selectedcar}, value:{" "}{node.value},  */}
-                tower: {node.tower ? "✅" : "❌"}
+                {" "}tower: {node.tower ? "✅" : "❌"}
               </span>
               <Button
                 onClick={() => toggleTower(node.id, node.tower)}
