@@ -18,6 +18,34 @@ export default function RoundResult() {
         .select("house, node, count")
         .eq("round", round);
 
+      // ✅ กำหนดบ้านทั้งหมดล่วงหน้า (1-12)
+      const allHouses = Array.from(
+        { length: 12 },
+        (_, i) => `บ้าน ${String(i + 1).padStart(2, "0")}`
+      );
+      setHouses(allHouses);
+
+      const uniqueNodes = Array.from({ length: 60 }, (_, i) => i + 1); // node 1-60
+      setNodes(uniqueNodes);
+
+      // ✅ reset matrix ใหม่ทุกครั้ง
+      const matrixData: Record<number, Record<string, number>> = {};
+      uniqueNodes.forEach((node) => {
+        matrixData[node] = {};
+        allHouses.forEach((house) => {
+          matrixData[node][house] = 0; // default = 0
+        });
+      });
+
+      // ✅ ใส่ค่าของรอบนั้น
+      data?.forEach((d) => {
+        if (matrixData[d.node]) {
+          matrixData[d.node][d.house] = d.count; // เช็คว่า matrixData[node] ไม่เป็น undefined
+        }
+      });
+
+      setMatrix(matrixData);
+
       // ✅ logic เดิมสำหรับผลลัพธ์ fight/move
       const nodeMap: Record<number, { house: string; count: number }[]> = {};
       data?.forEach((move) => {
@@ -43,31 +71,6 @@ export default function RoundResult() {
       });
 
       setResult(output);
-
-      // ✅ กำหนดบ้านทั้งหมดล่วงหน้า (1-12)
-      const allHouses = Array.from(
-        { length: 12 },
-        (_, i) => `บ้าน ${String(i + 1).padStart(2, "0")}`
-      );
-      // ✅ เรียงลำดับเลขบ้าน (จริงๆ ไม่ต้อง sort เพราะ array ถูกสร้างเรียงแล้ว)
-      setHouses(allHouses);
-
-      const uniqueNodes = Array.from({ length: 60 }, (_, i) => i + 1); // node 1-60
-      setNodes(uniqueNodes);
-
-      const matrixData: Record<number, Record<string, number>> = {};
-      uniqueNodes.forEach((node) => {
-        matrixData[node] = {};
-        allHouses.forEach((house) => {
-          matrixData[node][house] = 0; // default = 0
-        });
-      });
-
-      data?.forEach((d) => {
-        matrixData[d.node][d.house] = d.count;
-      });
-
-      setMatrix(matrixData);
     };
 
     fetchData();
@@ -88,10 +91,11 @@ export default function RoundResult() {
       alert("คัดลอกตัวเลขในตารางเรียบร้อยแล้ว!");
     });
   };
-  //transfer ข้อมูล
+
   const formatHouseName = (houseNumber: number) => {
     return `B${houseNumber}`; // เปลี่ยนจาก 1 เป็น B1, 2 เป็น B2, ...
   };
+
   const handleResetAndUpdate = async () => {
     try {
       // ✅ 1. Reset (ทุกค่า ยกเว้น top, left, id)
@@ -110,7 +114,6 @@ export default function RoundResult() {
       if (resetError) throw resetError;
 
       // ✅ 2. ดึง moves รอบปัจจุบัน
-      // const round = 1;
       const { data: movesData, error: movesError } = await supabase
         .from("moves")
         .select("house, node, count")
@@ -168,8 +171,6 @@ export default function RoundResult() {
     }
   };
 
-  //////////
-
   return (
     <div>
       <button
@@ -188,7 +189,6 @@ export default function RoundResult() {
         />
       </div>
 
-      {/* แสดงผลการกรอก */}
       <div className="max-h-[200px] overflow-x-auto">
         {result.map((item, i) => (
           <div key={i} className="p-2 border rounded mb-1">
@@ -211,7 +211,6 @@ export default function RoundResult() {
         ))}
       </div>
 
-      {/* ตาราง Matrix */}
       <div className="mt-6 overflow-auto">
         <h3 className="font-bold">Matrix Node-House (รอบ {round})</h3>
         <button
