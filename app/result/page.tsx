@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/client";
 import React from "react";
 import NodeUpdater from "@/components/mine/NodeUpdater";
 import RoundResult from "@/components/mine/RoundResult";
+import dynamic from 'next/dynamic';
 
 
 export default function admin() {
@@ -21,6 +22,7 @@ export default function admin() {
     useEffect(() => {
       fetchUser();
     }, []);
+    const RoundResult = dynamic(() => import('@/components/mine/RoundResult'), { ssr: false });
   return (
     <>
       <div className="font-bold text-2xl text-center bg-gray-300">ดูผลการกรอก</div>
