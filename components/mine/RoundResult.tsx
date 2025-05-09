@@ -77,18 +77,107 @@ export default function RoundResult() {
     let text = "";
     nodes.forEach((node) => {
       const row = houses
-        .map((house) => (matrix[node]?.[house] === 0 ? "" : matrix[node]?.[house]))
+        .map((house) =>
+          matrix[node]?.[house] === 0 ? "" : matrix[node]?.[house]
+        )
         .join("\t");
       text += row + "\n";
     });
-  
+
     navigator.clipboard.writeText(text).then(() => {
       alert("คัดลอกตัวเลขในตารางเรียบร้อยแล้ว!");
     });
-  };  
+  };
+  //transfer ข้อมูล
+  const formatHouseName = (houseNumber: number) => {
+    return `B${houseNumber}`; // เปลี่ยนจาก 1 เป็น B1, 2 เป็น B2, ...
+  };
+  const handleResetAndUpdate = async () => {
+    try {
+      // ✅ 1. Reset (ทุกค่า ยกเว้น top, left, id)
+      const { error: resetError } = await supabase
+        .from("nodes")
+        .update({
+          value: null,
+          selectedcar: null,
+          tower: false,
+          ship: null,
+          fight: null,
+          towerOwner: null,
+        })
+        .neq("id", ""); // update ทุก row
+
+      if (resetError) throw resetError;
+
+      // ✅ 2. ดึง moves รอบปัจจุบัน
+      // const round = 1;
+      const { data: movesData, error: movesError } = await supabase
+        .from("moves")
+        .select("house, node, count")
+        .eq("round", round);
+
+      if (movesError) throw movesError;
+
+      // ✅ 3. group ข้อมูลตาม node
+      const nodeMap: Record<string, { house: string; count: number }[]> = {};
+      movesData?.forEach((move) => {
+        const nodeId = String(move.node);
+        if (!nodeMap[nodeId]) nodeMap[nodeId] = [];
+        nodeMap[nodeId].push({ house: move.house, count: move.count });
+      });
+
+      // ✅ 4. update nodes ทีละ node
+      for (const [nodeId, moves] of Object.entries(nodeMap)) {
+        if (moves.length > 1) {
+          // 🔥 fight → json array ของ {house, count}
+          const fightData = moves.map((m) => ({
+            house: formatHouseName(Number(m.house.slice(-2))),
+            count: m.count,
+          }));
+          const { error: fightError } = await supabase
+            .from("nodes")
+            .update({
+              fight: fightData,
+            })
+            .eq("id", nodeId);
+
+          if (fightError) throw fightError;
+        } else {
+          // ✅ move ปกติ
+          const m = moves[0];
+          const { error: moveError } = await supabase
+            .from("nodes")
+            .update({
+              selectedcar: formatHouseName(Number(m.house.slice(-2))),
+              value: String(m.count), // เพราะ value เป็น text
+            })
+            .eq("id", nodeId);
+
+          if (moveError) throw moveError;
+        }
+      }
+
+      alert("รีเซ็ตและอัพเดตข้อมูลสำเร็จ!");
+    } catch (err) {
+      console.error(err);
+      if (err instanceof Error) {
+        alert("เกิดข้อผิดพลาด: " + err.message);
+      } else {
+        alert("เกิดข้อผิดพลาดที่ไม่รู้จัก");
+      }
+    }
+  };
+
+  //////////
 
   return (
     <div>
+      <button
+        className="p-2 bg-red-500 text-white rounded"
+        onClick={handleResetAndUpdate}
+      >
+        Reset & Update Nodes in MAP
+      </button>
       <div className="mb-4">
         <label>ดูผลรอบที่: </label>
         <input
