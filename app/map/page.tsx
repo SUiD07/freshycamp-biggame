@@ -9,7 +9,7 @@ import { signInAction } from "../actions";
 import { Button } from "@/components/ui/button";
 import { data } from "autoprefixer";
 
-export default function map() {
+export default function Map() {
   const supabase = createClient();
   const [nodes, setNodes] = useState<any>([]);
   const fetchUser = async () => {
@@ -118,7 +118,7 @@ export default function map() {
                   className="absolute text-xs text-black font-semibold text-center"
                   style={{
                     top: `${parseFloat(node.top) + 4}%`,
-                    left: `${parseFloat(node.left)-2}%`,
+                    left: `${parseFloat(node.left) - 2}%`,
                     transform: "translate(-50%, -50%)",
                     fontSize: "0.8vw",
                   }}
@@ -193,7 +193,12 @@ export default function map() {
             </React.Fragment>
           ))}
         </div>
-
+        {/* <iframe
+          width="900"
+          height="1200"
+          className="mx-auto"
+          src="https://lookerstudio.google.com/embed/reporting/873cd1af-3bf4-45cb-aed1-306cbb48dea5/page/p_9y47cxdmqd"
+        ></iframe>{" "} */}
         {/* <table>
           <thead>
             <tr>
