@@ -1,6 +1,7 @@
 import MoveForm from "@/components/mine/MoveForm";
 import Map from "@/app/map/page";
 import PurchaseForm from "@/components/mine/PurchasesForm";
+import { Separator } from "@/components/ui/separator";
 
 export default function Home() {
   const round = 1;
@@ -22,9 +23,7 @@ export default function Home() {
           {/* (รอบ {round}) */}
         </h1>
         <MoveForm house={house} />
-        <div>
-          -----------------------------------------------------------------------------
-        </div>
+        <Separator className="my-10"/>
         <h1 className="text-xl font-bold">
           กรอกการสร้าง
           {/* (รอบ {round}) */}
