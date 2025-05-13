@@ -37,7 +37,11 @@ export default function PurchasesTable() {
         return;
       }
 
-      const validKeys: (keyof AggregatedPurchase)[] = ["ALIVE", "FORTRESS", "BOAT"];
+      const validKeys: (keyof AggregatedPurchase)[] = [
+        "ALIVE",
+        "FORTRESS",
+        "BOAT",
+      ];
       const typeMap: Record<string, keyof AggregatedPurchase> = {
         revive: "ALIVE",
         fort: "FORTRESS",
@@ -67,7 +71,8 @@ export default function PurchasesTable() {
         const key = typeKey as keyof AggregatedPurchase;
         const currentValue = agg[key] ?? 0;
 
-        (agg as any)[key] = (typeof currentValue === "number" ? currentValue : 0) + row.count;
+        (agg as any)[key] =
+          (typeof currentValue === "number" ? currentValue : 0) + row.count;
       });
 
       // สร้างข้อมูลให้ครบ 60 node
@@ -126,18 +131,29 @@ export default function PurchasesTable() {
                     <td className="border px-2 py-1 text-center">
                       {idx === 0 ? nodeRow.node : ""}
                     </td>
-                    <td className="border px-2 py-1 text-center">{houseData.house}</td>
-                    <td className="border px-2 py-1 text-center">{houseData.ALIVE || ""}</td>
-                    <td className="border px-2 py-1 text-center">{houseData.FORTRESS || ""}</td>
-                    <td className="border px-2 py-1 text-center">{houseData.BOAT || ""}</td>
+                    <td className="border px-2 py-1 text-center">
+                      {houseData.house}
+                    </td>
+                    <td className="border px-2 py-1 text-center">
+                      {houseData.ALIVE || ""}
+                    </td>
+                    <td className="border px-2 py-1 text-center">
+                      {houseData.FORTRESS || ""}
+                    </td>
+                    <td className="border px-2 py-1 text-center">
+                      {houseData.BOAT || ""}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr key={`empty-${i}`}>
-                  <td className="border px-2 py-1 text-center">{nodeRow.node}</td>
-                  <td className="border px-2 py-1 text-center text-gray-400 italic" colSpan={4}>
-                    ไม่มีการซื้อ
+                  <td className="border px-2 py-1 text-center">
+                    {nodeRow.node}
                   </td>
+                  <td className="border px-2 py-1 text-center" />
+                  <td className="border px-2 py-1 text-center" />
+                  <td className="border px-2 py-1 text-center" />
+                  <td className="border px-2 py-1 text-center" />
                 </tr>
               )
             )}
