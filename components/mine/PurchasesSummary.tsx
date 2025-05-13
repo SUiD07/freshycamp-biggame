@@ -25,6 +25,33 @@ export default function PurchasesTable() {
   const [round, setRound] = useState(1);
   const [data, setData] = useState<DisplayRow[]>([]);
 
+  const handleCopy = () => {
+    let text = "NODE\tHOUSE\tHOLYWATER\tFORTRESS\tBOAT\n";
+
+    data.forEach((nodeRow) => {
+      if (nodeRow.houses.length > 0) {
+        nodeRow.houses.forEach((houseData, idx) => {
+          const row = [
+            idx === 0 ? nodeRow.node : "", // แสดง node แค่แถวแรกของกลุ่ม
+            houseData.house,
+            houseData.ALIVE || "",
+            houseData.FORTRESS || "",
+            houseData.BOAT || "",
+          ].join("\t");
+          text += row + "\n";
+        });
+      } else {
+        // แถวที่ไม่มีการซื้อใดๆ
+        const row = [nodeRow.node, "", "", "", ""].join("\t");
+        text += row + "\n";
+      }
+    });
+
+    navigator.clipboard.writeText(text).then(() => {
+      alert("คัดลอกข้อมูลในตารางเรียบร้อยแล้ว!");
+    });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const { data: purchases, error } = await supabase
@@ -111,6 +138,12 @@ export default function PurchasesTable() {
           className="border px-2 py-1 rounded"
         />
       </div>
+      <button
+        onClick={handleCopy}
+        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+      >
+        คัดลอกข้อมูล
+      </button>
 
       <div className="overflow-x-auto">
         <table className="border border-collapse w-full text-sm">
