@@ -98,16 +98,16 @@ export default function RoundResult() {
 
   const handleResetAndUpdate = async () => {
     try {
-      // ✅ 1. Reset (ทุกค่า ยกเว้น top, left, id)
+      // ✅ 1. Reset (ทุกค่า ยกเว้น top, left, id, tower, ship, towerOwner)
       const { error: resetError } = await supabase
         .from("nodes")
         .update({
           value: null,
           selectedcar: null,
-          tower: false,
-          ship: null,
+          // tower: false,
+          // ship: null,
           fight: null,
-          towerOwner: null,
+          // towerOwner: null,
         })
         .neq("id", ""); // update ทุก row
 
