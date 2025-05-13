@@ -67,7 +67,7 @@ export default function PurchasesTable() {
         const key = typeKey as keyof AggregatedPurchase;
         const currentValue = agg[key] ?? 0;
 
-        agg[key] = (typeof currentValue === "number" ? currentValue : 0) + row.count;
+        (agg as any)[key] = (typeof currentValue === "number" ? currentValue : 0) + row.count;
       });
 
       // สร้างข้อมูลให้ครบ 60 node
