@@ -2,8 +2,9 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import React from "react";
-import NodeUpdater from "@/components/mine/NodeUpdater";
+// import NodeUpdater from "@/components/mine/NodeUpdater";
 import RoundResult from "@/components/mine/RoundResult";
+import PurchaseSummary from "@/components/mine/PurchasesSummary";
 import dynamic from 'next/dynamic';
 
 
@@ -28,6 +29,7 @@ export default function admin() {
       <div className="font-bold text-2xl text-center bg-gray-300">ดูผลการกรอก</div>
         <h2 className="text-lg font-semibold">สรุปสถานะ</h2>
         <RoundResult/>
+        <PurchaseSummary/>
     </>
   );
 }
