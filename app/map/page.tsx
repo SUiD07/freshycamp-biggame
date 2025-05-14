@@ -193,12 +193,12 @@ export default function Map() {
             </React.Fragment>
           ))}
         </div>
-        {/* <iframe
+        <iframe
           width="900"
           height="1200"
           className="mx-auto"
           src="https://lookerstudio.google.com/embed/reporting/873cd1af-3bf4-45cb-aed1-306cbb48dea5/page/p_9y47cxdmqd"
-        ></iframe>{" "} */}
+        ></iframe>{" "}
         {/* <table>
           <thead>
             <tr>
