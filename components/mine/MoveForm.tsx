@@ -3,13 +3,13 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function MoveForm({ house }: { house: string }) {
-  const [round, setRound] = useState(1); // ผู้ใช้เลือก
-  const [nodes, setNodes] = useState([{ node: 1, count: 1 }]); // ✅ array ของ node
+  const [round, setRound] = useState(1);
+  const [nodes, setNodes] = useState([{ node: 1, count: 1, boat: 0 }]);
   const [message, setMessage] = useState("");
 
   const handleNodeChange = (
     index: number,
-    key: "node" | "count",
+    key: "node" | "count" | "boat",
     value: number
   ) => {
     const updated = [...nodes];
@@ -18,7 +18,7 @@ export default function MoveForm({ house }: { house: string }) {
   };
 
   const addNode = () => {
-    setNodes([...nodes, { node: 1, count: 1 }]);
+    setNodes([...nodes, { node: 1, count: 1, boat: 0 }]);
   };
 
   const removeNode = (index: number) => {
@@ -44,6 +44,7 @@ export default function MoveForm({ house }: { house: string }) {
     const insertData = nodes.map((n) => ({
       node: n.node,
       count: n.count,
+      boat: n.boat ?? 0,
       round,
       house,
     }));
@@ -71,7 +72,9 @@ export default function MoveForm({ house }: { house: string }) {
             <input
               type="number"
               value={item.node}
-              onChange={(e) => handleNodeChange(index, "node", +e.target.value)}
+              onChange={(e) =>
+                handleNodeChange(index, "node", +e.target.value)
+              }
               min={1}
               className="border px-2"
             />
@@ -85,6 +88,18 @@ export default function MoveForm({ house }: { house: string }) {
                 handleNodeChange(index, "count", +e.target.value)
               }
               min={1}
+              className="border px-2"
+            />
+          </div>
+          <div>
+            <label>เรือ: </label>
+            <input
+              type="number"
+              value={item.boat}
+              onChange={(e) =>
+                handleNodeChange(index, "boat", +e.target.value)
+              }
+              min={0}
               className="border px-2"
             />
           </div>
@@ -112,12 +127,14 @@ export default function MoveForm({ house }: { house: string }) {
       >
         ส่งข้อมูล
       </button>
+
       <div className="text-red-700">
         ใน 1 รอบทุกบ้านสามารถกรอกข้อมูลได้เพียง
         <span className="font-bold text-xl">ครั้งเดียวเท่านั้น</span>
         <div>ตรวจสอบข้อมูลให้ดีก่อนกดส่งข้อมูล</div>
       </div>
       <div>บ้านเดียวกัน รอบเดียวกัน node เดียวกัน insert ซ้ำ จะขึ้น error</div>
+
       {message && <p>{message}</p>}
     </form>
   );

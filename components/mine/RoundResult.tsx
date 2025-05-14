@@ -7,44 +7,44 @@ export default function RoundResult() {
   const [result, setResult] = useState<any[]>([]);
   const [houses, setHouses] = useState<string[]>([]);
   const [nodes, setNodes] = useState<number[]>([]);
-  const [matrix, setMatrix] = useState<Record<number, Record<string, number>>>(
-    {}
-  );
+  const [matrix, setMatrix] = useState<Record<number, Record<string, number>>>({});
+  const [matrixBoat, setMatrixBoat] = useState<Record<number, Record<string, number>>>({});
 
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await supabase
         .from("moves")
-        .select("house, node, count")
+        .select("house, node, count, boat")
         .eq("round", round);
-
-      // ✅ กำหนดบ้านทั้งหมดล่วงหน้า (1-12)
-      const allHouses = Array.from(
-        { length: 12 },
-        (_, i) => `บ้าน ${String(i + 1).padStart(2, "0")}`
-      );
+// ✅ กำหนดบ้านทั้งหมดล่วงหน้า (1-12)
+      const allHouses = Array.from({ length: 12 }, (_, i) => `บ้าน ${String(i + 1).padStart(2, "0")}`);
       setHouses(allHouses);
 
-      const uniqueNodes = Array.from({ length: 60 }, (_, i) => i + 1); // node 1-60
+      const uniqueNodes = Array.from({ length: 60 }, (_, i) => i + 1);
       setNodes(uniqueNodes);
 
       // ✅ reset matrix ใหม่ทุกครั้ง
       const matrixData: Record<number, Record<string, number>> = {};
+      const boatMatrixData: Record<number, Record<string, number>> = {};
       uniqueNodes.forEach((node) => {
         matrixData[node] = {};
+        boatMatrixData[node] = {};
         allHouses.forEach((house) => {
-          matrixData[node][house] = 0; // default = 0
+          matrixData[node][house] = 0;
+          boatMatrixData[node][house] = 0;
         });
       });
 
       // ✅ ใส่ค่าของรอบนั้น
       data?.forEach((d) => {
         if (matrixData[d.node]) {
-          matrixData[d.node][d.house] = d.count; // เช็คว่า matrixData[node] ไม่เป็น undefined
+          matrixData[d.node][d.house] = d.count;
+          boatMatrixData[d.node][d.house] = d.boat ?? 0;
         }
       });
 
       setMatrix(matrixData);
+      setMatrixBoat(boatMatrixData);
 
       // ✅ logic เดิมสำหรับผลลัพธ์ fight/move
       const nodeMap: Record<number, { house: string; count: number }[]> = {};
@@ -58,7 +58,7 @@ export default function RoundResult() {
           return {
             node: +node,
             type: "fight",
-            houses: moves.map((m) => ({ house: m.house, count: m.count })), // ✅ เก็บทั้ง house & count
+            houses: moves.map((m) => ({ house: m.house, count: m.count })),
           };
         } else {
           return {
@@ -80,20 +80,30 @@ export default function RoundResult() {
     let text = "";
     nodes.forEach((node) => {
       const row = houses
-        .map((house) =>
-          matrix[node]?.[house] === 0 ? "" : matrix[node]?.[house]
-        )
+        .map((house) => (matrix[node]?.[house] === 0 ? "" : matrix[node]?.[house]))
         .join("\t");
       text += row + "\n";
     });
-
     navigator.clipboard.writeText(text).then(() => {
       alert("คัดลอกตัวเลขในตารางเรียบร้อยแล้ว!");
     });
   };
 
+  const handleCopyBoat = () => {
+    let text = "";
+    nodes.forEach((node) => {
+      const row = houses
+        .map((house) => (matrixBoat[node]?.[house] === 0 ? "" : matrixBoat[node]?.[house]))
+        .join("\t");
+      text += row + "\n";
+    });
+    navigator.clipboard.writeText(text).then(() => {
+      alert("คัดลอกข้อมูลเรือในตารางเรียบร้อยแล้ว!");
+    });
+  };
+
   const formatHouseName = (houseNumber: number) => {
-    return `B${houseNumber}`; // เปลี่ยนจาก 1 เป็น B1, 2 เป็น B2, ...
+    return `B${houseNumber}`;
   };
 
   const handleResetAndUpdate = async () => {
@@ -139,9 +149,7 @@ export default function RoundResult() {
           }));
           const { error: fightError } = await supabase
             .from("nodes")
-            .update({
-              fight: fightData,
-            })
+            .update({ fight: fightData })
             .eq("id", nodeId);
 
           if (fightError) throw fightError;
@@ -155,7 +163,6 @@ export default function RoundResult() {
               value: String(m.count), // เพราะ value เป็น text
             })
             .eq("id", nodeId);
-
           if (moveError) throw moveError;
         }
       }
@@ -196,10 +203,7 @@ export default function RoundResult() {
               <span>
                 ⚔️ Node {item.node}: Fight between{" "}
                 {item.houses
-                  .map(
-                    (h: { house: string; count: number }) =>
-                      `${h.house} (${h.count} คน)`
-                  )
+                  .map((h: { house: string; count: number }) => `${h.house} (${h.count} คน)`)
                   .join(", ")}
               </span>
             ) : (
@@ -217,16 +221,14 @@ export default function RoundResult() {
           className="mb-4 p-2 bg-blue-500 text-white rounded"
           onClick={handleCopy}
         >
-          คัดลอกตาราง
+          คัดลอกตารางคน
         </button>
         <table className="border-collapse border">
           <thead>
             <tr>
               <th className="border p-2">Node \ บ้าน</th>
               {houses.map((house) => (
-                <th key={house} className="border p-2">
-                  {house}
-                </th>
+                <th key={house} className="border p-2">{house}</th>
               ))}
             </tr>
           </thead>
@@ -237,6 +239,38 @@ export default function RoundResult() {
                 {houses.map((house) => (
                   <td key={house} className="border p-2 text-center">
                     {matrix[node]?.[house] === 0 ? "" : matrix[node]?.[house]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-12 overflow-auto">
+        <h3 className="font-bold">Matrix Node-House (จำนวนเรือ รอบ {round})</h3>
+        <button
+          className="mb-4 p-2 bg-purple-600 text-white rounded"
+          onClick={handleCopyBoat}
+        >
+          คัดลอกตารางเรือ
+        </button>
+        <table className="border-collapse border">
+          <thead>
+            <tr>
+              <th className="border p-2">Node \ บ้าน</th>
+              {houses.map((house) => (
+                <th key={house} className="border p-2">{house}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {nodes.map((node) => (
+              <tr key={node}>
+                <td className="border p-2 font-semibold">Node {node}</td>
+                {houses.map((house) => (
+                  <td key={house} className="border p-2 text-center">
+                    {matrixBoat[node]?.[house] === 0 ? "" : matrixBoat[node]?.[house]}
                   </td>
                 ))}
               </tr>

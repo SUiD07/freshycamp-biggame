@@ -46,13 +46,17 @@ export default function ChatPage() {
     setNewMessage('')
   }
 
+  const latestMessage = messages[messages.length - 1]
+
   return (
     <div>
       <h1>Realtime Chat</h1>
       <div style={{ maxHeight: 300, overflowY: 'scroll' }}>
-        {messages.map((msg) => (
-          <p key={msg.id}>{msg.content}</p>
-        ))}
+        {latestMessage ? (
+          <p key={latestMessage.id}>{latestMessage.content}</p>
+        ) : (
+          <p>No messages yet</p>
+        )}
       </div>
       <input
         value={newMessage}

@@ -8,6 +8,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { signInAction } from "../actions";
 import { Button } from "@/components/ui/button";
 import { data } from "autoprefixer";
+import ChatPage from "../chat/page";
 
 export default function Map() {
   const supabase = createClient();
@@ -41,6 +42,7 @@ export default function Map() {
   return (
     <>
       <div className="text-center text-xl font-bold">map</div>
+      <ChatPage/>
       {/* <div className="flex gap-2 [&>input]:mb-3 mt-8"> */}
       {/* <Label htmlFor="search" className="">Search</Label> */}
       {/* <Input name="search" placeholder="search" required />
