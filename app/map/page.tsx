@@ -8,6 +8,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { signInAction } from "../actions";
 import { Button } from "@/components/ui/button";
 import { data } from "autoprefixer";
+import UpdatePage from "@/components/mine/UpdateExcel";
 
 export default function Map() {
   const supabase = createClient();
@@ -46,6 +47,7 @@ export default function Map() {
       {/* <Input name="search" placeholder="search" required />
         <Button>Search</Button> */}
       {/* </div> */}
+      <UpdatePage/>
       <main>
         <div className="relative w-full mb-10">
           <div className="w-full text-center">
