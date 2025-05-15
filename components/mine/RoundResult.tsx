@@ -7,8 +7,12 @@ export default function RoundResult() {
   const [result, setResult] = useState<any[]>([]);
   const [houses, setHouses] = useState<string[]>([]);
   const [nodes, setNodes] = useState<number[]>([]);
-  const [matrix, setMatrix] = useState<Record<number, Record<string, number>>>({});
-  const [matrixBoat, setMatrixBoat] = useState<Record<number, Record<string, number>>>({});
+  const [matrix, setMatrix] = useState<Record<number, Record<string, number>>>(
+    {}
+  );
+  const [matrixBoat, setMatrixBoat] = useState<
+    Record<number, Record<string, number>>
+  >({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -16,8 +20,11 @@ export default function RoundResult() {
         .from("moves")
         .select("house, node, count, boat")
         .eq("round", round);
-// ✅ กำหนดบ้านทั้งหมดล่วงหน้า (1-12)
-      const allHouses = Array.from({ length: 12 }, (_, i) => `บ้าน ${String(i + 1).padStart(2, "0")}`);
+      // ✅ กำหนดบ้านทั้งหมดล่วงหน้า (1-12)
+      const allHouses = Array.from(
+        { length: 12 },
+        (_, i) => `บ้าน ${String(i + 1).padStart(2, "0")}`
+      );
       setHouses(allHouses);
 
       const uniqueNodes = Array.from({ length: 60 }, (_, i) => i + 1);
@@ -80,7 +87,9 @@ export default function RoundResult() {
     let text = "";
     nodes.forEach((node) => {
       const row = houses
-        .map((house) => (matrix[node]?.[house] === 0 ? "" : matrix[node]?.[house]))
+        .map((house) =>
+          matrix[node]?.[house] === 0 ? "" : matrix[node]?.[house]
+        )
         .join("\t");
       text += row + "\n";
     });
@@ -93,7 +102,9 @@ export default function RoundResult() {
     let text = "";
     nodes.forEach((node) => {
       const row = houses
-        .map((house) => (matrixBoat[node]?.[house] === 0 ? "" : matrixBoat[node]?.[house]))
+        .map((house) =>
+          matrixBoat[node]?.[house] === 0 ? "" : matrixBoat[node]?.[house]
+        )
         .join("\t");
       text += row + "\n";
     });
@@ -177,6 +188,33 @@ export default function RoundResult() {
       }
     }
   };
+  // เรือ
+  const getBoatList = () => {
+    const rows: { node: number; boatCount: string; house: string }[] = [];
+
+    nodes.forEach((node) => {
+      const found = houses
+        .map((house) => ({
+          house,
+          boatCount: matrixBoat[node]?.[house] || 0,
+        }))
+        .filter((r) => r.boatCount > 0);
+
+      if (found.length > 0) {
+        found.forEach((f) =>
+          rows.push({
+            node,
+            boatCount: String(f.boatCount),
+            house: f.house,
+          })
+        );
+      } else {
+        rows.push({ node, boatCount: "", house: "" });
+      }
+    });
+
+    return rows;
+  };
 
   return (
     <div>
@@ -186,6 +224,33 @@ export default function RoundResult() {
       >
         Reset & Update Nodes in MAP
       </button>
+      <button
+        className="mb-4 p-2 bg-blue-500 text-white rounded"
+        onClick={handleCopy}
+      >
+        คัดลอกตารางคน
+      </button>
+      <button
+        className="mb-4 p-2 bg-purple-600 text-white rounded"
+        onClick={() => {
+          const text = getBoatList()
+            .map((r) => r.boatCount) // ✅ เอาเฉพาะจำนวนเรือ
+            .join("\n");
+
+          navigator.clipboard.writeText(text).then(() => {
+            alert("คัดลอกเฉพาะจำนวนเรือเรียบร้อยแล้ว!");
+          });
+        }}
+      >
+        คัดลอกจำนวนเรือที่ใช้
+      </button>
+      <a
+        href="#section1"
+        className="bg-green-500 rounded mb-4 p-2 text-white"
+      >
+        ไปที่ตารางสร้างชุบ
+      </a>
+
       <div className="mb-4">
         <label>ดูผลรอบที่: </label>
         <input
@@ -203,7 +268,10 @@ export default function RoundResult() {
               <span>
                 ⚔️ Node {item.node}: Fight between{" "}
                 {item.houses
-                  .map((h: { house: string; count: number }) => `${h.house} (${h.count} คน)`)
+                  .map(
+                    (h: { house: string; count: number }) =>
+                      `${h.house} (${h.count} คน)`
+                  )
                   .join(", ")}
               </span>
             ) : (
@@ -228,7 +296,9 @@ export default function RoundResult() {
             <tr>
               <th className="border p-2">Node \ บ้าน</th>
               {houses.map((house) => (
-                <th key={house} className="border p-2">{house}</th>
+                <th key={house} className="border p-2">
+                  {house}
+                </th>
               ))}
             </tr>
           </thead>
@@ -246,38 +316,55 @@ export default function RoundResult() {
           </tbody>
         </table>
       </div>
-
-      <div className="mt-12 overflow-auto">
-        <h3 className="font-bold">Matrix Node-House (จำนวนเรือ รอบ {round})</h3>
+      <div className="">
+        <label>ดูผลรอบที่: </label>
+        <input
+          type="number"
+          value={round}
+          onChange={(e) => setRound(+e.target.value)}
+          className="border px-2"
+        />
+      </div>
+      <div className="mt-5 overflow-auto">
+        <h3 className="font-bold">รายการการใช้เรือ (รอบ {round})</h3>
         <button
           className="mb-4 p-2 bg-purple-600 text-white rounded"
-          onClick={handleCopyBoat}
+          onClick={() => {
+            const text = getBoatList()
+              .map((r) => r.boatCount) // ✅ เอาเฉพาะจำนวนเรือ
+              .join("\n");
+
+            navigator.clipboard.writeText(text).then(() => {
+              alert("คัดลอกเฉพาะจำนวนเรือเรียบร้อยแล้ว!");
+            });
+          }}
         >
-          คัดลอกตารางเรือ
+          คัดลอกจำนวนเรือที่ใช้
         </button>
-        <table className="border-collapse border">
+        <table className="border-collapse border w-full">
           <thead>
             <tr>
-              <th className="border p-2">Node \ บ้าน</th>
-              {houses.map((house) => (
-                <th key={house} className="border p-2">{house}</th>
-              ))}
+              <th className="border p-2 text-center">Node</th>
+              <th className="border p-2 text-center">จำนวนเรือ</th>
+              <th className="border p-2 text-center">
+                บ้านเจ้าของเรือ
+                <br />
+                (ใส่ให้ดูง่ายๆเฉยๆ)
+              </th>
             </tr>
           </thead>
           <tbody>
-            {nodes.map((node) => (
-              <tr key={node}>
-                <td className="border p-2 font-semibold">Node {node}</td>
-                {houses.map((house) => (
-                  <td key={house} className="border p-2 text-center">
-                    {matrixBoat[node]?.[house] === 0 ? "" : matrixBoat[node]?.[house]}
-                  </td>
-                ))}
+            {getBoatList().map((row, idx) => (
+              <tr key={idx}>
+                <td className="border p-2 text-center">{row.node}</td>
+                <td className="border p-2 text-center">{row.boatCount}</td>
+                <td className="border p-2 text-center">{row.house}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <br id="section1"/>
     </div>
   );
 }

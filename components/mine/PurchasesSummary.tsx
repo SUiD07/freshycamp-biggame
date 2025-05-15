@@ -140,9 +140,9 @@ export default function PurchasesTable() {
       </div>
       <button
         onClick={handleCopy}
-        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
       >
-        คัดลอกข้อมูล
+        คัดลอกข้อมูลการสร้างและชุบ
       </button>
 
       <div className="overflow-x-auto">
