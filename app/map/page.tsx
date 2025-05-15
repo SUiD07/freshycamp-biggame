@@ -8,7 +8,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { signInAction } from "../actions";
 import { Button } from "@/components/ui/button";
 import { data } from "autoprefixer";
-import ChatPage from "../chat/page";
+// import ChatPage from "../chat/page";
 
 export default function Map() {
   const supabase = createClient();
