@@ -39,10 +39,12 @@ export default function Map() {
     B11: "#ff66ff",
     B12: "#ffffff",
   };
+  // ตัวอักษรสีขาว
+  const whiteTextHouses = ["B1", "B3", "B6", "B8", "B9", "B10"];
   return (
     <>
       <div className="text-center text-xl font-bold">map</div>
-      <ChatPage/>
+      {/* <ChatPage/> */}
       {/* <div className="flex gap-2 [&>input]:mb-3 mt-8"> */}
       {/* <Label htmlFor="search" className="">Search</Label> */}
       {/* <Input name="search" placeholder="search" required />
@@ -57,28 +59,28 @@ export default function Map() {
               className="inline-block w-[90%] h-auto"
             />
           </div>
-          {nodes.map((node: any, index: any) => (
-            <div
-              key={index}
-              style={{
-                backgroundColor:
-                  houseColorMap[node.selectedcar?.trim()] ?? "transparent",
-                fontSize: "1vw",
-                padding: "0.1em",
-                // borderRadius: "0.5em",
-                whiteSpace: "nowrap",
-                top: `${parseFloat(node.top) + 4}%`,
-                left: node.left,
-                width: "3em",
-              }}
-              className="text-center absolute p-2 transform -translate-x-1/2 -translate-y-1/2 text-[clamp(10px,2.5vw,16px)]"
-            >
-              {node.value}
-              {/* {node.value !== "0" && "("} */}
-              {/* {node.selectedCar}
-            {node.value !== "0" && ")"} */}
-            </div>
-          ))}
+          {nodes.map((node: any, index: any) => {
+            const selectedCar = node.selectedcar?.trim();
+            const isWhiteText = whiteTextHouses.includes(selectedCar);
+            return (
+              <div
+                key={index}
+                style={{
+                  backgroundColor: houseColorMap[selectedCar] ?? "transparent",
+                  color: isWhiteText ? "white" : "black",
+                  fontSize: "1vw",
+                  padding: "0.1em",
+                  whiteSpace: "nowrap",
+                  top: `${parseFloat(node.top) + 4}%`,
+                  left: node.left,
+                  width: "3em",
+                }}
+                className="text-center absolute p-2 transform -translate-x-1/2 -translate-y-1/2 text-[clamp(10px,2.5vw,16px)]"
+              >
+                {node.value}
+              </div>
+            );
+          })}
           {/* node ที่ */}
           {nodes.map((node: any, index: any) => (
             <div
@@ -91,7 +93,7 @@ export default function Map() {
                 top: node.top,
                 left: node.left,
               }}
-              className="font-bold absolute p-2 rounded-md transform -translate-x-1/2 -translate-y-1/2 text-[clamp(10px,2.5vw,16px)]"
+              className="text-black font-bold absolute p-2 rounded-md transform -translate-x-1/2 -translate-y-1/2 text-[clamp(10px,2.5vw,16px)]"
             >
               {node.id}
             </div>
