@@ -4,12 +4,13 @@ import { supabase } from "@/lib/supabase";
 
 export default function MoveForm({ house }: { house: string }) {
   const [round, setRound] = useState(1);
-  const [nodes, setNodes] = useState([{ node: 1, count: 1, boat: 0 }]);
+  const [nodes, setNodes] = useState([{ node: 1, count: 1 }]);
+  const [ships, setShips] = useState([{ node: 1, boat: 0 }]);
   const [message, setMessage] = useState("");
 
   const handleNodeChange = (
     index: number,
-    key: "node" | "count" | "boat",
+    key: "node" | "count",
     value: number
   ) => {
     const updated = [...nodes];
@@ -17,12 +18,30 @@ export default function MoveForm({ house }: { house: string }) {
     setNodes(updated);
   };
 
+  const handleShipChange = (
+    index: number,
+    key: "node" | "boat",
+    value: number
+  ) => {
+    const updated = [...ships];
+    updated[index][key] = value;
+    setShips(updated);
+  };
+
   const addNode = () => {
-    setNodes([...nodes, { node: 1, count: 1, boat: 0 }]);
+    setNodes([...nodes, { node: 1, count: 1 }]);
+  };
+
+  const addShip = () => {
+    setShips([...ships, { node: 1, boat: 0 }]);
   };
 
   const removeNode = (index: number) => {
     setNodes(nodes.filter((_, i) => i !== index));
+  };
+
+  const removeShip = (index: number) => {
+    setShips(ships.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,17 +59,39 @@ export default function MoveForm({ house }: { house: string }) {
       return;
     }
 
-    // ✅ เตรียมข้อมูล insert
-    const insertData = nodes.map((n) => ({
+    // ✨ เตรียมข้อมูล moves
+    const moveData = nodes.map((n) => ({
       node: n.node,
       count: n.count,
-      boat: n.boat ?? 0,
       round,
       house,
     }));
 
-    const { error } = await supabase.from("moves").insert(insertData);
-    setMessage(error ? "❌ เกิดข้อผิดพลาด" : "✅ บันทึกสำเร็จ");
+    // ✨ เตรียมข้อมูล ship
+    const shipData = ships
+      .filter((s) => s.boat > 0) // ส่งเฉพาะข้อมูลที่มีเรือ
+      .map((s) => ({
+        node: s.node,
+        boat: s.boat,
+        round,
+        house,
+      }));
+
+    const { error: moveError } = await supabase.from("moves").insert(moveData);
+    if (moveError) {
+      setMessage("❌ เกิดข้อผิดพลาดขณะบันทึก moves");
+      return;
+    }
+
+    if (shipData.length > 0) {
+      const { error: shipError } = await supabase.from("ship").insert(shipData);
+      if (shipError) {
+        setMessage("❌ เกิดข้อผิดพลาดขณะบันทึก ship");
+        return;
+      }
+    }
+
+    setMessage("✅ บันทึกสำเร็จ");
   };
 
   return (
@@ -65,61 +106,97 @@ export default function MoveForm({ house }: { house: string }) {
         />
       </div>
 
-      {nodes.map((item, index) => (
-        <div key={index} className="flex items-center gap-2">
-          <div>
-            <label>Node: </label>
-            <input
-              type="number"
-              value={item.node}
-              onChange={(e) =>
-                handleNodeChange(index, "node", +e.target.value)
-              }
-              min={1}
-              className="border px-2"
-            />
+      <div>
+        <h2 className="font-bold">🧍‍♂️ ข้อมูลจำนวนคนในแต่ละ Node (หลังจากเดิน)</h2>
+        {nodes.map((item, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <div>
+              <label>Node: </label>
+              <input
+                type="number"
+                value={item.node}
+                onChange={(e) =>
+                  handleNodeChange(index, "node", +e.target.value)
+                }
+                min={1}
+                className="border px-2"
+              />
+            </div>
+            <div>
+              <label>จำนวนคน: </label>
+              <input
+                type="number"
+                value={item.count}
+                onChange={(e) =>
+                  handleNodeChange(index, "count", +e.target.value)
+                }
+                min={1}
+                className="border px-2"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => removeNode(index)}
+              className="text-red-500"
+            >
+              ลบ
+            </button>
           </div>
-          <div>
-            <label>จำนวนคน: </label>
-            <input
-              type="number"
-              value={item.count}
-              onChange={(e) =>
-                handleNodeChange(index, "count", +e.target.value)
-              }
-              min={1}
-              className="border px-2"
-            />
-          </div>
-          <div>
-            <label>เรือ: </label>
-            <input
-              type="number"
-              value={item.boat}
-              onChange={(e) =>
-                handleNodeChange(index, "boat", +e.target.value)
-              }
-              min={0}
-              className="border px-2"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => removeNode(index)}
-            className="text-red-500"
-          >
-            ลบ
-          </button>
-        </div>
-      ))}
+        ))}
+        <button
+          type="button"
+          onClick={addNode}
+          className="bg-green-500 text-white px-4 py-1 rounded"
+        >
+          ➕ เพิ่ม Node
+        </button>
+      </div>
 
-      <button
-        type="button"
-        onClick={addNode}
-        className="bg-green-500 text-white px-4 py-1 rounded"
-      >
-        ➕ เพิ่ม Node
-      </button>
+      <div>
+        <h2 className="font-bold">⛵ ข้อมูลการใช้เรือ</h2>
+        {ships.map((item, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <div>
+              <label>Nodeต้นทางที่ใช้เรือ: </label>
+              <input
+                type="number"
+                value={item.node}
+                onChange={(e) =>
+                  handleShipChange(index, "node", +e.target.value)
+                }
+                min={1}
+                className="border px-2"
+              />
+            </div>
+            <div>
+              <label>จำนวนเรือ: </label>
+              <input
+                type="number"
+                value={item.boat}
+                onChange={(e) =>
+                  handleShipChange(index, "boat", +e.target.value)
+                }
+                min={0}
+                className="border px-2"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => removeShip(index)}
+              className="text-red-500"
+            >
+              ลบ
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={addShip}
+          className="bg-green-500 text-white px-4 py-1 rounded"
+        >
+          ➕ เพิ่มเรือ
+        </button>
+      </div>
 
       <button
         type="submit"
@@ -129,11 +206,15 @@ export default function MoveForm({ house }: { house: string }) {
       </button>
 
       <div className="text-red-700">
-        ใน 1 รอบทุกบ้านสามารถกรอกข้อมูลได้เพียง
-        <span className="font-bold text-xl">ครั้งเดียวเท่านั้น</span>
-        <div>ตรวจสอบข้อมูลให้ดีก่อนกดส่งข้อมูล</div>
+        <p>
+          ใน 1 รอบทุกบ้านสามารถกรอกข้อมูลได้เพียง{" "}
+          <span className="font-bold text-xl">ครั้งเดียวเท่านั้น</span>
+        </p>
+        <p>ตรวจสอบข้อมูลให้ดีก่อนกดส่งข้อมูล</p>
+        <p>
+          บ้านเดียวกัน รอบเดียวกัน node เดียวกัน insert ซ้ำ จะขึ้น error
+        </p>
       </div>
-      <div>บ้านเดียวกัน รอบเดียวกัน node เดียวกัน insert ซ้ำ จะขึ้น error</div>
 
       {message && <p>{message}</p>}
     </form>

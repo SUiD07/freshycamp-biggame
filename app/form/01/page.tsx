@@ -20,13 +20,13 @@ export default function Home() {
           src="https://lookerstudio.google.com/embed/reporting/873cd1af-3bf4-45cb-aed1-306cbb48dea5/page/p_9y47cxdmqd"
         ></iframe> */}
         <div className="w-min mx-auto">
-          <h1 className="text-xl font-bold">
+          <h1 className="text-xl font-bold bg-purple-300">
             กรอกการเคลื่อนที่
             {/* (รอบ {round}) */}
           </h1>
           <MoveForm house={house} />
           <Separator className="my-10" />
-          <h1 className="text-xl font-bold">
+          <h1 className="text-xl font-bold bg-purple-300">
             กรอกการสร้าง
             {/* (รอบ {round}) */}
           </h1>
