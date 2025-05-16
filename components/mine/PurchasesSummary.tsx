@@ -26,14 +26,14 @@ export default function PurchasesTable() {
   const [data, setData] = useState<DisplayRow[]>([]);
 
   const handleCopy = () => {
-    let text = "NODE\tHOUSE\tHOLYWATER\tFORTRESS\tBOAT\n";
+    let text = "";//ไม่ต้องมีheader
 
     data.forEach((nodeRow) => {
       if (nodeRow.houses.length > 0) {
-        nodeRow.houses.forEach((houseData, idx) => {
+        nodeRow.houses.forEach((houseData) => {
           const row = [
-            idx === 0 ? nodeRow.node : "", // แสดง node แค่แถวแรกของกลุ่ม
-            houseData.house,
+            // idx === 0 ? nodeRow.node : "", // แสดง node แค่แถวแรกของกลุ่ม
+            // houseData.house,
             houseData.ALIVE || "",
             houseData.FORTRESS || "",
             houseData.BOAT || "",
@@ -42,8 +42,9 @@ export default function PurchasesTable() {
         });
       } else {
         // แถวที่ไม่มีการซื้อใดๆ
-        const row = [nodeRow.node, "", "", "", ""].join("\t");
-        text += row + "\n";
+        // const row = [nodeRow.node, "", "", "", ""].join("\t");
+        // text += row + "\n";
+        text += "\t\t\n";
       }
     });
 
