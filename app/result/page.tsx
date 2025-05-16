@@ -6,7 +6,7 @@ import React from "react";
 import RoundResult from "@/components/mine/RoundResult";
 import PurchaseSummary from "@/components/mine/PurchasesSummary";
 import dynamic from 'next/dynamic';
-
+import ClaimTowerPage from "../updateTower/page";
 
 export default function admin() {
   //const house = "บ้าน 01"; // ปรับตามผู้ใช้งานที่ login
@@ -30,6 +30,7 @@ export default function admin() {
         <h2 className="text-lg font-semibold">สรุปสถานะ</h2>
         <RoundResult/>
         <PurchaseSummary/>
+        <ClaimTowerPage/>
     </>
   );
 }
