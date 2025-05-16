@@ -8,6 +8,24 @@ import { SubmitButton } from "@/components/submit-button";
 import { signInAction } from "../actions";
 import { Button } from "@/components/ui/button";
 import { data } from "autoprefixer";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 // import ChatPage from "../chat/page";
 
 export default function Map() {
@@ -44,6 +62,45 @@ export default function Map() {
   return (
     <>
       <div className="text-center text-xl font-bold">map</div>
+      <Sheet>
+        <SheetTrigger className="bg-gray-300 p-2 rounded-md m-2 hover:bg-gray-400">
+          คลิกเพื่อดูตารางสีแต่ละบ้าน
+        </SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>ตารางสีแต่ละบ้าน</SheetTitle>
+            <SheetDescription>
+              <Table>
+                <TableCaption>ตารางสีประจำบ้าน</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>บ้าน</TableHead>
+                    <TableHead>สี</TableHead>
+                    <TableHead>ตัวอย่างสี</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Object.entries(houseColorMap).map(([house, color]) => (
+                    <TableRow key={house}>
+                      <TableCell className="font-medium">{house}</TableCell>
+                      <TableCell>{color}</TableCell>
+                      <TableCell>
+                        <div
+                          className="w-6 h-6 rounded"
+                          style={{
+                            backgroundColor: color,
+                            border: "1px solid #ccc",
+                          }}
+                        ></div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
       {/* <ChatPage/> */}
       {/* <div className="flex gap-2 [&>input]:mb-3 mt-8"> */}
       {/* <Label htmlFor="search" className="">Search</Label> */}
@@ -161,7 +218,7 @@ export default function Map() {
               {/* การสู้ */}
               {node.fight &&
                 node.fight.map((f: any, idx: any) => (
-                  <>
+                  <div>
                     {idx === 0 && (
                       <img
                         src="/sword.svg"
@@ -192,7 +249,7 @@ export default function Map() {
                         {f.house} ({f.count})
                       </div>
                     </div>
-                  </>
+                  </div>
                 ))}
             </React.Fragment>
           ))}
