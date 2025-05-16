@@ -55,7 +55,7 @@ export default function Map() {
     B9: "#abb9ca",
     B10: "#7030a0",
     B11: "#ff66ff",
-    B12: "#ffffff",
+    B12: "#f9d4b4",
   };
   // ตัวอักษรสีขาว
   const whiteTextHouses = ["B1", "B3", "B6", "B8", "B9", "B10"];
