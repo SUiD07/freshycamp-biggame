@@ -66,7 +66,7 @@ export default function Map() {
         <SheetTrigger className="bg-gray-300 p-2 rounded-md m-2 hover:bg-gray-400">
           คลิกเพื่อดูตารางสีแต่ละบ้าน
         </SheetTrigger>
-        <SheetContent>
+        <SheetContent className="overflow-y-auto">
           <SheetHeader>
             <SheetTitle>ตารางสีแต่ละบ้าน</SheetTitle>
             <SheetDescription>
