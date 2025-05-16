@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import React from "react";
 import NodeUpdater from "@/components/mine/NodeUpdater";
+import ClaimTowerPage from "../updateTower/page";
 
 
 export default function admin() {
@@ -24,6 +25,7 @@ export default function admin() {
   return (
     <>
       <div className="font-bold text-center text-xl bg-gray-300">admin</div>
+      <ClaimTowerPage/>
       {/* <table>
           <thead>
             <tr>
