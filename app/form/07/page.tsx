@@ -13,12 +13,12 @@ export default function Home() {
       <main className="p-6 space-y-6">
         <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
         <Map />
-        {/* <iframe
+        <iframe
           width="700"
-          height="1000"
+          height="520"
           className="mx-auto"
-          src="https://lookerstudio.google.com/embed/reporting/873cd1af-3bf4-45cb-aed1-306cbb48dea5/page/p_9y47cxdmqd"
-        ></iframe> */}
+          src="https://lookerstudio.google.com/embed/reporting/123c5c88-104f-42dd-ae65-f756ca6df34d/page/ARqKF"
+        ></iframe>
         <div className="w-min mx-auto">
           <h1 className="text-xl font-bold bg-purple-300">
             กรอกการเคลื่อนที่
