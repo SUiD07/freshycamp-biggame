@@ -57,6 +57,12 @@ export default function Map() {
     B11: "#ff66ff",
     B12: "#f9d4b4",
   };
+  const nodeColorMap: Record<string, string> = {
+    ป้อม: "#9ff27e",
+    ทรัพยากร: "#f2ec7e",
+    ท่าเรือ: "#f2b3d8",
+    center:"#ff0303"
+  };
   // ตัวอักษรสีขาว
   const whiteTextHouses = ["B1", "B3", "B6", "B8", "B9", "B10"];
   return (
@@ -83,6 +89,45 @@ export default function Map() {
                   {Object.entries(houseColorMap).map(([house, color]) => (
                     <TableRow key={house}>
                       <TableCell className="font-medium">{house}</TableCell>
+                      <TableCell>{color}</TableCell>
+                      <TableCell>
+                        <div
+                          className="w-6 h-6 rounded"
+                          style={{
+                            backgroundColor: color,
+                            border: "1px solid #ccc",
+                          }}
+                        ></div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
+      <Sheet>
+        <SheetTrigger className="bg-gray-300 p-2 rounded-md m-2 hover:bg-gray-400">
+          คลิกเพื่อดูตาราง Node
+        </SheetTrigger>
+        <SheetContent className="overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Node</SheetTitle>
+            <SheetDescription>
+              <Table>
+                <TableCaption>ตารางสีประจำบ้าน</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Node</TableHead>
+                    <TableHead>สี</TableHead>
+                    <TableHead>ตัวอย่างสี</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Object.entries(nodeColorMap).map(([node, color]) => (
+                    <TableRow key={node}>
+                      <TableCell className="font-medium">{node}</TableCell>
                       <TableCell>{color}</TableCell>
                       <TableCell>
                         <div
