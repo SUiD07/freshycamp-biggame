@@ -6,13 +6,13 @@ type Item = { node: number; count: number };
 
 export default function PurchaseForm({ house }: { house: string }) {
   const [round, setRound] = useState(1);
-  const [forts, setForts] = useState<Item[]>([{ node: 1, count: 1 }]);
-  const [ships, setShips] = useState<Item[]>([{ node: 1, count: 1 }]);
-  const [revives, setRevives] = useState<Item[]>([{ node: 1, count: 1 }]);
+  const [forts, setForts] = useState<Item[]>([{ node: 1, count: 0 }]);
+  const [ships, setShips] = useState<Item[]>([{ node: 1, count: 0 }]);
+  const [revives, setRevives] = useState<Item[]>([{ node: 1, count: 0 }]);
   const [message, setMessage] = useState("");
 
   const addItem = (setter: React.Dispatch<React.SetStateAction<Item[]>>) => {
-    setter((prev) => [...prev, { node: 1, count: 1 }]);
+    setter((prev) => [...prev, { node: 1, count: 0 }]);
   };
 
   const removeItem = (
@@ -127,7 +127,7 @@ export default function PurchaseForm({ house }: { house: string }) {
             />
           </div>
           <div>
-            <label>จำนวนคน: </label>
+            <label>จำนวน: </label>
             <input
               type="number"
               value={item.count}

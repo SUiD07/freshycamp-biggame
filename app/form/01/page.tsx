@@ -3,6 +3,15 @@ import Map from "@/app/map/page";
 import PurchaseForm from "@/components/mine/PurchasesForm";
 import { Separator } from "@/components/ui/separator";
 import { RequireHouseAuth } from "@/components/mine/RequireAuth";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Home() {
   const round = 1;
@@ -20,17 +29,50 @@ export default function Home() {
           src="https://lookerstudio.google.com/embed/reporting/bb110558-9426-4faa-80e0-70bda8fcbe69/page/2YaKF"
         ></iframe>
         <div className="w-min mx-auto">
-          <h1 className="text-xl font-bold bg-purple-300">
-            กรอกการเคลื่อนที่
-            {/* (รอบ {round}) */}
-          </h1>
-          <MoveForm house={house} />
-          <Separator className="my-10" />
-          <h1 className="text-xl font-bold bg-purple-300">
-            กรอกการสร้าง
-            {/* (รอบ {round}) */}
-          </h1>
-          <PurchaseForm house={house} />
+          <Tabs defaultValue="account" className="w-fit max-md:w-9/12">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="account">เดิน</TabsTrigger>
+              <TabsTrigger value="password">สร้าง</TabsTrigger>
+            </TabsList>
+            <TabsContent value="account">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="bg-purple-300">กรอกการเคลื่อนที่</CardTitle>
+                  <CardDescription>
+                    เดิน เดิน เดิน เดินนนนนนนนนนนน
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {/* <h1 className="text-xl font-bold bg-purple-300">
+                    กรอกการเคลื่อนที่ */}
+                    {/* (รอบ {round}) */}
+                  {/* </h1> */}
+                  <MoveForm house={house} />
+                </CardContent>
+                {/* <CardFooter> */}
+                  {/* <Button>Save changes</Button> */}
+                {/* </CardFooter> */}
+              </Card>
+            </TabsContent>
+            <TabsContent value="password">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="bg-purple-300">กรอกการสร้างและชุบชีวิต</CardTitle>
+                  <CardDescription>ใช้ทรัพยากรรรรรรรรรร</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {/* <h1 className="text-xl font-bold bg-purple-300">
+                    กรอกการสร้าง */}
+                    {/* (รอบ {round}) */}
+                  {/* </h1> */}
+                  <PurchaseForm house={house} />
+                </CardContent>
+                {/* <CardFooter> */}
+                  {/* <Button>Save password</Button> */}
+                {/* </CardFooter> */}
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
         {/* <hr /> */}
       </main>
