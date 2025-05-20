@@ -12,6 +12,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MyMovesTable from "@/components/mine/MoveTable";
+import ShipTable from "@/components/mine/ShipTable";
+import PurchasesTable from "@/components/mine/PurchasesTable";
 
 export default function Home() {
   const round = 1;
@@ -37,7 +40,9 @@ export default function Home() {
             <TabsContent value="account">
               <Card>
                 <CardHeader>
-                  <CardTitle className="bg-purple-300">กรอกการเคลื่อนที่</CardTitle>
+                  <CardTitle className="bg-purple-300">
+                    กรอกการเคลื่อนที่
+                  </CardTitle>
                   <CardDescription>
                     เดิน เดิน เดิน เดินนนนนนนนนนนน
                   </CardDescription>
@@ -45,35 +50,40 @@ export default function Home() {
                 <CardContent className="space-y-2">
                   {/* <h1 className="text-xl font-bold bg-purple-300">
                     กรอกการเคลื่อนที่ */}
-                    {/* (รอบ {round}) */}
+                  {/* (รอบ {round}) */}
                   {/* </h1> */}
                   <MoveForm house={house} />
                 </CardContent>
                 {/* <CardFooter> */}
-                  {/* <Button>Save changes</Button> */}
+                {/* <Button>Save changes</Button> */}
                 {/* </CardFooter> */}
               </Card>
             </TabsContent>
             <TabsContent value="password">
               <Card>
                 <CardHeader>
-                  <CardTitle className="bg-purple-300">กรอกการสร้างและชุบชีวิต</CardTitle>
+                  <CardTitle className="bg-purple-300">
+                    กรอกการสร้างและชุบชีวิต
+                  </CardTitle>
                   <CardDescription>ใช้ทรัพยากรรรรรรรรรร</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {/* <h1 className="text-xl font-bold bg-purple-300">
                     กรอกการสร้าง */}
-                    {/* (รอบ {round}) */}
+                  {/* (รอบ {round}) */}
                   {/* </h1> */}
                   <PurchaseForm house={house} />
                 </CardContent>
                 {/* <CardFooter> */}
-                  {/* <Button>Save password</Button> */}
+                {/* <Button>Save password</Button> */}
                 {/* </CardFooter> */}
               </Card>
             </TabsContent>
           </Tabs>
         </div>
+        <MyMovesTable house={house} />
+        <ShipTable house={house} />
+        <PurchasesTable house={house} />
         {/* <hr /> */}
       </main>
     </RequireHouseAuth>

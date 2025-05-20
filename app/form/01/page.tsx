@@ -12,6 +12,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MyMovesTable from "@/components/mine/MoveTable";
+import ShipTable from "@/components/mine/ShipTable";
+import PurchasesTable from "@/components/mine/PurchasesTable";
 
 export default function Home() {
   const round = 1;
@@ -74,6 +77,9 @@ export default function Home() {
             </TabsContent>
           </Tabs>
         </div>
+        <MyMovesTable house={house} />
+        <ShipTable house={house} />
+        <PurchasesTable house={house}/>
         {/* <hr /> */}
       </main>
     </RequireHouseAuth>
