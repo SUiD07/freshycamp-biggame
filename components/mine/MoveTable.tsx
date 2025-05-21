@@ -61,30 +61,32 @@ export default function MyMovesTable({ house }: { house: string }) {
         ) : moves.length === 0 ? (
           <p className="text-muted-foreground">ยังไม่มีข้อมูล</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>รอบ</TableHead>
-                <TableHead>Node</TableHead>
-                <TableHead>จำนวนคน</TableHead>
-                {/* <TableHead>เรือ</TableHead> */}
-                <TableHead>เวลา</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {moves.map((move) => (
-                <TableRow key={move.id}>
-                  <TableCell>{move.round}</TableCell>
-                  <TableCell>{move.node}</TableCell>
-                  <TableCell>{move.count}</TableCell>
-                  {/* <TableCell>{move.boat ?? "-"}</TableCell> */}
-                  <TableCell>
-                    {new Date(move.created_at).toLocaleString("th-TH")}
-                  </TableCell>
+          <div className="overflow-y-auto max-h-[300px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>รอบ</TableHead>
+                  <TableHead>Node</TableHead>
+                  <TableHead>จำนวนคน</TableHead>
+                  {/* <TableHead>เรือ</TableHead> */}
+                  <TableHead>เวลา</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {moves.map((move) => (
+                  <TableRow key={move.id}>
+                    <TableCell>{move.round}</TableCell>
+                    <TableCell>{move.node}</TableCell>
+                    <TableCell>{move.count}</TableCell>
+                    {/* <TableCell>{move.boat ?? "-"}</TableCell> */}
+                    <TableCell>
+                      {new Date(move.created_at).toLocaleString("th-TH")}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>

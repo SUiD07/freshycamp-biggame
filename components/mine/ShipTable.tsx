@@ -60,28 +60,30 @@ export default function ShipTable({ house }: { house: string }) {
         ) : ships.length === 0 ? (
           <p className="text-muted-foreground">ยังไม่มีข้อมูล</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>รอบ</TableHead>
-                <TableHead>Node</TableHead>
-                <TableHead>จำนวนเรือ</TableHead>
-                <TableHead>เวลาบันทึก</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {ships.map((entry) => (
-                <TableRow key={entry.id}>
-                  <TableCell>{entry.round}</TableCell>
-                  <TableCell>{entry.node}</TableCell>
-                  <TableCell>{entry.boat}</TableCell>
-                  <TableCell>
-                    {new Date(entry.created_at).toLocaleString("th-TH")}
-                  </TableCell>
+          <div className="overflow-y-auto max-h-[300px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>รอบ</TableHead>
+                  <TableHead>Node</TableHead>
+                  <TableHead>จำนวนเรือ</TableHead>
+                  <TableHead>เวลาบันทึก</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {ships.map((entry) => (
+                  <TableRow key={entry.id}>
+                    <TableCell>{entry.round}</TableCell>
+                    <TableCell>{entry.node}</TableCell>
+                    <TableCell>{entry.boat}</TableCell>
+                    <TableCell>
+                      {new Date(entry.created_at).toLocaleString("th-TH")}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>

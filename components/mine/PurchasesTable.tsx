@@ -61,32 +61,34 @@ export default function PurchasesTable({ house }: { house: string }) {
         ) : data.length === 0 ? (
           <p className="text-muted-foreground">ยังไม่มีข้อมูล</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>รอบ</TableHead>
-                <TableHead>Node</TableHead>
-                <TableHead>ประเภท</TableHead>
-                <TableHead>จำนวน</TableHead>
-                <TableHead>เวลาบันทึก</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((entry) => (
-                <TableRow key={entry.id}>
-                  <TableCell>{entry.round}</TableCell>
-                  <TableCell>{entry.node}</TableCell>
-                  <TableCell>{entry.type}</TableCell>
-                  <TableCell>{entry.count}</TableCell>
-                  <TableCell>
-                    {entry.create_at
-                      ? new Date(entry.create_at).toLocaleString("th-TH")
-                      : "—"}
-                  </TableCell>
+          <div className="overflow-y-auto max-h-[300px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>รอบ</TableHead>
+                  <TableHead>Node</TableHead>
+                  <TableHead>ประเภท</TableHead>
+                  <TableHead>จำนวน</TableHead>
+                  <TableHead>เวลาบันทึก</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {data.map((entry) => (
+                  <TableRow key={entry.id}>
+                    <TableCell>{entry.round}</TableCell>
+                    <TableCell>{entry.node}</TableCell>
+                    <TableCell>{entry.type}</TableCell>
+                    <TableCell>{entry.count}</TableCell>
+                    <TableCell>
+                      {entry.create_at
+                        ? new Date(entry.create_at).toLocaleString("th-TH")
+                        : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>
