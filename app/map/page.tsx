@@ -61,7 +61,7 @@ export default function Map() {
     ป้อม: "#9ff27e",
     ทรัพยากร: "#f2ec7e",
     ท่าเรือ: "#f2b3d8",
-    center:"#ff0303"
+    center: "#ff0303",
   };
   // ตัวอักษรสีขาว
   const whiteTextHouses = ["B1", "B3", "B6", "B8", "B9", "B10"];
@@ -164,6 +164,8 @@ export default function Map() {
           {nodes.map((node: any, index: any) => {
             const selectedCar = node.selectedcar?.trim();
             const isWhiteText = whiteTextHouses.includes(selectedCar);
+            const displayValue = node.value ?? 0; // ถ้า null หรือ undefined จะเป็น 0
+
             return (
               <div
                 key={index}
@@ -179,7 +181,7 @@ export default function Map() {
                 }}
                 className="text-center absolute p-2 transform -translate-x-1/2 -translate-y-1/2 text-[clamp(10px,2.5vw,16px)]"
               >
-                {node.value}
+                {displayValue}
               </div>
             );
           })}
