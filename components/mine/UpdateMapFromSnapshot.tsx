@@ -79,7 +79,7 @@ export default function UpdateNodesFromSnapshotButton() {
           className="border px-2 py-1"
         >
           <option value="เดิน">เดิน</option>
-          <option value="ต่อสู้">ต่อสู้</option>
+          <option value="สู้">สู้</option>
           <option value="สร้าง">สร้าง</option>
           <option value="ชุบ">ชุบ</option>
         </select>
