@@ -78,10 +78,10 @@ export default function UpdateNodesFromSnapshotButton() {
           onChange={(e) => setPhase(e.target.value)}
           className="border px-2 py-1"
         >
-          <option value="เดิน">เดิน</option>
-          <option value="สู้">สู้</option>
           <option value="สร้าง">สร้าง</option>
           <option value="ชุบ">ชุบ</option>
+          <option value="เดิน">เดิน</option>
+          <option value="สู้">สู้</option>
         </select>
       </div>
       <button

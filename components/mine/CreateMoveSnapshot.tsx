@@ -32,61 +32,69 @@ export default function CreateSnapshotMoveButton() {
   const handleSnapshot = async () => {
     setLoading(true);
 
-    // ดึง snapshot ล่าสุดจากรอบก่อนหน้า (โดยไม่จำกัด phase เฉพาะ)
-    const { data: latestSnapshots, error: fetchError } = await supabase
+    // 1. ดึง snapshot ทั้งหมดย้อนหลัง (เรียงจากรอบล่าสุดไปก่อน)
+    const { data: pastSnapshots, error: fetchError } = await supabase
       .from("snapshots")
-      .select("node, selectedcar, tower, towerOwner")
-      .eq("round", round - 1);
+      .select("node, round, selectedcar, tower, towerOwner")
+      .order("round", { ascending: false });
 
     if (fetchError) {
-      console.error("Error fetching latest snapshot", fetchError);
-      alert("ไม่สามารถดึง snapshot รอบก่อนหน้าได้");
+      console.error("Error fetching snapshots", fetchError);
+      alert("ไม่สามารถดึง snapshot ก่อนหน้าได้");
       setLoading(false);
       return;
     }
 
-    // สร้างแผนที่ข้อมูลเดิมจาก snapshot ล่าสุด
+    // 2. สร้าง map ของ snapshot ล่าสุดแต่ละ node
     const latestMap = new Map<
       string,
       { selectedcar: string; tower: boolean; towerOwner: string }
     >();
-    latestSnapshots?.forEach((snap) => {
-      latestMap.set(String(snap.node), {
-        selectedcar: snap.selectedcar || "",
-        tower: snap.tower || false,
-        towerOwner: snap.towerOwner || "",
-      });
-    });
 
-    // ดึง moves ของรอบนี้
-    const { data: moves, error } = await supabase
+    for (const snap of pastSnapshots || []) {
+      const nodeId = String(snap.node);
+      if (!latestMap.has(nodeId)) {
+        latestMap.set(nodeId, {
+          selectedcar: snap.selectedcar || "",
+          tower: snap.tower || false,
+          towerOwner: snap.towerOwner || "",
+        });
+      }
+    }
+
+    // 3. ดึง moves ของรอบนี้
+    const { data: moves, error: moveError } = await supabase
       .from("moves")
       .select("house, node, count")
       .eq("round", round);
 
-    if (error || !moves) {
-      console.error("Error fetching moves", error);
+    if (moveError || !moves) {
+      console.error("Error fetching moves", moveError);
       alert("ไม่พบข้อมูล moves");
       setLoading(false);
       return;
     }
 
-    // รวม moves ตาม node
+    // 4. รวม moves ตาม node
     const nodeMap: Record<string, FightEntry[]> = {};
-    moves.forEach((move) => {
+    for (const move of moves) {
       const nodeId = String(move.node);
       if (!nodeMap[nodeId]) nodeMap[nodeId] = [];
-      nodeMap[nodeId].push({ house: move.house.trim(), count: move.count });
-    });
+      nodeMap[nodeId].push({
+        house: move.house.trim(),
+        count: move.count,
+      });
+    }
 
+    // 5. สร้าง snapshotData สำหรับรอบนี้
     const snapshotData: any[] = [];
 
     for (const node in nodeMap) {
       const entries = nodeMap[node];
+      const previous = latestMap.get(node);
 
       if (entries.length > 1) {
-        // มีหลายบ้านเลือก node เดียวกัน → fight
-        // แปลงชื่อบ้านใน fight เป็น B1, B2, ...
+        // มีการต่อสู้
         const fightEntries = entries.map((entry) => ({
           house: convertHouseName(entry.house),
           count: entry.count,
@@ -97,10 +105,10 @@ export default function CreateSnapshotMoveButton() {
           round,
           value: null,
           selectedcar: "",
-          tower: latestMap.get(node)?.tower || false,
+          tower: previous?.tower || false,
           ship: [],
           fight: fightEntries,
-          towerOwner: latestMap.get(node)?.towerOwner || "",
+          towerOwner: previous?.towerOwner || "",
         });
       } else {
         const entry = entries[0];
@@ -110,33 +118,33 @@ export default function CreateSnapshotMoveButton() {
           round,
           value: entry.count,
           selectedcar: convertHouseName(entry.house),
-          tower: latestMap.get(node)?.tower || false,
+          tower: previous?.tower || false,
           ship: [],
           fight: [],
-          towerOwner: latestMap.get(node)?.towerOwner || "",
+          towerOwner: previous?.towerOwner || "",
         });
       }
     }
 
-    // เติม node ที่ไม่มีข้อมูล move แต่มีข้อมูลจาก snapshot ก่อนหน้า
-    ALL_NODE_IDS.forEach((nodeId) => {
+    // 6. เติม node ที่ไม่มี move แต่เคยมีค่าในอดีต
+    for (const nodeId of ALL_NODE_IDS) {
       if (!snapshotData.find((s) => s.node === nodeId)) {
-        const prev = latestMap.get(nodeId);
+        const previous = latestMap.get(nodeId);
         snapshotData.push({
           node: nodeId,
           phase: "เดิน",
           round,
           value: null,
-          selectedcar: prev?.selectedcar || "",
-          tower: prev?.tower || false,
+          selectedcar: previous?.selectedcar || "",
+          tower: previous?.tower || false,
           ship: [],
           fight: [],
-          towerOwner: prev?.towerOwner || "",
+          towerOwner: previous?.towerOwner || "",
         });
       }
-    });
+    }
 
-    // เพิ่ม snapshot
+    // 7. บันทึก snapshot
     const { error: insertError } = await supabase
       .from("snapshots")
       .insert(snapshotData);
@@ -231,35 +239,40 @@ export default function CreateSnapshotMoveButton() {
   const handleBuildPhase = async () => {
     setLoading(true);
 
-    // 1. ดึง snapshot ทั้งหมดของ round นี้
+    // 1. ดึง snapshot ทั้งหมด (ไม่จำกัดรอบ)
     const { data: allSnapshots, error: snapError } = await supabase
       .from("snapshots")
-      .select("node, phase, selectedcar, tower, towerOwner, fight, value")
-      .eq("round", round);
+      .select(
+        "node, phase, selectedcar, tower, towerOwner, fight, value, round"
+      );
 
     if (snapError || !allSnapshots) {
       console.error("Error fetching snapshots", snapError);
-      alert("ไม่สามารถดึง snapshot รอบนี้ได้");
+      alert("ไม่สามารถดึง snapshot ได้");
       setLoading(false);
       return;
     }
 
-    // 2. หา phase ล่าสุดของแต่ละ node
-    const phaseOrder = { เดิน: 1, สู้: 2, สร้าง: 3 };
+    // 2. หา snapshot ล่าสุดของแต่ละ node จากรอบล่าสุดและ phase ล่าสุด (สร้าง < เดิน < สู้)
+    const phaseOrder = { สร้าง: 1, เดิน: 2, สู้: 3 };
     const latestByNode = new Map<string, any>();
+
     allSnapshots.forEach((snap) => {
       const nodeId = String(snap.node);
       const existing = latestByNode.get(nodeId);
+
       if (
         !existing ||
-        (phaseOrder[snap.phase as Phase] ?? 0) >
-          (phaseOrder[existing.phase as Phase] ?? 0)
+        snap.round > existing.round ||
+        (snap.round === existing.round &&
+          (phaseOrder[snap.phase as keyof typeof phaseOrder] ?? 0) >
+            (phaseOrder[existing.phase as keyof typeof phaseOrder] ?? 0))
       ) {
         latestByNode.set(nodeId, snap);
       }
     });
 
-    // 3. ดึง purchases ที่เกี่ยวข้องกับการสร้างป้อม
+    // 3. ดึง purchases ที่เกี่ยวข้องกับการสร้างป้อมของ round ปัจจุบัน
     const { data: purchaseData, error: purchaseError } = await supabase
       .from("purchases")
       .select("node, house")
@@ -290,7 +303,7 @@ export default function CreateSnapshotMoveButton() {
         return {
           node: nodeId,
           phase: "สร้าง",
-          round,
+          round, // รอบปัจจุบัน
           selectedcar: snap.selectedcar || "",
           tower: isTower,
           towerOwner: isTower ? overrideHouse || snap.towerOwner : null,
@@ -426,20 +439,6 @@ export default function CreateSnapshotMoveButton() {
         min={0}
       />
       <button
-        onClick={handleSnapshot}
-        disabled={loading}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        {loading ? "กำลังสร้าง..." : "สร้าง Snapshot Phase เดิน"}
-      </button>
-      <button
-        onClick={handleFightPhase}
-        disabled={loading}
-        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mt-4"
-      >
-        {loading ? "กำลังสร้าง..." : "สร้าง Snapshot Phase สู้"}
-      </button>
-      <button
         onClick={handleBuildPhase}
         disabled={loading}
         className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-2"
@@ -452,6 +451,20 @@ export default function CreateSnapshotMoveButton() {
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
         {loading ? "กำลังสร้าง..." : "สร้าง Snapshot Phase ชุบ"}
+      </button>
+      <button
+        onClick={handleSnapshot}
+        disabled={loading}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        {loading ? "กำลังสร้าง..." : "สร้าง Snapshot Phase เดิน"}
+      </button>
+      <button
+        onClick={handleFightPhase}
+        disabled={loading}
+        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mt-4"
+      >
+        {loading ? "กำลังสร้าง..." : "สร้าง Snapshot Phase สู้"}
       </button>
     </div>
   );
