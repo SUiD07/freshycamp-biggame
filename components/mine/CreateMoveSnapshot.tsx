@@ -161,80 +161,85 @@ export default function CreateSnapshotMoveButton() {
 
   //🧱🧱🧱🧱🧱🧱🧱🧱fight phase🧱🧱🧱🧱🧱🧱🧱🧱
   const handleFightPhase = async () => {
-    setLoading(true);
+  setLoading(true);
 
-    // 1. ดึง snapshot รอบก่อนหน้า (phase ใดก็ได้)
-    const { data: previousSnapshots, error: snapError } = await supabase
-      .from("snapshots")
-      .select("node, selectedcar, towerOwner")
-      .eq("round", round - 1);
+  // 1. ดึง snapshot ล่าสุดสุดของแต่ละ node (ไม่สนว่าจะอยู่ round ไหนหรือ phase ไหน)
+  const { data: allSnapshots, error: snapError } = await supabase
+    .from("snapshots")
+    .select("node, selectedcar, towerOwner, round, phase")
+    .order("round", { ascending: false })
+    .order("phase", { ascending: false });
 
-    if (snapError) {
-      console.error("Error fetching previous snapshots", snapError);
-      alert("ไม่สามารถดึง snapshot รอบก่อนหน้าได้");
-      setLoading(false);
-      return;
-    }
+  if (snapError) {
+    console.error("Error fetching latest snapshots", snapError);
+    alert("ไม่สามารถดึง snapshot ล่าสุดของแต่ละ node ได้");
+    setLoading(false);
+    return;
+  }
 
-    const previousMap = new Map<
-      string,
-      { selectedcar: string; towerOwner: string | null }
-    >();
-    previousSnapshots?.forEach((s) => {
-      previousMap.set(s.node, {
-        selectedcar: s.selectedcar || "",
-        towerOwner: s.towerOwner || null,
+  // 2. สร้าง map จาก node เพื่อเก็บ snapshot ล่าสุดสุดต่อ node
+  const latestMap = new Map<
+    string,
+    { selectedcar: string; towerOwner: string | null }
+  >();
+  allSnapshots?.forEach((snap) => {
+    if (!latestMap.has(snap.node)) {
+      latestMap.set(snap.node, {
+        selectedcar: snap.selectedcar || "",
+        towerOwner: snap.towerOwner || null,
       });
+    }
+  });
+
+  // 3. ดึงข้อมูล fight ของรอบนี้
+  const { data: fightData, error: fightError } = await supabase
+    .from("fight")
+    .select("node, house, count, tower")
+    .eq("round", round);
+
+  if (fightError) {
+    console.error("Error fetching fight data", fightError);
+    alert("ไม่สามารถดึงข้อมูล fight ได้");
+    setLoading(false);
+    return;
+  }
+
+  // 4. สร้าง snapshot สำหรับ phase "สู้"
+  const fightSnapshots = fightData
+    .filter((row) => row.node && row.node !== "0")
+    .map((row) => {
+      const nodeId = String(row.node);
+      const tower = !!row.tower;
+      const previous = latestMap.get(nodeId);
+
+      return {
+        node: nodeId,
+        phase: "สู้",
+        round,
+        value: row.count,
+        selectedcar: row.house?.trim() || previous?.selectedcar || "",
+        tower,
+        ship: [],
+        fight: null,
+        towerOwner: tower ? previous?.towerOwner || null : null,
+      };
     });
 
-    // 2. ดึงข้อมูล fight ของรอบนี้
-    const { data: fightData, error: fightError } = await supabase
-      .from("fight")
-      .select("node, house, count, tower")
-      .eq("round", round);
+  // 5. เพิ่ม snapshot phase "สู้"
+  const { error: insertError } = await supabase
+    .from("snapshots")
+    .insert(fightSnapshots);
 
-    if (fightError) {
-      console.error("Error fetching fight data", fightError);
-      alert("ไม่สามารถดึงข้อมูล fight ได้");
-      setLoading(false);
-      return;
-    }
+  if (insertError) {
+    console.error("Insert error", insertError);
+    alert("เกิดข้อผิดพลาดในการสร้าง Snapshot Phase สู้");
+  } else {
+    alert("สร้าง Snapshot Phase สู้ สำเร็จ");
+  }
 
-    // 3. สร้าง snapshot สำหรับ phase "สู้"
-    const fightSnapshots = fightData
-      .filter((row) => row.node && row.node !== "0")
-      .map((row) => {
-        const nodeId = String(row.node);
-        const tower = !!row.tower;
-        const previous = previousMap.get(nodeId);
+  setLoading(false);
+};
 
-        return {
-          node: nodeId,
-          phase: "สู้",
-          round,
-          value: row.count,
-          selectedcar: row.house?.trim() || previous?.selectedcar || "",
-          tower,
-          ship: [],
-          fight: null,
-          towerOwner: tower ? previous?.towerOwner || null : null,
-        };
-      });
-
-    // 4. เพิ่ม snapshot phase "สู้"
-    const { error: insertError } = await supabase
-      .from("snapshots")
-      .insert(fightSnapshots);
-
-    if (insertError) {
-      console.error("Insert error", insertError);
-      alert("เกิดข้อผิดพลาดในการสร้าง Snapshot Phase สู้");
-    } else {
-      alert("สร้าง Snapshot Phase สู้ สำเร็จ");
-    }
-
-    setLoading(false);
-  };
   //🧱🧱🧱🧱🧱🧱🧱🧱 สร้างป้อม phase🧱🧱🧱🧱🧱🧱🧱🧱
   const handleBuildPhase = async () => {
     setLoading(true);
