@@ -25,6 +25,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+// import { Toast } from "@/components/ui/toast";
+import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+
 
 // import ChatPage from "../chat/page";
 
@@ -67,7 +72,22 @@ export default function Map() {
   const whiteTextHouses = ["B1", "B3", "B6", "B8", "B9", "B10"];
   return (
     <>
-      <div className="text-center text-xl font-bold">map</div>
+      {/* <div className="text-center text-xl font-bold">map</div> */}
+      <Button
+        className="m-4"
+        onClick={async () => {
+          await fetchUser();
+          toast({
+            title: "อัปเดตข้อมูลแล้ว",
+            description: "โหลดข้อมูลจากฐานข้อมูลสำเร็จ",
+            action: (
+            <ToastAction altText="Goto schedule to undo">Undo</ToastAction>
+          ),
+          });
+        }}
+      >
+        🔄 รีเฟรชข้อมูลแผนที่
+      </Button>
       <Sheet>
         <SheetTrigger className="bg-gray-300 p-2 rounded-md m-2 hover:bg-gray-400">
           คลิกเพื่อดูตารางสีแต่ละบ้าน
