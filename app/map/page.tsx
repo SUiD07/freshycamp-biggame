@@ -186,22 +186,42 @@ export default function Map() {
             );
           })}
           {/* node ที่ */}
-          {nodes.map((node: any, index: any) => (
-            <div
-              key={index}
-              style={{
-                fontSize: "1vw",
-                padding: "0.5em",
-                borderRadius: "0.5em",
-                whiteSpace: "nowrap",
-                top: node.top,
-                left: node.left,
-              }}
-              className="text-black font-bold absolute p-2 rounded-md transform -translate-x-1/2 -translate-y-1/2 text-[clamp(10px,2.5vw,16px)]"
-            >
-              {node.id}
-            </div>
-          ))}
+          {/* เงื่อนไขที่เมื่อมีบ้านมาที่nodeมาที่ป้อมของบ้านอื่นแต่จำนวนคนของบ้านเจ้าของป้อมเป็น0 
+          tower===true&& towerOwner!==selectedcar&&(fight===nullหรือfight===[]) */}
+          {nodes.map((node: any, index: any) => {
+            const showExplosion =
+              node.tower === true &&
+              node.towerOwner !== node.selectedcar &&
+              (node.fight === null ||
+                (Array.isArray(node.fight) && node.fight.length === 0));
+
+            return (
+              <div
+                key={index}
+                style={{
+                  fontSize: "1vw",
+                  padding: "0.5em",
+                  borderRadius: "0.5em",
+                  whiteSpace: "nowrap",
+                  top: node.top,
+                  left: node.left,
+                }}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2"
+              >
+                {/* node.id layer (พื้นหลัง) */}
+                <div className="text-black font-bold p-2 rounded-md z-10">
+                  {node.id}
+                </div>
+
+                {/* explosion layer (อยู่หน้าสุด ถ้ามี) */}
+                {showExplosion && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none opacity-50">
+                    <span className="text-3xl">🤯</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {nodes.map((node: any) => (
             <React.Fragment key={node.id}>
