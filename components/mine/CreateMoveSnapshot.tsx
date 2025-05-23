@@ -3,15 +3,16 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-type Phase = "เดิน" | "สู้" | "สร้าง";
+type Phase = "เดิน" | "สู้" | "สร้าง" | "ชุบ";
 interface FightEntry {
   house: string;
   count: number;
 }
 const phaseOrder: Record<Phase, number> = {
-  เดิน: 1,
-  สู้: 2,
-  สร้าง: 3,
+  สร้าง: 1,
+  ชุบ: 2,
+  เดิน: 3,
+  สู้: 4,
 };
 
 const ALL_NODE_IDS = Array.from({ length: 60 }, (_, i) => (i + 1).toString());
@@ -246,10 +247,11 @@ export default function CreateSnapshotMoveButton() {
 
     // 1. ดึง snapshot ทั้งหมด (ไม่จำกัดรอบ)
     const { data: allSnapshots, error: snapError } = await supabase
-      .from("snapshots")
-      .select(
-        "node, phase, selectedcar, tower, towerOwner, fight, value, round"
-      );
+  .from("snapshots")
+  .select("node, phase, selectedcar, tower, towerOwner, fight, value, round")
+  .eq("round", round - 1)
+  .eq("phase", "สู้");
+
 
     if (snapError || !allSnapshots) {
       console.error("Error fetching snapshots", snapError);
@@ -259,7 +261,7 @@ export default function CreateSnapshotMoveButton() {
     }
 
     // 2. หา snapshot ล่าสุดของแต่ละ node จากรอบล่าสุดและ phase ล่าสุด (สร้าง < เดิน < สู้)
-    const phaseOrder = { สร้าง: 1, เดิน: 2, สู้: 3 };
+    // const phaseOrder = { สร้าง: 1, เดิน: 2, สู้: 3 }; ใช้ globalแทน
     const latestByNode = new Map<string, any>();
 
     allSnapshots.forEach((snap) => {
@@ -334,104 +336,87 @@ export default function CreateSnapshotMoveButton() {
     setLoading(false);
   };
   ////////////////
-  const reviveHouseMap = new Map<string, string>();
+  // const reviveHouseMap = new Map<string, string>();
 
   const handleRevivePhase = async () => {
-    setLoading(true);
+  setLoading(true);
 
-    // 1. ดึง snapshots ที่ round <= รอบปัจจุบัน
-    const { data: prevSnapshots, error: snapError } = await supabase
-      .from("snapshots")
-      .select(
-        "node, round, phase, selectedcar, tower, towerOwner, fight, value"
-      )
-      .lte("round", round);
+  // 1. ดึง snapshots phase = "สร้าง" ในรอบเดียวกัน
+  const { data: baseSnapshots, error: snapError } = await supabase
+    .from("snapshots")
+    .select(
+      "node, round, phase, selectedcar, tower, towerOwner, fight, value"
+    )
+    .eq("round", round)
+    .eq("phase", "สร้าง");
 
-    if (snapError || !prevSnapshots || prevSnapshots.length === 0) {
-      console.error("Error fetching previous snapshots", snapError);
-      alert("ไม่พบ snapshot รอบก่อนหน้า");
-      setLoading(false);
-      return;
-    }
-
-    // 2. เลือก snapshot ล่าสุดของแต่ละ node
-    const latestByNode = new Map<string, (typeof prevSnapshots)[0]>();
-
-    prevSnapshots.forEach((snap) => {
-      const nodeId = String(snap.node);
-      const phase = snap.phase as Phase;
-      const existing = latestByNode.get(nodeId);
-
-      if (!phaseOrder[phase]) return;
-
-      if (
-        !existing ||
-        snap.round > existing.round ||
-        (snap.round === existing.round &&
-          phaseOrder[phase] > phaseOrder[existing.phase as Phase])
-      ) {
-        latestByNode.set(nodeId, snap);
-      }
-    });
-
-    // 3. ดึง purchases รอบนี้ type = "revive"
-    const { data: revivePurchases, error: purchaseError } = await supabase
-      .from("purchases")
-      .select("node, count, house")
-      .eq("round", round)
-      .eq("type", "revive");
-
-    if (purchaseError) {
-      console.error("Error fetching revive purchases", purchaseError);
-      alert("ไม่สามารถดึงข้อมูลการชุบชีวิตได้");
-      setLoading(false);
-      return;
-    }
-
-    const reviveMap = new Map<string, number>();
-    revivePurchases.forEach((p) => {
-      const nodeId = String(p.node);
-      if (nodeId && nodeId !== "0" && p.count > 0) {
-        reviveMap.set(nodeId, (reviveMap.get(nodeId) || 0) + p.count);
-        reviveHouseMap.set(nodeId, p.house); // เก็บ house ด้วย
-      }
-    });
-
-    // 4. สร้าง snapshot ใหม่ (phase = "ชุบ")
-    const newSnapshots = Array.from(latestByNode.entries()).map(
-      ([nodeId, snap]) => {
-        const reviveValue = reviveMap.get(nodeId) || 0;
-        return {
-          node: nodeId,
-          phase: "ชุบ",
-          round,
-          selectedcar:
-            reviveValue > 0
-              ? convertHouseName(reviveHouseMap.get(nodeId) || "")
-              : snap.selectedcar || "",
-          tower: snap.tower,
-          towerOwner: snap.towerOwner,
-          fight: snap.fight || [],
-          value: (snap.value || 0) + reviveValue,
-          ship: [],
-        };
-      }
-    );
-
-    // 5. แทรก snapshot ใหม่
-    const { error: insertError } = await supabase
-      .from("snapshots")
-      .insert(newSnapshots);
-
-    if (insertError) {
-      console.error("Insert error", insertError);
-      alert("เกิดข้อผิดพลาดในการสร้าง Snapshot Phase ชุบ");
-    } else {
-      alert("สร้าง Snapshot Phase ชุบ สำเร็จ");
-    }
-
+  if (snapError || !baseSnapshots || baseSnapshots.length === 0) {
+    console.error("Error fetching build-phase snapshots", snapError);
+    alert("ไม่พบ snapshot phase สร้าง ในรอบนี้");
     setLoading(false);
-  };
+    return;
+  }
+
+  // 2. ดึง purchases รอบนี้ type = "revive"
+  const { data: revivePurchases, error: purchaseError } = await supabase
+    .from("purchases")
+    .select("node, count, house")
+    .eq("round", round)
+    .eq("type", "revive");
+
+  if (purchaseError) {
+    console.error("Error fetching revive purchases", purchaseError);
+    alert("ไม่สามารถดึงข้อมูลการชุบชีวิตได้");
+    setLoading(false);
+    return;
+  }
+
+  const reviveMap = new Map<string, number>();
+  const reviveHouseMap = new Map<string, string>();
+  revivePurchases.forEach((p) => {
+    const nodeId = String(p.node);
+    if (nodeId && nodeId !== "0" && p.count > 0) {
+      reviveMap.set(nodeId, (reviveMap.get(nodeId) || 0) + p.count);
+      reviveHouseMap.set(nodeId, p.house); // เก็บ house ด้วย
+    }
+  });
+
+  // 3. สร้าง snapshot ใหม่ (phase = "ชุบ")
+  const newSnapshots = baseSnapshots.map((snap) => {
+    const nodeId = String(snap.node);
+    const reviveValue = reviveMap.get(nodeId) || 0;
+
+    return {
+      node: nodeId,
+      phase: "ชุบ",
+      round,
+      selectedcar:
+        reviveValue > 0
+          ? convertHouseName(reviveHouseMap.get(nodeId) || "")
+          : snap.selectedcar || "",
+      tower: snap.tower,
+      towerOwner: snap.towerOwner,
+      fight: snap.fight || [],
+      value: (snap.value || 0) + reviveValue,
+      ship: [],
+    };
+  });
+
+  // 4. แทรก snapshot ใหม่
+  const { error: insertError } = await supabase
+    .from("snapshots")
+    .insert(newSnapshots);
+
+  if (insertError) {
+    console.error("Insert error", insertError);
+    alert("เกิดข้อผิดพลาดในการสร้าง Snapshot Phase ชุบ");
+  } else {
+    alert("สร้าง Snapshot Phase ชุบ สำเร็จ");
+  }
+
+  setLoading(false);
+};
+
 
   return (
     <div className="p-4 border rounded shadow max-w-md">
