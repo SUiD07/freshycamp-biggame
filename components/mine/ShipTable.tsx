@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button"; // นำเข้าปุ่ม
 
 interface ShipEntry {
   id: string;
@@ -25,30 +26,34 @@ export default function ShipTable({ house }: { house: string }) {
   const [ships, setShips] = useState<ShipEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchShips = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("ship")
+      .select("id, node, round, boat, created_at")
+      .eq("house", house)
+      .order("round", { ascending: false });
+
+    if (error) {
+      console.error("Error loading ship entries:", error);
+    } else {
+      setShips(data || []);
+    }
+
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchShips = async () => {
-      const { data, error } = await supabase
-        .from("ship")
-        .select("id, node, round, boat, created_at")
-        .eq("house", house)
-        .order("round", { ascending: false });
-
-      if (error) {
-        console.error("Error loading ship entries:", error);
-      } else {
-        setShips(data || []);
-      }
-
-      setLoading(false);
-    };
-
     fetchShips();
   }, [house]);
 
   return (
     <Card className="mt-6">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>การใช้เรือของ {house}</CardTitle>
+        <Button onClick={fetchShips} disabled={loading} variant="outline" size="sm">
+          {loading ? "กำลังโหลด..." : "รีเฟรช"}
+        </Button>
       </CardHeader>
       <CardContent>
         {loading ? (

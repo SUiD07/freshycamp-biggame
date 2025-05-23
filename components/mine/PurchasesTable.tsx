@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button"; // เพิ่ม Button component
 
 interface PurchaseEntry {
   id: number;
@@ -26,30 +27,34 @@ export default function PurchasesTable({ house }: { house: string }) {
   const [data, setData] = useState<PurchaseEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchPurchases = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("purchases")
+      .select("id, round, type, node, count, create_at")
+      .eq("house", house)
+      .order("round", { ascending: false });
+
+    if (error) {
+      console.error("Error loading purchases:", error);
+    } else {
+      setData(data || []);
+    }
+
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchPurchases = async () => {
-      const { data, error } = await supabase
-        .from("purchases")
-        .select("id, round, type, node, count, create_at")
-        .eq("house", house)
-        .order("round", { ascending: false });
-
-      if (error) {
-        console.error("Error loading purchases:", error);
-      } else {
-        setData(data || []);
-      }
-
-      setLoading(false);
-    };
-
     fetchPurchases();
   }, [house]);
 
   return (
     <Card className="mt-6">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>ประวัติการสร้าง/ชุบชีวิตของ {house}</CardTitle>
+        <Button onClick={fetchPurchases} disabled={loading} variant="outline" size="sm">
+          {loading ? "กำลังโหลด..." : "รีเฟรช"}
+        </Button>
       </CardHeader>
       <CardContent>
         {loading ? (

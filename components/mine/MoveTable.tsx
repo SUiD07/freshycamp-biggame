@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button"; // เพิ่ม import ปุ่ม
 
 interface Move {
   id: string;
@@ -27,29 +28,33 @@ export default function MyMovesTable({ house }: { house: string }) {
   const [moves, setMoves] = useState<Move[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchMoves = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("moves")
+      .select("*")
+      .eq("house", house)
+      .order("round", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching moves:", error);
+    } else {
+      setMoves(data || []);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchMoves = async () => {
-      const { data, error } = await supabase
-        .from("moves")
-        .select("*")
-        .eq("house", house)
-        .order("round", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching moves:", error);
-      } else {
-        setMoves(data || []);
-      }
-      setLoading(false);
-    };
-
     fetchMoves();
   }, [house]);
 
   return (
     <Card className="mt-6">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>การเคลื่อนที่ของ {house}</CardTitle>
+        <Button onClick={fetchMoves} disabled={loading} variant="outline" size="sm">
+          {loading ? "กำลังโหลด..." : "รีเฟรช"}
+        </Button>
       </CardHeader>
       <CardContent>
         {loading ? (
