@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
 function formatTime(seconds: number) {
@@ -17,7 +16,7 @@ export default function CountdownTimer() {
 
   useEffect(() => {
     const channel = supabase
-      .channel('realtime:timer')
+      .channel('timer-changes')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'timer' }, (payload) => {
         const data = payload.new
         setIsRunning(data.is_running)
