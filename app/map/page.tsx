@@ -29,7 +29,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-
+import CountdownTimer from "@/components/mine/CountdownTimer";
 
 // import ChatPage from "../chat/page";
 
@@ -81,8 +81,8 @@ export default function Map() {
             title: "อัปเดตข้อมูลแล้ว",
             description: "โหลดข้อมูลจากฐานข้อมูลสำเร็จ",
             action: (
-            <ToastAction altText="Goto schedule to undo">Undo</ToastAction>
-          ),
+              <ToastAction altText="Goto schedule to undo">Undo</ToastAction>
+            ),
           });
         }}
       >
@@ -166,6 +166,7 @@ export default function Map() {
           </SheetHeader>
         </SheetContent>
       </Sheet>
+      <CountdownTimer />
       {/* <ChatPage/> */}
       {/* <div className="flex gap-2 [&>input]:mb-3 mt-8"> */}
       {/* <Label htmlFor="search" className="">Search</Label> */}
