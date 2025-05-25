@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import { createClient } from "@supabase/supabase-js";
 import {
   ColumnDef,
   flexRender,
@@ -12,14 +11,7 @@ import { CellContext } from "@tanstack/react-table";
 
 import { supabase } from "@/lib/supabase";
 
-const phaseMap: Record<string, string> = {
-  build: "สร้าง",
-  revive: "ชุบ",
-  walk: "เดิน",
-  fight: "สู้",
-};
-
-// ลำดับ phase เพื่อดู phase ก่อนหน้า
+// phaseOrder ภาษาไทยตาม Supabase
 const phaseOrder = ["สร้าง", "ชุบ", "เดิน", "สู้"];
 
 type SnapshotData = {
@@ -38,67 +30,89 @@ export default function SnapshotTable() {
   const [columns, setColumns] = useState<ColumnDef<any>[]>([]);
 
   useEffect(() => {
-    async function fetchData() {
-      const { data: snapshots, error } = await supabase
-        .from("snapshots")
-        .select("*");
+    async function fetchAllSnapshots() {
+      let allSnapshots: any[] = [];
+      let from = 0;
+      const batchSize = 1000;
+      let keepFetching = true;
 
-      if (error) {
-        console.error("Error fetching snapshots:", error);
-        return;
+      while (keepFetching) {
+        const to = from + batchSize - 1;
+        const { data: snapshots, error } = await supabase
+          .from("snapshots")
+          .select("*")
+          .range(from, to);
+
+        if (error) {
+          console.error("Error fetching snapshots:", error);
+          break;
+        }
+
+        if (!snapshots || snapshots.length === 0) {
+          keepFetching = false;
+          break;
+        }
+
+        allSnapshots = allSnapshots.concat(snapshots);
+
+        if (snapshots.length < batchSize) {
+          // ได้ข้อมูลน้อยกว่า batchSize แสดงว่า fetch ครบแล้ว
+          keepFetching = false;
+        } else {
+          // เตรียมดึง batch ถัดไป
+          from += batchSize;
+        }
       }
 
-      // pivoted[node][phase_round] = {...fields}
-      const pivoted: Record<string, any> = {};
-      const columnKeysSet = new Set<string>();
+      return allSnapshots;
+    }
 
-      snapshots?.forEach((snap: SnapshotData) => {
-        const phaseTH = phaseMap[snap.phase] || snap.phase;
-        const key = `${phaseTH} (รอบ ${snap.round})`;
+    async function fetchData() {
+      const snapshots = await fetchAllSnapshots();
 
-        if (!pivoted[snap.node]) {
-          pivoted[snap.node] = { node: snap.node };
+      if (!snapshots) return;
+
+      console.log("Snapshots from Supabase (all batches):", snapshots);
+
+      // หา nodes, rounds
+      const allNodes = Array.from(new Set(snapshots.map((s) => s.node))).sort();
+      const allRounds = Array.from(new Set(snapshots.map((s) => s.round))).sort(
+        (a, b) => a - b
+      );
+
+      // สร้าง allPhaseRoundKeys
+      const allPhaseRoundKeys: string[] = [];
+      for (const round of allRounds) {
+        for (const phase of phaseOrder) {
+          allPhaseRoundKeys.push(`${phase} (รอบ ${round})`);
         }
+      }
 
-        pivoted[snap.node][key] = {
-          value: snap.value ?? "-",
-          selectedcar: snap.selectedcar ?? "-",
-          tower: snap.tower ? "✅" : "-",
-          towerOwner: snap.towerOwner ?? "-",
-          fight:
-            snap.fight && snap.fight.length ? JSON.stringify(snap.fight) : "-",
-        };
-
-        columnKeysSet.add(key);
-      });
-
-      // จัดเรียง column ตาม round + phaseOrder
-      const sortedKeys = Array.from(columnKeysSet).sort((a, b) => {
-        const [phaseA, roundAStr] = a.split(" (รอบ ");
-        const [phaseB, roundBStr] = b.split(" (รอบ ");
-        const roundA = Number(roundAStr.replace(")", ""));
-        const roundB = Number(roundBStr.replace(")", ""));
-        const indexA = phaseOrder.indexOf(phaseA);
-        const indexB = phaseOrder.indexOf(phaseB);
-
-        // เรียงลำดับตาม round ก่อน จากนั้นตาม phaseOrder
-        if (roundA !== roundB) {
-          return roundA - roundB;
-        }
-        return indexA - indexB;
-      });
-
-      // สร้าง map: node -> phaseTH -> round -> data
+      // เตรียม rawMap ให้ครบทุก node-phase-round แม้ไม่มีข้อมูล
       const rawMap: Record<
         string,
         Record<string, Record<number, Record<string, any>>>
       > = {};
 
-      snapshots.forEach((snap: SnapshotData) => {
-        const phaseTH = phaseMap[snap.phase] || snap.phase;
-        if (!rawMap[snap.node]) rawMap[snap.node] = {};
-        if (!rawMap[snap.node][phaseTH]) rawMap[snap.node][phaseTH] = {};
-        rawMap[snap.node][phaseTH][snap.round] = {
+      for (const node of allNodes) {
+        rawMap[node] = {};
+        for (const phase of phaseOrder) {
+          rawMap[node][phase] = {};
+          for (const round of allRounds) {
+            rawMap[node][phase][round] = {
+              value: "-",
+              selectedcar: "-",
+              tower: "-",
+              towerOwner: "-",
+              fight: "-",
+            };
+          }
+        }
+      }
+
+      // เติมข้อมูลจริงลงไป
+      for (const snap of snapshots) {
+        rawMap[snap.node][snap.phase][snap.round] = {
           value: snap.value ?? "-",
           selectedcar: snap.selectedcar ?? "-",
           tower: snap.tower ? "✅" : "-",
@@ -106,81 +120,75 @@ export default function SnapshotTable() {
           fight:
             snap.fight && snap.fight.length ? JSON.stringify(snap.fight) : "-",
         };
+      }
+
+      // Pivoted Data
+      const pivoted = allNodes.map((node) => {
+        const row: Record<string, any> = { node };
+        for (const key of allPhaseRoundKeys) {
+          const [phase, roundStr] = key.split(" (รอบ ");
+          const round = Number(roundStr.replace(")", ""));
+          row[key] = rawMap[node][phase][round];
+        }
+        return row;
       });
 
+      // สร้าง Columns
       const dynamicCols: ColumnDef<any>[] = [
         {
           accessorKey: "node",
           header: "Node",
         },
-        ...sortedKeys.map((key) => {
-          const [phaseTH, roundStr] = key.split(" (รอบ ");
-          const round = Number(roundStr.replace(")", ""));
+        ...allPhaseRoundKeys.map((key) => ({
+          accessorKey: key,
+          header: key,
+          cell: ({ getValue, row, column }: CellContext<any, any>) => {
+            const val = getValue() as Record<string, any>;
+            const node = row.original.node;
 
-          // หา phase ก่อนหน้า
-          const phaseIndex = phaseOrder.indexOf(phaseTH);
-          const prevPhaseTH =
-            phaseIndex > 0 ? phaseOrder[phaseIndex - 1] : null;
+            const [phaseTH, roundStr] = column.id.split(" (รอบ ");
+            const round = Number(roundStr.replace(")", ""));
+            const phaseIndex = phaseOrder.indexOf(phaseTH);
 
-          return {
-            accessorKey: key,
-            header: key,
-            cell: ({ getValue, row, column }: CellContext<any, any>) => {
-              const val = getValue() as Record<string, any>;
-              const node = row.original.node;
-
-              // ดึง phase และ round จาก column.id เช่น "สร้าง (รอบ 1)"
-              const colId = column.id;
-              const [phaseTH, roundStr] = colId.split(" (รอบ ");
-              const round = Number(roundStr.replace(")", ""));
-              const phaseIndex = phaseOrder.indexOf(phaseTH);
-
-              // หา phase ก่อนหน้าแบบพิเศษ
-              let prevVal = null;
-              if (phaseIndex === 0) {
-                // ถ้า phase แรก คือ "สร้าง" ให้เทียบกับ "สู้" รอบก่อนหน้า
-                const prevRound = round - 1;
-                if (prevRound > 0) {
-                  prevVal = rawMap[node]?.["สู้"]?.[prevRound] || null;
-                }
-              } else {
-                // phase ปกติ เทียบกับ phase ก่อนหน้า รอบเดียวกัน
-                const prevPhaseTH = phaseOrder[phaseIndex - 1];
-                prevVal =
-                  prevPhaseTH && rawMap[node]?.[prevPhaseTH]?.[round]
-                    ? rawMap[node][prevPhaseTH][round]
-                    : null;
+            let prevVal = null;
+            if (phaseIndex === 0) {
+              const prevRound = round - 1;
+              if (prevRound > 0) {
+                prevVal = rawMap[node]?.["สู้"]?.[prevRound] || null;
               }
+            } else {
+              const prevPhase = phaseOrder[phaseIndex - 1];
+              prevVal = rawMap[node]?.[prevPhase]?.[round] || null;
+            }
 
-              return val ? (
-                <table className="border border-gray-300 text-xs w-full">
-                  <tbody>
-                    <tr>
-                      {Object.entries(val).map(([k, v]) => {
-                        const changed = prevVal ? prevVal[k] !== v : false;
-                        return (
-                          <td
-                            key={k}
-                            className={`border px-1 font-semibold ${
-                              changed ? "bg-green-200" : ""
-                            }`}
-                          >
-                            <div className="font-bold">{k}</div>
-                            <div>{v}</div>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  </tbody>
-                </table>
-              ) : null;
-            },
-          };
-        }),
+            return (
+              <table className="border border-gray-300 text-xs w-full">
+                <tbody>
+                  <tr>
+                    {Object.entries(val).map(([k, v]) => {
+                      const changed = prevVal ? prevVal[k] !== v : false;
+                      return (
+                        <td
+                          key={k}
+                          className={`border px-1 font-semibold ${
+                            changed ? "bg-green-200" : ""
+                          }`}
+                        >
+                          <div className="font-bold">{k}</div>
+                          <div>{v}</div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </table>
+            );
+          },
+        })),
       ];
 
       setColumns(dynamicCols);
-      setData(Object.values(pivoted));
+      setData(pivoted);
     }
 
     fetchData();
