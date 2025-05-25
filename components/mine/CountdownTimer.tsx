@@ -19,8 +19,7 @@ export default function CountdownTimer() {
   // โหลดข้อมูล + คำนวณ offset
   useEffect(() => {
     const fetchInitialData = async () => {
-      const { data, error } = await supabase
-        .rpc('get_timer_with_server_time')
+      const { data, error } = await supabase.rpc('get_timer_with_server_time')
 
       if (error || !data) {
         console.error('Error fetching timer:', error)
@@ -35,8 +34,8 @@ export default function CountdownTimer() {
       const serverNow = new Date(data.server_time).getTime()
       setOffset(serverNow - clientNow)
 
-      // ถ้า startTime และ duration พร้อม → คำนวณ remaining เริ่มต้น
-      if (data.start_time && data.duration_sec !== null) {
+      // ✅ คำนวณ remaining ครั้งแรกทันที
+      if (data.is_running && data.start_time && data.duration_sec !== null) {
         const elapsed = Math.floor((serverNow - new Date(data.start_time).getTime()) / 1000)
         setRemaining(Math.max(data.duration_sec - elapsed, 0))
       } else {
@@ -53,7 +52,15 @@ export default function CountdownTimer() {
         setIsRunning(data.is_running)
         setStartTime(data.start_time ? new Date(data.start_time) : null)
         setDuration(data.duration_sec)
-        // ไม่ต้องอัพเดท offset ทุกครั้ง เพราะ server time มักจะไม่เปลี่ยนแปลงมาก
+
+        // ✅ อัพเดท remaining เมื่อมีการเปลี่ยนแปลง
+        if (data.is_running && data.start_time && data.duration_sec !== null) {
+          const serverNow = Date.now() + offset
+          const elapsed = Math.floor((serverNow - new Date(data.start_time).getTime()) / 1000)
+          setRemaining(Math.max(data.duration_sec - elapsed, 0))
+        } else {
+          setRemaining(null)
+        }
       })
       .subscribe()
 
@@ -63,7 +70,7 @@ export default function CountdownTimer() {
   // นับถอยหลัง
   useEffect(() => {
     if (!isRunning || !startTime || duration === null) {
-      setRemaining(duration) // หรือ null
+      setRemaining(duration)
       return
     }
 
