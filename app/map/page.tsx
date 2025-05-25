@@ -30,11 +30,11 @@ import { toast } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import CountdownTimer from "@/components/mine/CountdownTimer";
-
+import { supabase } from "@/lib/supabase";
 // import ChatPage from "../chat/page";
 
 export default function Map() {
-  const supabase = createClient();
+  // const supabase = createClient();
   const [nodes, setNodes] = useState<any>([]);
   const fetchUser = async () => {
     let { data, error } = await supabase.from("nodes").select("*");
