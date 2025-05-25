@@ -4,10 +4,7 @@ import { useState, useTransition } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
 // เชื่อมต่อ Supabase
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { supabase } from '@/lib/supabase'
 
 export default function UpdateTowerOwnerButton() {
   const [isPending, startTransition] = useTransition()
