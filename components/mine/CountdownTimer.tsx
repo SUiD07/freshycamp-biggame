@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
-function formatTime(seconds: number) {
+function formatTime(seconds: number | null) {
+  if (seconds === null || isNaN(seconds)) return '--:--'
   const m = Math.floor(seconds / 60).toString().padStart(2, '0')
   const s = (seconds % 60).toString().padStart(2, '0')
   return `${m}:${s}`
@@ -12,14 +13,14 @@ export default function CountdownTimer() {
   const [isRunning, setIsRunning] = useState(false)
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [duration, setDuration] = useState<number | null>(null)
-  const [remaining, setRemaining] = useState(0)
+  const [remaining, setRemaining] = useState<number | null>(null)
   const [offset, setOffset] = useState(0)
 
-  // โหลดข้อมูล + คำนวณ offset เวลา
+  // โหลดข้อมูล + คำนวณ offset
   useEffect(() => {
     const fetchInitialData = async () => {
       const { data, error } = await supabase
-        .rpc('get_timer_with_server_time') // ต้องสร้าง RPC ใน Supabase
+        .rpc('get_timer_with_server_time')
 
       if (error || !data) {
         console.error('Error fetching timer:', error)
@@ -33,6 +34,14 @@ export default function CountdownTimer() {
       const clientNow = Date.now()
       const serverNow = new Date(data.server_time).getTime()
       setOffset(serverNow - clientNow)
+
+      // ถ้า startTime และ duration พร้อม → คำนวณ remaining เริ่มต้น
+      if (data.start_time && data.duration_sec !== null) {
+        const elapsed = Math.floor((serverNow - new Date(data.start_time).getTime()) / 1000)
+        setRemaining(Math.max(data.duration_sec - elapsed, 0))
+      } else {
+        setRemaining(null)
+      }
     }
 
     fetchInitialData()
@@ -44,7 +53,7 @@ export default function CountdownTimer() {
         setIsRunning(data.is_running)
         setStartTime(data.start_time ? new Date(data.start_time) : null)
         setDuration(data.duration_sec)
-        // offset ไม่จำเป็นต้องอัพเดททุกครั้ง ถ้าไม่ได้เปลี่ยน server
+        // ไม่ต้องอัพเดท offset ทุกครั้ง เพราะ server time มักจะไม่เปลี่ยนแปลงมาก
       })
       .subscribe()
 
@@ -53,7 +62,10 @@ export default function CountdownTimer() {
 
   // นับถอยหลัง
   useEffect(() => {
-    if (!isRunning || !startTime || duration === null) return
+    if (!isRunning || !startTime || duration === null) {
+      setRemaining(duration) // หรือ null
+      return
+    }
 
     const interval = setInterval(() => {
       const adjustedNow = Date.now() + offset
