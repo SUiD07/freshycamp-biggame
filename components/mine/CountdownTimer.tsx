@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 
 function formatTime(seconds: number | null) {
@@ -16,9 +16,10 @@ export default function CountdownTimer() {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
-  const [offset, setOffset] = useState(0);
 
-  // โหลดข้อมูล + คำนวณ offset
+  // เปลี่ยน offset ไปเก็บใน useRef
+  const offsetRef = useRef(0);
+
   useEffect(() => {
     const fetchInitialData = async () => {
       const { data, error } = await supabase.rpc("get_timer_with_server_time");
@@ -32,7 +33,6 @@ export default function CountdownTimer() {
         return;
       }
 
-      // เช็คข้อมูล validity
       if (
         typeof data.is_running !== "boolean" ||
         (data.is_running && !data.start_time) ||
@@ -49,14 +49,14 @@ export default function CountdownTimer() {
 
       setIsRunning(data.is_running);
       setStartTime(data.start_time ? new Date(data.start_time) : null);
-      const duration = data.is_running
+      const dur = data.is_running
         ? data.duration_sec
         : (data.paused_remaining_sec ?? null);
-      setDuration(duration);
+      setDuration(dur);
 
       const clientNow = Date.now();
       const serverNow = new Date(data.server_time).getTime();
-      setOffset(serverNow - clientNow);
+      offsetRef.current = serverNow - clientNow;
 
       if (data.is_running && data.start_time && data.duration_sec !== null) {
         const elapsed = Math.floor(
@@ -72,6 +72,7 @@ export default function CountdownTimer() {
 
     fetchInitialData();
 
+    // ใช้ offsetRef.current ใน listener
     const channel = supabase
       .channel("timer-changes")
       .on(
@@ -93,7 +94,7 @@ export default function CountdownTimer() {
             data.start_time &&
             data.duration_sec !== null
           ) {
-            const serverNow = Date.now() + offset;
+            const serverNow = Date.now() + offsetRef.current;
             const elapsed = Math.floor(
               (serverNow - new Date(data.start_time).getTime()) / 1000
             );
@@ -110,32 +111,27 @@ export default function CountdownTimer() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [offset]);
+  }, []);
 
-  // นับถอยหลัง
+  // นับถอยหลัง โดยใช้ offsetRef.current
   useEffect(() => {
-  if (!isRunning) {
-    // เมื่อหยุด ให้คงค่า remaining เดิมไว้ ไม่ต้อง set ใหม่จาก duration
-    console.log("Timer stopped, remaining:", remaining);
-    return;
-  }
-  if (!startTime || duration === null) {
-    setRemaining(duration);
-    console.log("Timer invalid data", { isRunning, startTime, duration });
-    return;
-  }
+    if (!isRunning) {
+      return;
+    }
+    if (!startTime || duration === null) {
+      setRemaining(duration);
+      return;
+    }
 
-  const interval = setInterval(() => {
-    const adjustedNow = Date.now() + offset;
-    const elapsed = Math.floor((adjustedNow - startTime.getTime()) / 1000);
-    const rem = Math.max(duration - elapsed, 0);
-    setRemaining(rem);
-    console.log("Counting down:", rem, "elapsed:", elapsed);
-  }, 1000);
+    const interval = setInterval(() => {
+      const adjustedNow = Date.now() + offsetRef.current;
+      const elapsed = Math.floor((adjustedNow - startTime.getTime()) / 1000);
+      const rem = Math.max(duration - elapsed, 0);
+      setRemaining(rem);
+    }, 1000);
 
-  return () => clearInterval(interval);
-}, [isRunning, startTime, duration, offset]);
-
+    return () => clearInterval(interval);
+  }, [isRunning, startTime, duration]);
 
   return (
     <div className="p-4 text-center">
