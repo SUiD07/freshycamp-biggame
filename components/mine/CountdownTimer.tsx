@@ -13,8 +13,30 @@ export default function CountdownTimer() {
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [duration, setDuration] = useState<number | null>(null)
   const [remaining, setRemaining] = useState(0)
+  const [offset, setOffset] = useState(0)
 
+  // โหลดข้อมูล + คำนวณ offset เวลา
   useEffect(() => {
+    const fetchInitialData = async () => {
+      const { data, error } = await supabase
+        .rpc('get_timer_with_server_time') // ต้องสร้าง RPC ใน Supabase
+
+      if (error || !data) {
+        console.error('Error fetching timer:', error)
+        return
+      }
+
+      setIsRunning(data.is_running)
+      setStartTime(data.start_time ? new Date(data.start_time) : null)
+      setDuration(data.duration_sec)
+
+      const clientNow = Date.now()
+      const serverNow = new Date(data.server_time).getTime()
+      setOffset(serverNow - clientNow)
+    }
+
+    fetchInitialData()
+
     const channel = supabase
       .channel('timer-changes')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'timer' }, (payload) => {
@@ -22,29 +44,26 @@ export default function CountdownTimer() {
         setIsRunning(data.is_running)
         setStartTime(data.start_time ? new Date(data.start_time) : null)
         setDuration(data.duration_sec)
+        // offset ไม่จำเป็นต้องอัพเดททุกครั้ง ถ้าไม่ได้เปลี่ยน server
       })
       .subscribe()
-
-    supabase.from('timer').select('*').eq('id', 1).single().then(({ data }) => {
-      setIsRunning(data.is_running)
-      setStartTime(data.start_time ? new Date(data.start_time) : null)
-      setDuration(data.duration_sec)
-    })
 
     return () => { supabase.removeChannel(channel) }
   }, [])
 
+  // นับถอยหลัง
   useEffect(() => {
     if (!isRunning || !startTime || duration === null) return
 
     const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startTime.getTime()) / 1000)
+      const adjustedNow = Date.now() + offset
+      const elapsed = Math.floor((adjustedNow - startTime.getTime()) / 1000)
       const rem = Math.max(duration - elapsed, 0)
       setRemaining(rem)
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [isRunning, startTime, duration])
+  }, [isRunning, startTime, duration, offset])
 
   return (
     <div className="p-4 text-center">
