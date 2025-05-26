@@ -5,6 +5,8 @@ import UpdateNodesFromSnapshotButton from "@/components/mine/UpdateMapFromSnapsh
 import UpdateTowerOwnerButton from "@/components/mine/UpdateHouseName";
 import AdminTimer from "@/components/mine/AdminTimer";
 import SnapshotTable from "@/components/mine/SnapshotTable";
+import { AdminPhaseSelector } from "@/components/mine/AdminPhaseSelector";
+import { AdminPhaseLogger } from "@/components/mine/AdminPhaseLogger";
 
 export default function Nan() {
   return (
@@ -13,7 +15,9 @@ export default function Nan() {
       <UpdateNodesFromSnapshotButton/>
       <UpdateTowerOwnerButton/>
       <AdminTimer/>
-      <SnapshotTable/>
+      {/* <AdminPhaseSelector/> */}
+      <AdminPhaseLogger/>
+      {/* <SnapshotTable/> */}
     </div>
   );
 }
