@@ -1,0 +1,211 @@
+// components/SnapshotsTable.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+// import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "@/lib/supabase";
+import {
+  Table,
+  TableHeader,
+  TableHead,
+  TableRow,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Copy } from "lucide-react";
+
+type Snapshot = {
+  node: string;
+  phase: string;
+  round: number;
+  value: number | null;
+  selectedcar: string | null;
+  tower: boolean | null;
+  ship: string[] | null;
+  fight: any[] | null;
+  towerOwner: string | null;
+  created_at: string;
+};
+
+export default function SnapshotsTable() {
+  const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
+  const [round, setRound] = useState<string>("");
+  const [phase, setPhase] = useState<string>("");
+
+  //   const supabase = createClientComponentClient();
+
+  const fetchSnapshots = async () => {
+    let query = supabase
+      .from("snapshots")
+      .select("*")
+      .order("node", { ascending: true });
+
+    if (round) query = query.eq("round", parseInt(round));
+    if (phase) query = query.eq("phase", phase);
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching snapshots:", error);
+    } else {
+      setSnapshots(data || []);
+    }
+  };
+
+  const handleCopy = (data: Snapshot[] | Snapshot) => {
+    let textToCopy = "";
+
+    // ถ้าเป็น Array (copy all) หรือ Object (copy row)
+    const dataArray = Array.isArray(data) ? data : [data];
+
+    // เพิ่ม header
+    textToCopy +=
+      [
+        "node",
+        "phase",
+        "round",
+        "value",
+        "selectedcar",
+        "tower",
+        "ship",
+        "fight",
+        "towerOwner",
+        "created_at",
+      ].join("\t") + "\n";
+
+    // เพิ่ม data rows
+    dataArray.forEach((item) => {
+      textToCopy +=
+        [
+          item.node,
+          item.phase,
+          item.round,
+          item.value ?? "",
+          item.selectedcar ?? "",
+          item.tower === true ? "true" : "false",
+          item.ship?.join(", ") ?? "",
+          (item.fight?.length ?? 0).toString(),
+          item.towerOwner ?? "",
+          new Date(item.created_at).toLocaleString(),
+        ].join("\t") + "\n";
+    });
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      alert("Copied in Excel format!");
+    });
+  };
+
+  useEffect(() => {
+    fetchSnapshots();
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Round:</label>
+          <Input
+            type="number"
+            placeholder="รอบเช่น 1"
+            className="w-24"
+            value={round}
+            onChange={(e) => setRound(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Phase:</label>
+          <Select value={phase} onValueChange={(value) => setPhase(value)}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="เลือก Phase" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="เดิน">เดิน</SelectItem>
+              <SelectItem value="สู้">สู้</SelectItem>
+              <SelectItem value="สร้าง">สร้าง</SelectItem>
+              <SelectItem value="ชุบ">ชุบ</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Button onClick={fetchSnapshots}>Fetch Data</Button>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setRound("");
+            setPhase("");
+            fetchSnapshots();
+          }}
+        >
+          Reset
+        </Button>
+        <Button variant="secondary" onClick={() => handleCopy(snapshots)}>
+          <Copy className="w-4 h-4 mr-1" /> Copy All
+        </Button>
+      </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Node</TableHead>
+            <TableHead>Phase</TableHead>
+            <TableHead>Round</TableHead>
+            <TableHead>Value</TableHead>
+            <TableHead>SelectedCar</TableHead>
+            <TableHead>Tower</TableHead>
+            <TableHead>Ship</TableHead>
+            <TableHead>Fight</TableHead>
+            <TableHead>TowerOwner</TableHead>
+            <TableHead>Created At</TableHead>
+            <TableHead>Copy</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {snapshots.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={11}
+                className="text-center text-muted-foreground"
+              >
+                No data found
+              </TableCell>
+            </TableRow>
+          ) : (
+            snapshots.map((snap, idx) => (
+              <TableRow key={`${snap.node}-${snap.round}-${snap.phase}-${idx}`}>
+                <TableCell>{snap.node}</TableCell>
+                <TableCell>{snap.phase}</TableCell>
+                <TableCell>{snap.round}</TableCell>
+                <TableCell>{snap.value ?? "-"}</TableCell>
+                <TableCell>{snap.selectedcar ?? "-"}</TableCell>
+                <TableCell>{snap.tower === true ? "true" : "false"}</TableCell>
+                <TableCell>{snap.ship?.join(", ") ?? "-"}</TableCell>
+                <TableCell>{snap.fight?.length ?? 0}</TableCell>
+                <TableCell>{snap.towerOwner ?? "-"}</TableCell>
+                <TableCell>
+                  {new Date(snap.created_at).toLocaleString()}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleCopy(snap)}
+                  >
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
