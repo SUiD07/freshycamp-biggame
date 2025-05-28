@@ -187,17 +187,21 @@ export default function MoveForm({ house }: { house: string }) {
       return;
     }
 
-    setMessage("✅ บันทึกสำเร็จ");
+    // 🔥 รวมเรือจาก fromNode เดียวกัน
+    const shipSums: Record<string, number> = {};
+    moves.forEach((m) => {
+      if (m.boat > 0 && m.count > 0) {
+        if (!shipSums[m.fromNode]) shipSums[m.fromNode] = 0;
+        shipSums[m.fromNode] += m.boat;
+      }
+    });
 
-    // Insert ship สำหรับจากแต่ละ fromNode (ไม่รวมซ้ำ)
-    const shipData = moves
-      .filter((m) => m.boat > 0 && m.count > 0)
-      .map((m) => ({
-        house: formattedHouse,
-        round,
-        node: Number(m.fromNode),
-        boat: m.boat,
-      }));
+    const shipData = Object.entries(shipSums).map(([fromNode, boat]) => ({
+      house: formattedHouse,
+      round,
+      node: Number(fromNode),
+      boat,
+    }));
 
     const { error: shipError } = await supabase.from("ship").insert(shipData);
 
@@ -205,6 +209,7 @@ export default function MoveForm({ house }: { house: string }) {
       setMessage("❌ เกิดข้อผิดพลาดขณะบันทึกข้อมูลเรือ");
       return;
     }
+    setMessage("✅ บันทึกสำเร็จ");
   };
 
   const formatHouseName = (houseCode: string) => {
@@ -265,14 +270,19 @@ export default function MoveForm({ house }: { house: string }) {
       })
     );
 
-    const shipData = moves
-      .filter((m) => m.boat > 0 && m.count > 0)
-      .map((m) => ({
-        house: formattedHouse,
-        round,
-        node: Number(m.fromNode),
-        boat: m.boat,
-      }));
+    const shipSums: Record<string, number> = {};
+    moves.forEach((m) => {
+      if (m.boat > 0 && m.count > 0) {
+        if (!shipSums[m.fromNode]) shipSums[m.fromNode] = 0;
+        shipSums[m.fromNode] += m.boat;
+      }
+    });
+    const shipData = Object.entries(shipSums).map(([fromNode, boat]) => ({
+      house: formattedHouse,
+      round,
+      node: Number(fromNode),
+      boat,
+    }));
 
     setPreviewMoveData(moveData);
     setPreviewShipData(shipData);
@@ -385,7 +395,7 @@ export default function MoveForm({ house }: { house: string }) {
                 <TableHead>รอบ</TableHead>
                 <TableHead>Node ปลายทาง</TableHead>
                 <TableHead>จำนวนคน</TableHead>
-                <TableHead>เรือ</TableHead>
+                {/* <TableHead>เรือ</TableHead> */}
                 <TableHead>บ้าน</TableHead>
               </TableRow>
             </TableHeader>
@@ -395,7 +405,7 @@ export default function MoveForm({ house }: { house: string }) {
                   <TableCell>{row.round}</TableCell>
                   <TableCell>{row.node}</TableCell>
                   <TableCell>{row.count}</TableCell>
-                  <TableCell>{row.boat}</TableCell>
+                  {/* <TableCell>{row.boat}</TableCell> */}
                   <TableCell>{row.house}</TableCell>
                 </TableRow>
               ))}
@@ -409,7 +419,7 @@ export default function MoveForm({ house }: { house: string }) {
               <TableRow>
                 <TableHead>รอบ</TableHead>
                 <TableHead>Node ต้นทาง</TableHead>
-                {/* <TableHead>จำนวนเรือ</TableHead> */}
+                <TableHead>จำนวนเรือ</TableHead>
                 <TableHead>บ้าน</TableHead>
               </TableRow>
             </TableHeader>
@@ -418,7 +428,7 @@ export default function MoveForm({ house }: { house: string }) {
                 <TableRow key={i}>
                   <TableCell>{row.round}</TableCell>
                   <TableCell>{row.node}</TableCell>
-                  {/* <TableCell>{row.boat}</TableCell> */}
+                  <TableCell>{row.boat}</TableCell>
                   <TableCell>{row.house}</TableCell>
                 </TableRow>
               ))}
