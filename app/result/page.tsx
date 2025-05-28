@@ -7,7 +7,7 @@ import RoundResult from "@/components/mine/RoundResult";
 import PurchaseSummary from "@/components/mine/PurchasesSummary";
 import dynamic from 'next/dynamic';
 import ClaimTowerPage from "../updateTower/page";
-
+import AutoRefreshControls from "@/components/AutoRefreshControls";
 export default function admin() {
   //const house = "บ้าน 01"; // ปรับตามผู้ใช้งานที่ login
   const supabase = createClient();
@@ -24,10 +24,13 @@ export default function admin() {
       fetchUser();
     }, []);
     const RoundResult = dynamic(() => import('@/components/mine/RoundResult'), { ssr: false });
-  return (
+    
+    return (
     <>
       <div className="font-bold text-2xl text-center bg-gray-300">ดูผลการกรอก</div>
         <h2 className="text-lg font-semibold">สรุปสถานะ</h2>
+        <h1 className="text-xl font-bold mb-4">Auto Refresh Control</h1>
+        <AutoRefreshControls />
         <RoundResult/>
         <PurchaseSummary/>
         <ClaimTowerPage/>

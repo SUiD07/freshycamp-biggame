@@ -1,3 +1,4 @@
+"use client";
 import MoveForm from "@/components/mine/MoveForm";
 import Map from "@/app/map/page";
 import PurchaseForm from "@/components/mine/PurchasesForm";

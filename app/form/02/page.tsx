@@ -1,3 +1,4 @@
+"use client";
 import MoveForm from "@/components/mine/MoveForm";
 import Map from "@/app/map/page";
 import PurchaseForm from "@/components/mine/PurchasesForm";
@@ -24,11 +25,22 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import React, { useEffect, useState } from "react";
 
 export default function Home() {
   const round = 1;
   const house = "บ้าน 02"; // ปรับตามผู้ใช้งานที่ login
   const houseT = "B2";
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [isAutoRefresh, setIsAutoRefresh] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+  setRefreshKey((prevKey) => prevKey + 1);
+  }, 20000); // refresh every 30 seconds
+  
+  return () => clearInterval(interval);
+    }, [isAutoRefresh]);
 
   return (
     <RequireHouseAuth expectedHouse="02">
@@ -101,12 +113,25 @@ export default function Home() {
           </SheetContent>
         </Sheet>
         <Map />
-        <iframe
-          width="700"
-          height="520"
-          className="mx-auto"
-          src="https://lookerstudio.google.com/embed/reporting/6e15db3c-d9b7-49f0-80a1-bb8988294c6f/page/MJqKF"
-        ></iframe>
+        <div className="w-full h-full flex flex-col justify-center items-center">
+
+          <h2 className="mb-4">the table</h2>
+          <button
+            onClick={() => setIsAutoRefresh(!isAutoRefresh)}
+            className={`mb-4 px-4 py-2 rounded ${
+              isAutoRefresh ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+            } text-white`}
+          >
+            {isAutoRefresh ? "Stop Auto Refresh" : "Start Auto Refresh"}
+          </button>
+          <iframe
+            key={refreshKey}
+            referrerPolicy="no-referrer-when-downgrade"
+            src="https://view-awesome-table.com/-ORDIUjSK6xGZLMKbbIV/view"
+            style={{ border: "none", height: "600px", width: "100%" }}
+          >
+          </iframe>
+        </div>
         <div className="w-min mx-auto">
           <Tabs defaultValue="account" className="w-fit max-md:w-9/12">
             <TabsList className="grid w-full grid-cols-2">

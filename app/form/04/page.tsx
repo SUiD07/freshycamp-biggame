@@ -1,3 +1,4 @@
+"use client";
 import MoveForm from "@/components/mine/MoveForm";
 import Map from "@/app/map/page";
 import PurchaseForm from "@/components/mine/PurchasesForm";
@@ -24,11 +25,23 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const round = 1;
   const house = "บ้าน 04"; // ปรับตามผู้ใช้งานที่ login
   const houseT = "B4";
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    // Set interval to refresh iframe every 5 minutes (300000 ms)
+    const interval = setInterval(() => {
+      setRefreshKey((prev) => prev + 1); // Change key to reload iframe
+    }, 30000); // 5 minutes
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
 
   return (
     <RequireHouseAuth expectedHouse="04">
@@ -102,6 +115,7 @@ export default function Home() {
         </Sheet>
         <Map />
         <iframe
+          key={refreshKey} // Changing key forces iframe reload
           width="700"
           height="520"
           className="mx-auto"

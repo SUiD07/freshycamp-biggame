@@ -1,3 +1,4 @@
+"use client";
 import MoveForm from "@/components/mine/MoveForm";
 import Map from "@/app/map/page";
 import PurchaseForm from "@/components/mine/PurchasesForm";
@@ -24,11 +25,19 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useAutoRefreshContext } from "@/context/AutoRefreshContext";
+import { useAutoRefresh } from "@/hooks/useAutoRefresh";
+
 
 export default function Home() {
   const round = 1;
   const house = "บ้าน 01"; // ปรับตามผู้ใช้งานที่ login
   const houseT = "B1";
+  const { isAutoRefresh } = useAutoRefreshContext();
+  const refreshKey = useAutoRefresh(12000, isAutoRefresh); // 12 seconds interval
+
+
+
 
   return (
     <RequireHouseAuth expectedHouse="01">
@@ -99,12 +108,19 @@ export default function Home() {
           </SheetContent>
         </Sheet>
         <Map />
-        <iframe
-          width="700"
-          height="520"
-          className="mx-auto"
-          src="https://lookerstudio.google.com/embed/reporting/bb110558-9426-4faa-80e0-70bda8fcbe69/page/2YaKF"
-        ></iframe>
+      <div key={refreshKey} className="p-6">
+      <h1 className="text-xl font-bold mb-4">Folder 1 Page - Auto Refresh Example</h1>
+      <iframe
+      width="600"
+      height="450"
+      src="https://lookerstudio.google.com/embed/reporting/bb110558-9426-4faa-80e0-70bda8fcbe69/page/2YaKF"
+      frameBorder="0"
+      style={{ border: 0 }}
+      allowFullScreen
+      sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+      title="Looker Studio Report"
+      />
+      </div>
         <div className="w-min mx-auto">
           <Tabs defaultValue="account" className="w-fit max-md:w-9/12">
             <TabsList className="grid w-full grid-cols-2">
