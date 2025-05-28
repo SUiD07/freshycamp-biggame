@@ -48,7 +48,8 @@ export default function MoveForm({ house }: { house: string }) {
     if (data && data.length > 0) {
       const formattedNodes = data.map((n) => ({
         node: n.id,
-        count: 1, // ค่าเริ่มต้นใส่ 1 คน ต่อ node (ใช้แสดงในหัวข้อ)
+        // count: 1, // ค่าเริ่มต้นใส่ 1 คน ต่อ node (ใช้แสดงในหัวข้อ)
+        count: Number(n.value) || 0, // ใช้ค่า value จากฐานข้อมูลแทน 1
       }));
 
       setCurrentNodes(formattedNodes);
@@ -58,7 +59,7 @@ export default function MoveForm({ house }: { house: string }) {
         formattedNodes.map((n) => ({
           fromNode: n.node,
           toNode: n.node,
-          count: 1,
+          count: Number(n.count), // นำค่าที่ได้มาใช้เลย
           boat: 0,
         }))
       );
