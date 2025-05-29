@@ -1,3 +1,4 @@
+"use client"
 import MoveForm from "@/components/mine/MoveForm";
 import Map from "@/app/map/page";
 import PurchaseForm from "@/components/mine/PurchasesForm";
@@ -24,12 +25,57 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import React, { useState, useEffect, useRef } from "react"
 import NewMoveForm from "@/components/mine/NewMoveForm";
 
 export default function Home() {
   const round = 1;
   const house = "บ้าน 11"; // ปรับตามผู้ใช้งานที่ login
   const houseT = "B11";
+const [autoRefresh, setAutoRefresh] = useState(false);
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const refreshInterval = useRef<NodeJS.Timeout | null>(null);
+    const lookerUrl =
+      "https://lookerstudio.google.com/embed/reporting/bea71db8-81e9-4144-8410-012963fe992f/page/qaqKF"  ;
+    // Initialize autoRefresh from localStorage on mount
+    useEffect(() => {
+      const stored = localStorage.getItem("autoRefresh");
+      setAutoRefresh(stored === "true");
+    }, []);
+  
+    // Listen for localStorage changes from other tabs/pages
+    useEffect(() => {
+      const onStorage = (e: StorageEvent) => {
+        if (e.key === "autoRefresh") {
+          setAutoRefresh(e.newValue === "true");
+        }
+      };
+      window.addEventListener("storage", onStorage);
+      return () => window.removeEventListener("storage", onStorage);
+    }, []);
+  
+    // Handle iframe reload interval based on autoRefresh
+    useEffect(() => {
+      if (autoRefresh) {
+        refreshInterval.current = setInterval(() => {
+          if (iframeRef.current) {
+            iframeRef.current.src = lookerUrl + "?t=" + new Date().getTime();
+          }
+        }, 20000);
+      } else {
+        if (refreshInterval.current) {
+          clearInterval(refreshInterval.current);
+          refreshInterval.current = null;
+        }
+      }
+  
+      return () => {
+        if (refreshInterval.current) {
+          clearInterval(refreshInterval.current);
+          refreshInterval.current = null;
+        }
+      };
+    }, [autoRefresh, lookerUrl]);
 
   return (
     <RequireHouseAuth expectedHouse="11">
@@ -102,11 +148,14 @@ export default function Home() {
           </SheetContent>
         </Sheet>
         <Map />
-        <iframe
-          width="700"
-          height="520"
+         <iframe
+          ref={iframeRef}
+          width="900"
+          height="1200"
           className="mx-auto"
-          src="https://lookerstudio.google.com/embed/reporting/bea71db8-81e9-4144-8410-012963fe992f/page/qaqKF"
+          src={lookerUrl}
+          title="Looker Studio Report"
+          allowFullScreen
         ></iframe>
         <div className="w-min mx-auto">
           <Tabs defaultValue="account" className="w-fit max-md:w-9/12">
