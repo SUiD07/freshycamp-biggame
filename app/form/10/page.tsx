@@ -26,6 +26,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import React, { useState, useEffect, useRef } from "react"
+import NewMoveForm from "@/components/mine/NewMoveForm";
 
 export default function Home() {
   const round = 1;
@@ -196,6 +197,56 @@ const [autoRefresh, setAutoRefresh] = useState(false);
                 <CardContent className="space-y-2">
                   {/* <h1 className="text-xl font-bold bg-purple-300">
                     กรอกการสร้าง */}
+                  {/* (รอบ {round}) */}
+                  {/* </h1> */}
+                  <PurchaseForm house={house} />
+                </CardContent>
+                {/* <CardFooter> */}
+                {/* <Button>Save password</Button> */}
+                {/* </CardFooter> */}
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+        <div className="w-min mx-auto">
+          <Tabs defaultValue="account" className="w-fit max-md:w-9/12">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="account">เดิน</TabsTrigger>
+              <TabsTrigger value="password">สร้าง</TabsTrigger>
+            </TabsList>
+            <TabsContent value="account">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="bg-purple-300">
+                    กรอกการเคลื่อนที่
+                  </CardTitle>
+                  <CardDescription>
+                    เดิน เดิน เดิน เดินนนนนนนนนนนน
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {/* <h1 className="text-xl font-bold bg-purple-300">
+                            กรอกการเคลื่อนที่ */}
+                  {/* (รอบ {round}) */}
+                  {/* </h1> */}
+                  <NewMoveForm house={houseT} />
+                </CardContent>
+                {/* <CardFooter> */}
+                {/* <Button>Save changes</Button> */}
+                {/* </CardFooter> */}
+              </Card>
+            </TabsContent>
+            <TabsContent value="password">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="bg-purple-300">
+                    กรอกการสร้างและชุบชีวิต
+                  </CardTitle>
+                  <CardDescription>ใช้ทรัพยากรรรรรรรรรร</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {/* <h1 className="text-xl font-bold bg-purple-300">
+                            กรอกการสร้าง */}
                   {/* (รอบ {round}) */}
                   {/* </h1> */}
                   <PurchaseForm house={house} />
