@@ -160,6 +160,13 @@ export default function SnapshotTable() {
               const prevPhase = phaseOrder[phaseIndex - 1];
               prevVal = rawMap[node]?.[prevPhase]?.[round] || null;
             }
+            //check selectedcar and towerowner
+            const isMismatch =
+              val.selectedcar !== "-" &&
+              val.selectedcar !== "" &&
+              val.towerOwner !== "-" &&
+              val.towerOwner !== "" &&
+              val.selectedcar !== val.towerOwner;
 
             return (
               <table className="border border-gray-300 text-xs w-full">
@@ -172,7 +179,7 @@ export default function SnapshotTable() {
                           key={k}
                           className={`border px-1 font-semibold ${
                             changed ? "bg-green-200" : ""
-                          }`}
+                          } ${isMismatch ? "border-red-500 border-2" : ""}`}
                         >
                           <div className="font-bold">{k}</div>
                           <div>{v}</div>
