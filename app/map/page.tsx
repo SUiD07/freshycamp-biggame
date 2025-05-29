@@ -168,9 +168,9 @@ export default function Map() {
           </SheetHeader>
         </SheetContent>
       </Sheet>
-      <CountdownTimer />
+      {/* <CountdownTimer /> */}
       {/* <ClientPhaseDisplay /> */}
-      <ClientPhaseLogDisplay/>
+      {/* <ClientPhaseLogDisplay/> */}
       {/* <ChatPage/> */}
       {/* <div className="flex gap-2 [&>input]:mb-3 mt-8"> */}
       {/* <Label htmlFor="search" className="">Search</Label> */}
