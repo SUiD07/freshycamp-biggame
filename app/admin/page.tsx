@@ -7,16 +7,35 @@ import AdminTimer from "@/components/mine/AdminTimer";
 import SnapshotTable from "@/components/mine/SnapshotTable";
 import { AdminPhaseSelector } from "@/components/mine/AdminPhaseSelector";
 import { AdminPhaseLogger } from "@/components/mine/AdminPhaseLogger";
+import Link from "next/link";
+import { Link2Icon } from "lucide-react";
 
 export default function Nan() {
   return (
     <div>
       <CreateSnapshotMoveButton />
-      <UpdateNodesFromSnapshotButton/>
-      <UpdateTowerOwnerButton/>
-      <AdminTimer/>
+      <UpdateNodesFromSnapshotButton />
+      <UpdateTowerOwnerButton />
+      {/* <AdminTimer/> */}
+      <iframe
+        src="https://keepthescore.com/embed/snhqhpqlmvtgp/"
+        width="600"
+        height="400"
+        // frameborder="0"
+        // style="border:1px solid #ccc;"
+      ></iframe>
+      <Link2Icon/>
+      <Link
+        href="https://keepthescore.com/board/snhqhpqlmvtgp/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex bg-slate-200"
+      >
+        เปิดสกอร์บอร์ด
+      </Link>
+      https://keepthescore.com/embed/snhqhpqlmvtgp/
       {/* <AdminPhaseSelector/> */}
-      <AdminPhaseLogger/>
+      {/* <AdminPhaseLogger/> */}
       {/* <SnapshotTable/> */}
     </div>
   );

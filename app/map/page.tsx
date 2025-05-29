@@ -169,6 +169,14 @@ export default function Map() {
         </SheetContent>
       </Sheet>
       {/* <CountdownTimer /> */}
+      <iframe
+        src="https://keepthescore.com/embed/wvcyndnlzdzrr/"
+        width="500"
+        height="500"
+        className="mx-auto"
+        // frameborder="0"
+      ></iframe>
+
       {/* <ClientPhaseDisplay /> */}
       {/* <ClientPhaseLogDisplay/> */}
       {/* <ChatPage/> */}
