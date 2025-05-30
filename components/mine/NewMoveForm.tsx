@@ -291,6 +291,7 @@ export default function MoveForm({ house }: { house: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <div>สตาฟแจ้งrefresh map{"->"}กด refresh map ด้านบน{"->"}กดปุ่ม refresh ข้อมูลที่บรรทัดถัดไป<span className="font-bold">ก่อนกรอกข้อมูลทุกครั้ง</span>{"->"}แล้วค่อยกรอกข้อมูลการเดิน</div>
       <Button
         type="button"
         onClick={fetchNodes}
@@ -318,7 +319,16 @@ export default function MoveForm({ house }: { house: string }) {
         return (
           <div key={n.node} className="border p-2 rounded">
             <h2 className="font-bold text-lg">
-              🟢 Node {n.node} (คนมีอยู่จริง: {nodeValues[n.node] ?? 0})
+              🟢 Node {n.node} (มีคนอยู่: {nodeValues[n.node] ?? 0})
+              <span className="text-red-600 text-sm">
+                <br />
+                จำนวนคนที่ส่งไปที่ Node ต่างๆ
+                ต้องรวมแล้วเท่ากับจำนวนคนที่มีอยู่ก่อนเดิน
+              </span>
+              <span className="text-red-600 text-sm">
+                <br />
+                ถ้าต้องใช้เรืออย่าลืมกรอก
+              </span>
             </h2>
 
             {nodeMoves.map((m) => (
@@ -388,6 +398,10 @@ export default function MoveForm({ house }: { house: string }) {
           <CardDescription>ตรวจสอบข้อมูลการกรอก</CardDescription>
         </CardHeader>
         <CardContent>
+          <span className="text-red-600 font-bold">
+            <br />
+            อ่านก่อนกดส่งข้อมูล
+          </span>
           <h3 className="font-bold text-lg mt-6">📦 ข้อมูลการเดิน</h3>
           <div>หลังการเดินจะมีคนเหลืออยู่ที่ node ดังนี้</div>
           <Table>
@@ -440,7 +454,7 @@ export default function MoveForm({ house }: { house: string }) {
             <span className="font-bold text-xl">ครั้งเดียวเท่านั้น</span>
             <div>ตรวจสอบข้อมูลให้ดีก่อนกดส่งข้อมูล</div>
           </div>
-          <div>Node ในหมวดเดียวกันห้ามซ้ำ แต่คนละหมวดซ้ำได้</div>
+          {/* <div>Node ในหมวดเดียวกันห้ามซ้ำ แต่คนละหมวดซ้ำได้</div> */}
           <button
             type="submit"
             className="my-4 bg-blue-500 text-white px-4 py-2 rounded"
@@ -449,6 +463,7 @@ export default function MoveForm({ house }: { house: string }) {
           </button>
 
           {message && <p className="text-red-600">{message}</p>}
+          <div>กดส่งแล้วสามารถตรวจสอบได้ว่าข้อมูลถูกส่งไปถูกต้องหรือไม่ทางตารางด้านล่าง กดรีเฟรชที่มุม<span className="font-bold text-xl">ขวาบนของทุกตาราง</span> ข้อมูลผิดรีบแจ้งสตาฟ</div>
         </CardContent>
         {/* <CardFooter>
           <p>Card Footer</p>

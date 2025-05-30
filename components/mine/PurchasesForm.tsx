@@ -159,24 +159,50 @@ export default function PurchaseForm({ house }: { house: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="text-red-600">
+        <li>
+          สร้างป้อมได้ที่<span className="font-bold"> node ของบ้านตัวเอง</span>
+        </li>
+        <li>1 node สร้างได้แค่ป้อมเดียว</li>
+      </div>
       {renderForm("กรอกการสร้างป้อม", forts, setForts)}
+      <div className="text-red-600">
+        <li>
+          สามารถสร้างเรือที่
+          <span className="font-bold"> node ของบ้านตัวเอง</span>เท่านั้น
+        </li>
+      </div>
       {renderForm("กรอกการสร้างเรือ", ships, setShips)}
+      <div className="text-red-600">
+        <li>กรอกจำนวนคนที่ต้องการชุบ</li>
+        <li>
+          ชุบคนได้ที่ <span className="font-bold">node ที่มีป้อม</span>
+          ของบ้านตัวเองเท่านั้น
+        </li>
+      </div>
       {renderForm("กรอกการชุบชีวิต", revives, setRevives)}
 
+
+      <div>ถ้าไม่ต้องการสร้างหรือชุบให้กด "ลบ" ออก</div>
+      <div>Node ในหมวดเดียวกันห้ามซ้ำ แต่คนละหมวดซ้ำได้</div>
+      <div className="text-red-700">
+        ใน 1 รอบทุกบ้านสามารถกรอกข้อมูลได้เพียง
+        <span className="font-bold text-xl">ครั้งเดียวเท่านั้น</span>
+        <div>ตรวจสอบข้อมูลให้ดีก่อนกดส่งข้อมูล</div>
+      </div>
       <button
         type="submit"
         className="bg-blue-500 text-white px-4 py-2 rounded"
       >
         ส่งข้อมูลทั้งหมด
       </button>
-
-      <div className="text-red-700">
-        ใน 1 รอบทุกบ้านสามารถกรอกข้อมูลได้เพียง
-        <span className="font-bold text-xl">ครั้งเดียวเท่านั้น</span>
-        <div>ตรวจสอบข้อมูลให้ดีก่อนกดส่งข้อมูล</div>
-      </div>
-      <div>Node ในหมวดเดียวกันห้ามซ้ำ แต่คนละหมวดซ้ำได้</div>
       {message && <p>{message}</p>}
+      <div>
+        กดส่งแล้วสามารถตรวจสอบได้ว่าข้อมูลถูกส่งไปถูกต้องหรือไม่ทางตารางด้านล่าง
+        กดรีเฟรชที่มุม
+        <span className="font-bold text-xl">ขวาบนของทุกตาราง</span>{" "}
+        ข้อมูลผิดรีบแจ้งสตาฟ
+      </div>
     </form>
   );
 }
