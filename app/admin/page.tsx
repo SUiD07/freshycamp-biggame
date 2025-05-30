@@ -34,6 +34,9 @@ export default function Nan() {
         เปิดสกอร์บอร์ด
       </Link>
       https://keepthescore.com/embed/snhqhpqlmvtgp/
+      <Link  href="https://keepthescore.com/login/?next=/">login</Link>
+      <div>sirada.uth@docchula.com</div>
+      <div>1234567890</div>
       {/* <AdminPhaseSelector/> */}
       {/* <AdminPhaseLogger/> */}
       {/* <SnapshotTable/> */}
