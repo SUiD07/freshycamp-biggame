@@ -168,14 +168,6 @@ export default function Map() {
           </SheetHeader>
         </SheetContent>
       </Sheet>
-      {/* <CountdownTimer /> */}
-      <iframe
-        src="https://keepthescore.com/embed/wvcyndnlzdzrr/"
-        width="500"
-        height="500"
-        className="mx-auto"
-        // frameborder="0"
-      ></iframe>
 
       {/* <ClientPhaseDisplay /> */}
       {/* <ClientPhaseLogDisplay/> */}
@@ -386,6 +378,14 @@ export default function Map() {
             ))}
           </tbody>
         </table> */}
+        {/* <CountdownTimer /> */}
+        <iframe
+          src="https://keepthescore.com/embed/wvcyndnlzdzrr/"
+          width="500"
+          height="500"
+          className="mx-auto"
+          // frameborder="0"
+        ></iframe>
       </main>
       {/* <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
         <Label htmlFor="email">Email</Label>
