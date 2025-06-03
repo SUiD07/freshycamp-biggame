@@ -398,6 +398,7 @@ export default function Map() {
           href="https://docs.google.com/spreadsheets/d/1PqjmLgZvde99r4JfkE4-MpS0cYHx9S200fKwjdx1skQ/edit?pli=1&gid=1465921370"
           target="_blank"
           rel="noopener noreferrer"
+          className="bg-yellow-200 flex mx-auto"
         >
           google sheet กรณีหน้าจอไม่แสดงผลทรัพยากร
         </a>
