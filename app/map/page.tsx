@@ -386,6 +386,21 @@ export default function Map() {
           className="mx-auto"
           // frameborder="0"
         ></iframe>
+        <a
+          href="https://chula.zoom.us/j/95949815386?pwd=HhBKtW1im2IlMpNqLAS00CaaFtZT7j.1"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-slate-500 flex mx-auto text-white"
+        >
+          Join Zoom Meeting
+        </a>
+        <a
+          href="https://docs.google.com/spreadsheets/d/1PqjmLgZvde99r4JfkE4-MpS0cYHx9S200fKwjdx1skQ/edit?pli=1&gid=1465921370"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          google sheet กรณีหน้าจอไม่แสดงผลทรัพยากร
+        </a>
       </main>
       {/* <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
         <Label htmlFor="email">Email</Label>
