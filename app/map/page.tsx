@@ -395,6 +395,14 @@ export default function Map() {
           Join Zoom Meeting
         </a>
         <a
+          href="https://docs.google.com/spreadsheets/d/1HSk7Gxhpw0TN4-4Qaorkv9kvxp5zIxTBImz70faWDWM/edit?gid=0#gid=0"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-yellow-200 flex mx-auto"
+        >
+          google sheet trade
+        </a>
+        <a
           href="https://docs.google.com/spreadsheets/d/1PqjmLgZvde99r4JfkE4-MpS0cYHx9S200fKwjdx1skQ/edit?pli=1&gid=1465921370"
           target="_blank"
           rel="noopener noreferrer"
