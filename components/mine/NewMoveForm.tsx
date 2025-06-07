@@ -290,8 +290,13 @@ export default function MoveForm({ house }: { house: string }) {
   }, [moves, house, round]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>สตาฟแจ้งrefresh map{"->"}กด refresh map ด้านบน{"->"}กดปุ่ม refresh ข้อมูลที่บรรทัดถัดไป<span className="font-bold">ก่อนกรอกข้อมูลทุกครั้ง</span>{"->"}แล้วค่อยกรอกข้อมูลการเดิน</div>
+    <form onSubmit={handleSubmit} className="space-y-6 w-[600px]">
+      <div>
+        สตาฟแจ้งrefresh map{"->"}กด refresh map ด้านบน{"->"}กดปุ่ม refresh
+        ข้อมูลที่บรรทัดถัดไป
+        <span className="font-bold">ก่อนกรอกข้อมูลทุกครั้ง</span>
+        {"->"}แล้วค่อยกรอกข้อมูลการเดิน
+      </div>
       <Button
         type="button"
         onClick={fetchNodes}
@@ -302,13 +307,19 @@ export default function MoveForm({ house }: { house: string }) {
       {message && <p className="text-red-600">{message}</p>}
 
       <div>
-        <label>รอบ: </label>
-        <input
-          type="number"
+        <label htmlFor="round-select">รอบ: </label>
+        <select
+          id="round-select"
           value={round}
           onChange={(e) => setRound(+e.target.value)}
           className="border px-2"
-        />
+        >
+          {Array.from({ length: 50 }, (_, i) => (
+            <option key={i + 1} value={i + 1}>
+              {i + 1}
+            </option>
+          ))}
+        </select>
       </div>
 
       {currentNodes.map((n) => {
@@ -333,35 +344,55 @@ export default function MoveForm({ house }: { house: string }) {
 
             {nodeMoves.map((m) => (
               <div key={m.idx} className="flex items-center gap-2 my-1">
-                ➡️ ไป Node:
-                <input
-                  type="text"
+                <label htmlFor={`toNode-${n.node}-${m.idx}`}>ไป Node:</label>
+                <select
+                  id={`toNode-${n.node}-${m.idx}`}
+                  name={`toNode-${n.node}-${m.idx}`}
                   value={m.toNode}
                   onChange={(e) =>
-                    handleMoveChange(n.node, m.idx, "toNode", e.target.value)
+                    handleMoveChange(n.node, m.idx, "toNode", +e.target.value)
                   }
                   className="border px-2"
-                />
-                กี่คน:
-                <input
-                  type="number"
+                >
+                  <option value="">-- เลือก Node --</option>
+                  {Array.from({ length: 60 }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1}
+                    </option>
+                  ))}
+                </select>
+                <label htmlFor={`count-${n.node}-${m.idx}`}>กี่คน:</label>
+                <select
+                  id={`count-${n.node}-${m.idx}`}
+                  name={`count-${n.node}-${m.idx}`}
                   value={m.count}
-                  min={0}
                   onChange={(e) =>
                     handleMoveChange(n.node, m.idx, "count", +e.target.value)
                   }
                   className="border px-2"
-                />
-                🚢 เรือ:
-                <input
-                  type="number"
+                >
+                  {Array.from({ length: 25 }, (_, i) => (
+                    <option key={i} value={i}>
+                      {i}
+                    </option>
+                  ))}
+                </select>
+                <label htmlFor={`boat-${n.node}-${m.idx}`}>🚢 เรือ:</label>{" "}
+                <select
+                  id={`boat-${n.node}-${m.idx}`}
+                  name={`boat-${n.node}-${m.idx}`}
                   value={m.boat}
-                  min={0}
                   onChange={(e) =>
                     handleMoveChange(n.node, m.idx, "boat", +e.target.value)
                   }
                   className="border px-2"
-                />
+                >
+                  {Array.from({ length: 25 }, (_, i) => (
+                    <option key={i} value={i}>
+                      {i}
+                    </option>
+                  ))}
+                </select>
                 {nodeMoves.length > 1 && (
                   <button
                     type="button"
@@ -392,7 +423,7 @@ export default function MoveForm({ house }: { house: string }) {
 
 <h4>🚢 Ship Data</h4>
 <pre>{JSON.stringify(previewShipData, null, 2)}</pre> */}
-      <Card className="w-3/5 mx-auto">
+      <Card className="w-4/5 mx-auto">
         <CardHeader>
           <CardTitle className="bg-purple-300">ตรวจสอบข้อมูลการกรอก</CardTitle>
           <CardDescription>ตรวจสอบข้อมูลการกรอก</CardDescription>
@@ -463,7 +494,12 @@ export default function MoveForm({ house }: { house: string }) {
           </button>
 
           {message && <p className="text-red-600">{message}</p>}
-          <div>กดส่งแล้วสามารถตรวจสอบได้ว่าข้อมูลถูกส่งไปถูกต้องหรือไม่ทางตารางด้านล่าง กดรีเฟรชที่มุม<span className="font-bold text-xl">ขวาบนของทุกตาราง</span> ข้อมูลผิดรีบแจ้งสตาฟ</div>
+          <div>
+            กดส่งแล้วสามารถตรวจสอบได้ว่าข้อมูลถูกส่งไปถูกต้องหรือไม่ทางตารางด้านล่าง
+            กดรีเฟรชที่มุม
+            <span className="font-bold text-xl">ขวาบนของทุกตาราง</span>{" "}
+            ข้อมูลผิดรีบแจ้งสตาฟ
+          </div>
         </CardContent>
         {/* <CardFooter>
           <p>Card Footer</p>
