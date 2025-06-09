@@ -181,7 +181,7 @@ export default function Map() {
         <div className="relative w-full mb-10">
           <div className="w-full text-center">
             <img
-              src="/maptemp.jpg"
+              src="/map.jpg"
               alt="map"
               className="inline-block w-[90%] h-auto"
             />
