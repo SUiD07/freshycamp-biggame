@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/sheet";
 import React, { useState, useEffect, useRef } from "react"
 import NewMoveForm from "@/components/mine/NewMoveForm";
+import NewPurchaseForm from "@/components/mine/NewPurchasesForm";
 export default function Home() {
   const round = 1;
   const house = "บ้าน 01"; // ปรับตามผู้ใช้งานที่ login
@@ -132,7 +133,8 @@ export default function Home() {
                     กรอกการสร้าง */}
                   {/* (รอบ {round}) */}
                   {/* </h1> */}
-                  <PurchaseForm house={house} />
+                  {/* <PurchaseForm house={house} /> */}
+                  <NewPurchaseForm house={house} houseT={houseT}/>
                 </CardContent>
                 {/* <CardFooter> */}
                 {/* <Button>Save password</Button> */}

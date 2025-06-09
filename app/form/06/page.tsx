@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import MoveForm from "@/components/mine/MoveForm";
 import Map from "@/app/map/page";
 import PurchaseForm from "@/components/mine/PurchasesForm";
@@ -25,57 +25,58 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react";
 import NewMoveForm from "@/components/mine/NewMoveForm";
+import NewPurchaseForm from "@/components/mine/NewPurchasesForm";
 
 export default function Home() {
   const round = 1;
   const house = "บ้าน 06"; // ปรับตามผู้ใช้งานที่ login
   const houseT = "B6";
-const [autoRefresh, setAutoRefresh] = useState(false);
-    const iframeRef = useRef<HTMLIFrameElement>(null);
-    const refreshInterval = useRef<NodeJS.Timeout | null>(null);
-    const lookerUrl =
-      "https://lookerstudio.google.com/embed/reporting/40bbdd38-0ee7-4ac0-9e3b-ed5a76f8228b/page/RQqKF"  ;
-    // Initialize autoRefresh from localStorage on mount
-    useEffect(() => {
-      const stored = localStorage.getItem("autoRefresh");
-      setAutoRefresh(stored === "true");
-    }, []);
-  
-    // Listen for localStorage changes from other tabs/pages
-    useEffect(() => {
-      const onStorage = (e: StorageEvent) => {
-        if (e.key === "autoRefresh") {
-          setAutoRefresh(e.newValue === "true");
-        }
-      };
-      window.addEventListener("storage", onStorage);
-      return () => window.removeEventListener("storage", onStorage);
-    }, []);
-  
-    // Handle iframe reload interval based on autoRefresh
-    useEffect(() => {
-      if (autoRefresh) {
-        refreshInterval.current = setInterval(() => {
-          if (iframeRef.current) {
-            iframeRef.current.src = lookerUrl + "?t=" + new Date().getTime();
-          }
-        }, 20000);
-      } else {
-        if (refreshInterval.current) {
-          clearInterval(refreshInterval.current);
-          refreshInterval.current = null;
-        }
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const refreshInterval = useRef<NodeJS.Timeout | null>(null);
+  const lookerUrl =
+    "https://lookerstudio.google.com/embed/reporting/40bbdd38-0ee7-4ac0-9e3b-ed5a76f8228b/page/RQqKF";
+  // Initialize autoRefresh from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("autoRefresh");
+    setAutoRefresh(stored === "true");
+  }, []);
+
+  // Listen for localStorage changes from other tabs/pages
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "autoRefresh") {
+        setAutoRefresh(e.newValue === "true");
       }
-  
-      return () => {
-        if (refreshInterval.current) {
-          clearInterval(refreshInterval.current);
-          refreshInterval.current = null;
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // Handle iframe reload interval based on autoRefresh
+  useEffect(() => {
+    if (autoRefresh) {
+      refreshInterval.current = setInterval(() => {
+        if (iframeRef.current) {
+          iframeRef.current.src = lookerUrl + "?t=" + new Date().getTime();
         }
-      };
-    }, [autoRefresh, lookerUrl]);
+      }, 20000);
+    } else {
+      if (refreshInterval.current) {
+        clearInterval(refreshInterval.current);
+        refreshInterval.current = null;
+      }
+    }
+
+    return () => {
+      if (refreshInterval.current) {
+        clearInterval(refreshInterval.current);
+        refreshInterval.current = null;
+      }
+    };
+  }, [autoRefresh, lookerUrl]);
 
   return (
     <RequireHouseAuth expectedHouse="06">
@@ -133,7 +134,8 @@ const [autoRefresh, setAutoRefresh] = useState(false);
                             กรอกการสร้าง */}
                   {/* (รอบ {round}) */}
                   {/* </h1> */}
-                  <PurchaseForm house={house} />
+                  {/* <PurchaseForm house={house} /> */}
+                  <NewPurchaseForm house={house} houseT={houseT} />{" "}
                 </CardContent>
                 {/* <CardFooter> */}
                 {/* <Button>Save password</Button> */}

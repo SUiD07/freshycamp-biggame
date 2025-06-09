@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import MoveForm from "@/components/mine/MoveForm";
 import Map from "@/app/map/page";
 import PurchaseForm from "@/components/mine/PurchasesForm";
@@ -25,57 +25,58 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react";
 import NewMoveForm from "@/components/mine/NewMoveForm";
+import NewPurchaseForm from "@/components/mine/NewPurchasesForm";
 
 export default function Home() {
   const round = 1;
   const house = "บ้าน 10"; // ปรับตามผู้ใช้งานที่ login
   const houseT = "B10";
-const [autoRefresh, setAutoRefresh] = useState(false);
-    const iframeRef = useRef<HTMLIFrameElement>(null);
-    const refreshInterval = useRef<NodeJS.Timeout | null>(null);
-    const lookerUrl =
-      "https://lookerstudio.google.com/embed/reporting/1a8a03aa-9bde-449e-9805-f81450cbbdee/page/rZqKF"  ;
-    // Initialize autoRefresh from localStorage on mount
-    useEffect(() => {
-      const stored = localStorage.getItem("autoRefresh");
-      setAutoRefresh(stored === "true");
-    }, []);
-  
-    // Listen for localStorage changes from other tabs/pages
-    useEffect(() => {
-      const onStorage = (e: StorageEvent) => {
-        if (e.key === "autoRefresh") {
-          setAutoRefresh(e.newValue === "true");
-        }
-      };
-      window.addEventListener("storage", onStorage);
-      return () => window.removeEventListener("storage", onStorage);
-    }, []);
-  
-    // Handle iframe reload interval based on autoRefresh
-    useEffect(() => {
-      if (autoRefresh) {
-        refreshInterval.current = setInterval(() => {
-          if (iframeRef.current) {
-            iframeRef.current.src = lookerUrl + "?t=" + new Date().getTime();
-          }
-        }, 20000);
-      } else {
-        if (refreshInterval.current) {
-          clearInterval(refreshInterval.current);
-          refreshInterval.current = null;
-        }
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const refreshInterval = useRef<NodeJS.Timeout | null>(null);
+  const lookerUrl =
+    "https://lookerstudio.google.com/embed/reporting/1a8a03aa-9bde-449e-9805-f81450cbbdee/page/rZqKF";
+  // Initialize autoRefresh from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("autoRefresh");
+    setAutoRefresh(stored === "true");
+  }, []);
+
+  // Listen for localStorage changes from other tabs/pages
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "autoRefresh") {
+        setAutoRefresh(e.newValue === "true");
       }
-  
-      return () => {
-        if (refreshInterval.current) {
-          clearInterval(refreshInterval.current);
-          refreshInterval.current = null;
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // Handle iframe reload interval based on autoRefresh
+  useEffect(() => {
+    if (autoRefresh) {
+      refreshInterval.current = setInterval(() => {
+        if (iframeRef.current) {
+          iframeRef.current.src = lookerUrl + "?t=" + new Date().getTime();
         }
-      };
-    }, [autoRefresh, lookerUrl]);
+      }, 20000);
+    } else {
+      if (refreshInterval.current) {
+        clearInterval(refreshInterval.current);
+        refreshInterval.current = null;
+      }
+    }
+
+    return () => {
+      if (refreshInterval.current) {
+        clearInterval(refreshInterval.current);
+        refreshInterval.current = null;
+      }
+    };
+  }, [autoRefresh, lookerUrl]);
 
   return (
     <RequireHouseAuth expectedHouse="10">
@@ -83,7 +84,7 @@ const [autoRefresh, setAutoRefresh] = useState(false);
         <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
         <OwnedNodePopover houseId={houseT} />
         <Map />
-         <iframe
+        <iframe
           ref={iframeRef}
           width="900"
           height="1200"
@@ -133,7 +134,8 @@ const [autoRefresh, setAutoRefresh] = useState(false);
                             กรอกการสร้าง */}
                   {/* (รอบ {round}) */}
                   {/* </h1> */}
-                  <PurchaseForm house={house} />
+                  {/* <PurchaseForm house={house} /> */}
+                  <NewPurchaseForm house={house} houseT={houseT} />{" "}
                 </CardContent>
                 {/* <CardFooter> */}
                 {/* <Button>Save password</Button> */}
