@@ -197,10 +197,10 @@ export default function Map() {
                 style={{
                   backgroundColor: houseColorMap[selectedCar] ?? "transparent",
                   color: isWhiteText ? "white" : "black",
-                  fontSize: "1vw",
+                  fontSize: "0.75vw",
                   padding: "0.1em",
                   whiteSpace: "nowrap",
-                  top: `${parseFloat(node.top) + 4}%`,
+                  top: `${parseFloat(node.top) + 2.7}%`,
                   left: node.left,
                   width: "3em",
                 }}
@@ -234,14 +234,14 @@ export default function Map() {
                 className="absolute transform -translate-x-1/2 -translate-y-1/2"
               >
                 {/* node.id layer (พื้นหลัง) */}
-                <div className="text-black font-bold p-2 rounded-md z-10">
+                <div className="text-black font-black text-stroke-white tracking-tight scale-y-110 p-2 rounded-md z-10">
                   {node.id}
                 </div>
 
                 {/* explosion layer (อยู่หน้าสุด ถ้ามี) */}
                 {showExplosion && (
                   <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none opacity-50">
-                    <span className="text-3xl">🤯</span>
+                    <span className="text-[3vw]">🤯</span>
                   </div>
                 )}
               </div>
@@ -262,15 +262,15 @@ export default function Map() {
                   transform: "translate(-50%, -50%)",
                   transition: "opacity 0.3s",
                   zIndex: 10,
-                  width: "3vw",
-                  height: "3vw",
+                  width: "2vw",
+                  height: "2vw",
                 }}
               />
               {node.tower && node.towerOwner && (
                 <div
                   className="absolute text-xs text-black font-semibold text-center"
                   style={{
-                    top: `${parseFloat(node.top) + 4}%`,
+                    top: `${parseFloat(node.top) + 3}%`,
                     left: `${parseFloat(node.left) - 2}%`,
                     transform: "translate(-50%, -50%)",
                     fontSize: "0.8vw",
@@ -379,13 +379,19 @@ export default function Map() {
           </tbody>
         </table> */}
         {/* <CountdownTimer /> */}
-        <iframe
-          src="https://keepthescore.com/embed/wvcyndnlzdzrr/"
-          width="500"
-          height="500"
-          className="mx-auto"
-          // frameborder="0"
-        ></iframe>
+        <div
+          className="fixed bottom-0 left-0 z-50 origin-bottom-left"
+          style={{ transform: "scale(0.47)", transformOrigin: "bottom left" }}
+        >
+          <iframe
+            src="https://keepthescore.com/embed/wvcyndnlzdzrr/"
+            width="500"
+            height="500"
+            className="pointer-events-auto"
+            // frameBorder="0"
+          ></iframe>
+        </div>
+
         <a
           href="https://chula.zoom.us/j/95949815386?pwd=HhBKtW1im2IlMpNqLAS00CaaFtZT7j.1"
           target="_blank"
