@@ -14,9 +14,9 @@ export default function NewPurchaseForm({
   houseT: string;
 }) {
   const [round, setRound] = useState(1);
-  const [forts, setForts] = useState<Item[]>([{ node: 1, count: 0 }]);
-  const [ships, setShips] = useState<Item[]>([{ node: 1, count: 0 }]);
-  const [revives, setRevives] = useState<Item[]>([{ node: 1, count: 0 }]);
+  const [forts, setForts] = useState<Item[]>([{ node: 0, count: 1 }]);
+  const [ships, setShips] = useState<Item[]>([{ node: 0, count: 0 }]);
+  const [revives, setRevives] = useState<Item[]>([{ node: 0, count: 0 }]);
   const [message, setMessage] = useState("");
 
   const addItem = (
@@ -25,7 +25,7 @@ export default function NewPurchaseForm({
   ) => {
     setter((prev) => [
       ...prev,
-      { node: 1, count: label.includes("กรอกการสร้างป้อม") ? 1 : 0 },
+      { node: 0, count: label.includes("กรอกการสร้างป้อม") ? 1 : 0 },
     ]);
   };
 
@@ -53,6 +53,8 @@ export default function NewPurchaseForm({
     const nodes = items.map((i) => i.node);
     return new Set(nodes).size !== nodes.length;
   };
+  // ใช้ตรวจว่า node ≤ 0 (เช่น null, 0, หรือ -1)
+  const hasInvalidNode = (items: Item[]) => items.some((i) => i.node <= 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +83,18 @@ export default function NewPurchaseForm({
     }
     if (hasZeroCount(revives)) {
       setMessage("❌ ชุบชีวิต: จำนวนต้องมากกว่า 0 หรือกดลบออก");
+      return;
+    }
+    if (hasInvalidNode(forts)) {
+      setMessage("❌ สร้างป้อม: กรุณาเลือก Node ให้ครบ");
+      return;
+    }
+    if (hasInvalidNode(ships)) {
+      setMessage("❌ สร้างเรือ: กรุณาเลือก Node ให้ครบ");
+      return;
+    }
+    if (hasInvalidNode(revives)) {
+      setMessage("❌ ชุบชีวิต: กรุณาเลือก Node ให้ครบ");
       return;
     }
 
@@ -162,9 +176,13 @@ export default function NewPurchaseForm({
               className="border px-2 py-1"
             >
               <option value="">-- กรุณาเลือก --</option>
-              {(label.includes("กรอกการชุบชีวิต")
-                ? validReviveNodes
-                : Array.from({ length: 60 }, (_, i) => i + 1)
+              {(label.includes("กรอกการสร้างป้อม")
+                ? validFortNodes
+                : label.includes("กรอกการสร้างเรือ")
+                  ? validShipNodes
+                  : label.includes("กรอกการชุบชีวิต")
+                    ? validReviveNodes
+                    : Array.from({ length: 60 }, (_, i) => i + 1)
               ).map((nodeId) => (
                 <option key={nodeId} value={nodeId}>
                   {nodeId}
@@ -225,16 +243,30 @@ export default function NewPurchaseForm({
     setMessage("🔄 กำลังโหลดข้อมูล...");
     const { data, error } = await supabase
       .from("nodes")
-      .select("id, towerOwner");
+      .select("id, towerOwner, selectedcar, tower");
 
     if (!error && data) {
       setAllNodes(data);
 
-      // อัปเดต node ที่มีป้อมของ houseT สำหรับการ revive
+      /// node สำหรับชุบชีวิต (towerOwner === houseT)
       const valid = data
         .filter((node) => node.towerOwner === houseT)
         .map((node) => +node.id);
       setValidReviveNodes(valid);
+      // node สำหรับสร้างป้อม (selectedcar === houseT และ tower === false)
+      const validFort = data
+        .filter(
+          (node) =>
+            node.selectedcar === houseT &&
+            (node.tower === false || node.tower === null)
+        )
+        .map((node) => parseInt(node.id));
+      setValidFortNodes(validFort);
+      // node สำหรับสร้างเรือ (selectedcar === houseT) ไม่ต้องเช็ค tower
+      const validShip = data
+        .filter((node) => node.selectedcar === houseT)
+        .map((node) => parseInt(node.id));
+      setValidShipNodes(validShip);
 
       setMessage("✅ โหลดข้อมูลสำเร็จ");
     } else {
@@ -249,21 +281,24 @@ export default function NewPurchaseForm({
   useEffect(() => {
     refreshNodes();
   }, [houseT]);
+  //   const [validBuildNodes, setValidBuildNodes] = useState<number[]>([]);
+  const [validFortNodes, setValidFortNodes] = useState<number[]>([]);
+  const [validShipNodes, setValidShipNodes] = useState<number[]>([]);
 
-  useEffect(() => {
-    const fetchValidReviveNodes = async () => {
-      const { data, error } = await supabase
-        .from("nodes")
-        .select("id, towerOwner")
-        .eq("towerOwner", houseT);
+//   useEffect(() => {
+//     const fetchValidReviveNodes = async () => {
+//       const { data, error } = await supabase
+//         .from("nodes")
+//         .select("id, towerOwner")
+//         .eq("towerOwner", houseT);
 
-      if (!error && data) {
-        setValidReviveNodes(data.map((node) => +node.id));
-      }
-    };
+//       if (!error && data) {
+//         setValidReviveNodes(data.map((node) => +node.id));
+//       }
+//     };
 
-    fetchValidReviveNodes();
-  }, [house]);
+//     fetchValidReviveNodes();
+//   }, [house]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-[500px]">
