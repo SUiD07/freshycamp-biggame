@@ -289,6 +289,149 @@ export default function MoveForm({ house }: { house: string }) {
     setPreviewShipData(shipData);
   }, [moves, house, round]);
 
+  //node ปลายทาง
+  const allowedDestinations: Record<number, number[]> = {
+    1: [1, 2, 3, 40],
+    2: [
+      2, 1, 3, 39, 
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    3: [3, 1, 2, 4, 5],
+    4: [4, 3, 5, 6],
+    5: [
+      5, 3, 4, 6, 7,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    6: [6, 4, 5, 7, 8],
+    7: [
+      7, 5, 6, 8, 9,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    8: [8, 6, 7, 9],
+    9: [9, 7, 8, 10],
+    10: [10, 9, 11, 12],
+    11: [
+      11, 10, 12, 13,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    12: [12, 10, 11, 13],
+    13: [13, 11, 12, 14, 15],
+    14: [
+      14, 13, 15, 16,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    15: [15, 13, 14, 16],
+    16: [16, 14, 15, 17, 18],
+    17: [
+      17, 16, 18, 19,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    18: [18, 16, 17, 19],
+    19: [19, 17, 18, 20],
+    20: [20, 19, 21, 22],
+    21: [
+      21, 20, 22, 23,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    22: [22, 20, 21, 23],
+    23: [23, 21, 22, 24, 25],
+    24: [
+      24, 23, 25, 26, 27,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    25: [25, 23, 24, 26],
+    26: [26, 24, 25, 27, 28],
+    27: [
+      27, 24, 26, 28, 29,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    28: [28, 26, 27, 29],
+    29: [29, 27, 28, 30, 31],
+    30: [30, 29, 31, 32],
+    31: [
+      31, 29, 30, 32,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    32: [32, 30, 31, 33],
+    33: [33, 32, 34, 35],
+    34: [34, 33, 35, 36],
+    35: [
+      35, 33, 34, 36,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    36: [36, 34, 35, 37, 38],
+    37: [37, 36, 38, 40],
+    38: [
+      38, 36, 37, 39,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    39: [39, 2, 37, 38, 40],
+    40: [40, 1, 39],
+    41: [
+      41, 42, 52, 53,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    42: [42, 41, 43, 59],
+    43: [
+      43, 42, 44, 54,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    44: [
+      44, 43, 45, 54,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    45: [45, 44, 46, 60],
+    46: [
+      46, 45, 47, 55,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    47: [
+      47, 46, 48, 55,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    48: [48, 47, 49, 56],
+    49: [
+      49, 48, 50, 56, 58,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,],
+    50: [
+      50, 49, 51, 57, 58,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    51: [51, 50, 52, 57],
+    52: [
+      52, 41, 51, 53,
+      2, 5, 7, 11, 14, 17, 21, 24, 27, 31, 35, 38, 
+      41, 43, 44, 46, 47, 49, 50, 52,
+    ],
+    53: [53, 41, 52, 59],
+    54: [54, 43, 44, 59, 60],
+    55: [55, 46, 47, 60],
+    56: [56, 48, 49, 58, 60],
+    57: [57, 50, 51, 58, 59],
+    58: [58, 56, 57, 59, 60],
+    59: [59, 42, 53, 54, 57, 58, 60],
+    60: [60, 45, 54, 55, 56, 58, 59],
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 w-[600px]">
       <div>
@@ -342,68 +485,72 @@ export default function MoveForm({ house }: { house: string }) {
               </span>
             </h2>
 
-            {nodeMoves.map((m) => (
-              <div key={m.idx} className="flex items-center gap-2 my-1">
-                <label htmlFor={`toNode-${n.node}-${m.idx}`}>ไป Node:</label>
-                <select
-                  id={`toNode-${n.node}-${m.idx}`}
-                  name={`toNode-${n.node}-${m.idx}`}
-                  value={m.toNode}
-                  onChange={(e) =>
-                    handleMoveChange(n.node, m.idx, "toNode", +e.target.value)
-                  }
-                  className="border px-2"
-                >
-                  <option value="">-- เลือก Node --</option>
-                  {Array.from({ length: 60 }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1}
-                    </option>
-                  ))}
-                </select>
-                <label htmlFor={`count-${n.node}-${m.idx}`}>กี่คน:</label>
-                <select
-                  id={`count-${n.node}-${m.idx}`}
-                  name={`count-${n.node}-${m.idx}`}
-                  value={m.count}
-                  onChange={(e) =>
-                    handleMoveChange(n.node, m.idx, "count", +e.target.value)
-                  }
-                  className="border px-2"
-                >
-                  {Array.from({ length: 25 }, (_, i) => (
-                    <option key={i} value={i}>
-                      {i}
-                    </option>
-                  ))}
-                </select>
-                <label htmlFor={`boat-${n.node}-${m.idx}`}>🚢 เรือ:</label>{" "}
-                <select
-                  id={`boat-${n.node}-${m.idx}`}
-                  name={`boat-${n.node}-${m.idx}`}
-                  value={m.boat}
-                  onChange={(e) =>
-                    handleMoveChange(n.node, m.idx, "boat", +e.target.value)
-                  }
-                  className="border px-2"
-                >
-                  {Array.from({ length: 25 }, (_, i) => (
-                    <option key={i} value={i}>
-                      {i}
-                    </option>
-                  ))}
-                </select>
-                {nodeMoves.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeMove(n.node, m.idx)}
-                    className="text-red-500"
+            {nodeMoves.map((m) => {
+              const fromNode = Number(n.node); // แปลงให้แน่ใจว่าเป็น number
+              const destinations = allowedDestinations[fromNode] ?? [];
+              return (
+                <div key={m.idx} className="flex items-center gap-2 my-1">
+                  <label htmlFor={`toNode-${n.node}-${m.idx}`}>ไป Node:</label>
+                  <select
+                    id={`toNode-${n.node}-${m.idx}`}
+                    name={`toNode-${n.node}-${m.idx}`}
+                    value={m.toNode}
+                    onChange={(e) =>
+                      handleMoveChange(n.node, m.idx, "toNode", +e.target.value)
+                    }
+                    className="border px-2"
                   >
-                    ❌ ลบ
-                  </button>
-                )}
-              </div>
-            ))}
+                    <option value="">-- เลือก Node --</option>
+                    {destinations.map((dest: number) => (
+                      <option key={dest} value={dest}>
+                        {dest}
+                      </option>
+                    ))}
+                  </select>
+                  <label htmlFor={`count-${n.node}-${m.idx}`}>กี่คน:</label>
+                  <select
+                    id={`count-${n.node}-${m.idx}`}
+                    name={`count-${n.node}-${m.idx}`}
+                    value={m.count}
+                    onChange={(e) =>
+                      handleMoveChange(n.node, m.idx, "count", +e.target.value)
+                    }
+                    className="border px-2"
+                  >
+                    {Array.from({ length: 25 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {i}
+                      </option>
+                    ))}
+                  </select>
+                  <label htmlFor={`boat-${n.node}-${m.idx}`}>🚢 เรือ:</label>{" "}
+                  <select
+                    id={`boat-${n.node}-${m.idx}`}
+                    name={`boat-${n.node}-${m.idx}`}
+                    value={m.boat}
+                    onChange={(e) =>
+                      handleMoveChange(n.node, m.idx, "boat", +e.target.value)
+                    }
+                    className="border px-2"
+                  >
+                    {Array.from({ length: 25 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {i}
+                      </option>
+                    ))}
+                  </select>
+                  {nodeMoves.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeMove(n.node, m.idx)}
+                      className="text-red-500"
+                    >
+                      ❌ ลบ
+                    </button>
+                  )}
+                </div>
+              );
+            })}
 
             <button
               type="button"
