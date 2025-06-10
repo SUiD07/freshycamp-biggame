@@ -55,6 +55,17 @@ export default function NewPurchaseForm({
   };
   // ใช้ตรวจว่า node ≤ 0 (เช่น null, 0, หรือ -1)
   const hasInvalidNode = (items: Item[]) => items.some((i) => i.node <= 0);
+  const isReviveValid = (): { valid: boolean; totalSum: number } => {
+    const reviveTotal = revives.reduce((sum, r) => sum + r.count, 0);
+    const totalCurrentValue = allNodes
+      .filter((n: any) => n.selectedcar === houseT)
+      .reduce((sum, n: any) => sum + (parseInt(n.value) || 0), 0);
+
+    const totalSum = totalCurrentValue + reviveTotal;
+    console.log(allNodes.filter((n: any) => n.selectedcar === houseT));
+
+    return { valid: totalSum <= 24, totalSum };
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,6 +106,13 @@ export default function NewPurchaseForm({
     }
     if (hasInvalidNode(revives)) {
       setMessage("❌ ชุบชีวิต: กรุณาเลือก Node ให้ครบ");
+      return;
+    }
+    const { valid, totalSum } = isReviveValid();
+    if (!valid) {
+      setMessage(
+        `❌ จำนวนคนรวมชุบและในสนามตอนนี้คือ ${totalSum} คน ซึ่งเกิน 24 คนแล้ว`
+      );
       return;
     }
 
@@ -243,7 +261,7 @@ export default function NewPurchaseForm({
     setMessage("🔄 กำลังโหลดข้อมูล...");
     const { data, error } = await supabase
       .from("nodes")
-      .select("id, towerOwner, selectedcar, tower");
+      .select("id, towerOwner, selectedcar, tower, value");
 
     if (!error && data) {
       setAllNodes(data);
@@ -285,20 +303,20 @@ export default function NewPurchaseForm({
   const [validFortNodes, setValidFortNodes] = useState<number[]>([]);
   const [validShipNodes, setValidShipNodes] = useState<number[]>([]);
 
-//   useEffect(() => {
-//     const fetchValidReviveNodes = async () => {
-//       const { data, error } = await supabase
-//         .from("nodes")
-//         .select("id, towerOwner")
-//         .eq("towerOwner", houseT);
+  //   useEffect(() => {
+  //     const fetchValidReviveNodes = async () => {
+  //       const { data, error } = await supabase
+  //         .from("nodes")
+  //         .select("id, towerOwner")
+  //         .eq("towerOwner", houseT);
 
-//       if (!error && data) {
-//         setValidReviveNodes(data.map((node) => +node.id));
-//       }
-//     };
+  //       if (!error && data) {
+  //         setValidReviveNodes(data.map((node) => +node.id));
+  //       }
+  //     };
 
-//     fetchValidReviveNodes();
-//   }, [house]);
+  //     fetchValidReviveNodes();
+  //   }, [house]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-[500px]">
