@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/sheet";
 import React, { useState, useEffect, useRef } from "react"
 import NewMoveForm from "@/components/mine/NewMoveForm";
+import Image from 'next/image';
+import styles from './BackgroundContainer.module.css';
 export default function Home() {
   const round = 1;
   const house = "บ้าน 01"; // ปรับตามผู้ใช้งานที่ login
@@ -78,19 +80,28 @@ export default function Home() {
 
   return (
     <RequireHouseAuth expectedHouse="01">
-      <main className="p-6 space-y-6">
+      <main className=" space-y-6">
         <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
         <OwnedNodePopover houseId={houseT} />
         <Map />
-         <iframe
-          ref={iframeRef}
-          width="900"
-          height="1200"
-          className="mx-auto"
-          src={lookerUrl}
-          title="Looker Studio Report"
-          allowFullScreen
-        ></iframe>
+          <div className={styles.backgroundContainer} style={{ position: 'relative' }}>
+      <Image
+        src="/bg.png"
+        alt="Background"
+        layout="fill"
+        objectFit="cover"
+        quality={80}
+        style={{ zIndex: -1 }}
+      />
+      <iframe
+        width="1200"
+        height="900"
+        src={lookerUrl}
+        title="Looker Studio Report"
+        allowFullScreen
+        style={{ position: 'relative', background: 'transparent', border: 'none' }}
+      />
+    </div>
         <div className="w-min mx-auto">
           <Tabs defaultValue="account" className="w-fit max-md:w-9/12">
             <TabsList className="grid w-full grid-cols-2">
