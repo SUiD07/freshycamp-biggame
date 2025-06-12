@@ -23,6 +23,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import NodesTable from "@/components/mine/NodesTable";
+import MoveForm from "@/components/mine/MoveForm";
+import PurchaseForm from "@/components/mine/PurchasesForm";
 
 type Snapshot = {
   node: string;
@@ -108,9 +110,39 @@ export default function SnapshotsTable() {
   useEffect(() => {
     fetchSnapshots();
   }, []);
+  const [houseInput, setHouseInput] = useState<string>("");
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium">เลือกบ้าน:</label>
+        <Select
+          value={houseInput}
+          onValueChange={(value) => setHouseInput(value)}
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="เลือกบ้าน" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="บ้าน 01">บ้าน 01</SelectItem>
+            <SelectItem value="บ้าน 02">บ้าน 02</SelectItem>
+            <SelectItem value="บ้าน 03">บ้าน 03</SelectItem>
+            <SelectItem value="บ้าน 04">บ้าน 04</SelectItem>
+            <SelectItem value="บ้าน 05">บ้าน 05</SelectItem>
+            <SelectItem value="บ้าน 06">บ้าน 06</SelectItem>
+            <SelectItem value="บ้าน 07">บ้าน 07</SelectItem>
+            <SelectItem value="บ้าน 08">บ้าน 08</SelectItem>
+            <SelectItem value="บ้าน 09">บ้าน 09</SelectItem>
+            <SelectItem value="บ้าน 10">บ้าน 10</SelectItem>
+            <SelectItem value="บ้าน 11">บ้าน 11</SelectItem>
+            <SelectItem value="บ้าน 12">บ้าน 12</SelectItem>
+            {/* เพิ่มตามจำนวนบ้านที่คุณมี */}
+          </SelectContent>
+        </Select>
+      </div>
+      {houseInput && <MoveForm house={houseInput} />}
+      {houseInput && <PurchaseForm house={houseInput} />}
+
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium">Round:</label>
@@ -152,65 +184,69 @@ export default function SnapshotsTable() {
         </Button>
       </div>
 
-<div className="max-h-[500px] overflow-y-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Node</TableHead>
-            <TableHead>Phase</TableHead>
-            <TableHead>Round</TableHead>
-            <TableHead>Value</TableHead>
-            <TableHead>SelectedCar</TableHead>
-            <TableHead>Tower</TableHead>
-            <TableHead>Ship</TableHead>
-            <TableHead>Fight</TableHead>
-            <TableHead>TowerOwner</TableHead>
-            <TableHead>Created At</TableHead>
-            <TableHead>Copy</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {snapshots.length === 0 ? (
+      <div className="max-h-[500px] overflow-y-auto">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell
-                colSpan={11}
-                className="text-center text-muted-foreground"
-              >
-                No data found
-              </TableCell>
+              <TableHead>Node</TableHead>
+              <TableHead>Phase</TableHead>
+              <TableHead>Round</TableHead>
+              <TableHead>Value</TableHead>
+              <TableHead>SelectedCar</TableHead>
+              <TableHead>Tower</TableHead>
+              <TableHead>Ship</TableHead>
+              <TableHead>Fight</TableHead>
+              <TableHead>TowerOwner</TableHead>
+              <TableHead>Created At</TableHead>
+              <TableHead>Copy</TableHead>
             </TableRow>
-          ) : (
-            snapshots.map((snap, idx) => (
-              <TableRow key={`${snap.node}-${snap.round}-${snap.phase}-${idx}`}>
-                <TableCell>{snap.node}</TableCell>
-                <TableCell>{snap.phase}</TableCell>
-                <TableCell>{snap.round}</TableCell>
-                <TableCell>{snap.value ?? "-"}</TableCell>
-                <TableCell>{snap.selectedcar ?? "-"}</TableCell>
-                <TableCell>{snap.tower === true ? "true" : "false"}</TableCell>
-                <TableCell>{snap.ship?.join(", ") ?? "-"}</TableCell>
-                <TableCell>{snap.fight?.length ?? 0}</TableCell>
-                <TableCell>{snap.towerOwner ?? "-"}</TableCell>
-                <TableCell>
-                  {new Date(snap.created_at).toLocaleString()}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleCopy(snap)}
-                  >
-                    <Copy className="w-4 h-4" />
-                  </Button>
+          </TableHeader>
+          <TableBody>
+            {snapshots.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={11}
+                  className="text-center text-muted-foreground"
+                >
+                  No data found
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              snapshots.map((snap, idx) => (
+                <TableRow
+                  key={`${snap.node}-${snap.round}-${snap.phase}-${idx}`}
+                >
+                  <TableCell>{snap.node}</TableCell>
+                  <TableCell>{snap.phase}</TableCell>
+                  <TableCell>{snap.round}</TableCell>
+                  <TableCell>{snap.value ?? "-"}</TableCell>
+                  <TableCell>{snap.selectedcar ?? "-"}</TableCell>
+                  <TableCell>
+                    {snap.tower === true ? "true" : "false"}
+                  </TableCell>
+                  <TableCell>{snap.ship?.join(", ") ?? "-"}</TableCell>
+                  <TableCell>{snap.fight?.length ?? 0}</TableCell>
+                  <TableCell>{snap.towerOwner ?? "-"}</TableCell>
+                  <TableCell>
+                    {new Date(snap.created_at).toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleCopy(snap)}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
       <div>Nodes Table</div>
-      <NodesTable/>
+      <NodesTable />
     </div>
   );
 }
