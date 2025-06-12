@@ -170,7 +170,12 @@ export default function Map() {
       </Sheet>
 
       {/* <ClientPhaseDisplay /> */}
-      {/* <ClientPhaseLogDisplay/> */}
+      {/* 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯 */}
+      <div className="sticky top-0 bg-yellow-100 z-50 shadow">
+        <ClientPhaseLogDisplay />
+      </div>
+      {/* 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯 */}
+
       {/* <ChatPage/> */}
       {/* <div className="flex gap-2 [&>input]:mb-3 mt-8"> */}
       {/* <Label htmlFor="search" className="">Search</Label> */}

@@ -40,7 +40,9 @@ export default function Nan() {
           <div>sirada.uth@docchula.com</div>
           <div>1234567890</div>
           {/* <AdminPhaseSelector/> */}
-          {/* <AdminPhaseLogger/> */}
+          {/* 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯 */}
+          <AdminPhaseLogger />
+          {/* 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯 */}
           {/* <SnapshotTable/> */}
         </div>
       </div>

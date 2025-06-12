@@ -47,7 +47,7 @@ export const AdminPhaseLogger = () => {
         </select>
       </div>
 
-      <div>
+      {/* <div>
         <label className="block mb-1 font-medium">เลือก Status</label>
         <select
           value={selectedStatus}
@@ -60,7 +60,7 @@ export const AdminPhaseLogger = () => {
             </option>
           ))}
         </select>
-      </div>
+      </div> */}
 
       <div>
         <label className="block mb-1 font-medium">ข้อความพิเศษ</label>

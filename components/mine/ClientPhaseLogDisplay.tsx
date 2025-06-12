@@ -49,10 +49,10 @@ export const ClientPhaseLogDisplay = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-lg font-bold">Phase ปัจจุบัน</h2>
-      <div>
+      {/* <h2 className="text-lg font-bold">Phase ปัจจุบัน</h2> */}
+      {/* <div>
         <strong>Phase:</strong> {latest.status}
-      </div>
+      </div> */}
       <div>
         <strong>Status:</strong> {latest.phase}
       </div>
@@ -60,7 +60,7 @@ export const ClientPhaseLogDisplay = () => {
         {new Date(latest.created_at).toLocaleString()}
       </div>
       {latest.message && (
-        <div className="p-4 border rounded bg-yellow-50">
+        <div className="p-2 border rounded bg-red-600 text-white">
           <strong>ข้อความ:</strong> {latest.message}
         </div>
       )}
