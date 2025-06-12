@@ -181,7 +181,7 @@ export default function Map() {
         <div className="relative w-full mb-10">
           <div className="w-full text-center">
             <img
-              src="/map.jpg"
+              src="/mapFinal.png"
               alt="map"
               className="inline-block w-[90%] h-auto"
             />
@@ -281,7 +281,7 @@ export default function Map() {
               )}
 
               {/* เรือ */}
-              {node.ship &&
+              {/* {node.ship &&
                 node.ship.map((ship: any, index: any) => (
                   <div
                     key={index}
@@ -305,7 +305,7 @@ export default function Map() {
                       style={{ width: "3vw", height: "3vw" }}
                     />
                   </div>
-                ))}
+                ))} */}
 
               {/* การสู้ */}
               {node.fight &&
@@ -329,14 +329,14 @@ export default function Map() {
                       key={idx}
                       className="absolute"
                       style={{
-                        top: `${parseFloat(node.top) + 1.7 + idx * 2}%`,
+                        top: `${parseFloat(node.top) + 1.7 + idx * 1.5}%`,
                         left: `${parseFloat(node.left) + 2.5}%`,
                         transform: "translate(-50%, -50%)",
                       }}
                     >
                       <div
-                        className="text-center text-red-600 font-bold text-xs mt-1"
-                        style={{ fontSize: "1vw" }}
+                        className="text-center text-red-600 font-bold text-xs mt-1 z-auto"
+                        style={{ fontSize: "0.8vw" }}
                       >
                         {f.house} ({f.count})
                       </div>
