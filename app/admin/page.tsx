@@ -41,7 +41,7 @@ export default function Nan() {
           <div>1234567890</div>
           {/* <AdminPhaseSelector/> */}
           {/* 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯 */}
-          <AdminPhaseLogger />
+          {/* <AdminPhaseLogger /> */}
           {/* 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯 */}
           {/* <SnapshotTable/> */}
         </div>

@@ -13,6 +13,7 @@ type LogEntry = {
 
 export const ClientPhaseLogDisplay = () => {
   const [latest, setLatest] = useState<LogEntry | null>(null);
+  const [highlight, setHighlight] = useState(false);
 
   useEffect(() => {
     const fetchLatestLog = async () => {
@@ -36,6 +37,8 @@ export const ClientPhaseLogDisplay = () => {
         (payload) => {
           const newLog = payload.new as LogEntry;
           setLatest(newLog);
+          setHighlight(true);
+          setTimeout(() => setHighlight(false), 1000); // เน้น 1 วินาที
         }
       )
       .subscribe();
@@ -48,19 +51,31 @@ export const ClientPhaseLogDisplay = () => {
   if (!latest) return <div className="p-4">กำลังโหลดข้อความล่าสุด...</div>;
 
   return (
-    <div className="p-4">
+    <div className={`p-4 transition-all duration-1000 ${
+          highlight ? "bg-blue-100" : "bg-yellow-100"
+        }`}>
       {/* <h2 className="text-lg font-bold">Phase ปัจจุบัน</h2> */}
       {/* <div>
         <strong>Phase:</strong> {latest.status}
       </div> */}
-      <div>
+      <div
+        className={`transition-all duration-1000 ${
+          highlight ? "bg-blue-100" : "bg-yellow-100"
+        }`}
+      >
         <strong>Status:</strong> {latest.phase}
       </div>
+
       <div className="text-sm text-gray-600">
         {new Date(latest.created_at).toLocaleString()}
       </div>
+
       {latest.message && (
-        <div className="p-2 border rounded bg-red-600 text-white">
+        <div
+          className={`text-white p-2 border rounded transition-all duration-1000 ${
+            highlight ? "bg-blue-500" : "bg-red-600"
+          }`}
+        >
           <strong>ข้อความ:</strong> {latest.message}
         </div>
       )}
