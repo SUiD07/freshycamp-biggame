@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
+import NodesTable from "@/components/mine/NodesTable";
 
 type Snapshot = {
   node: string;
@@ -151,6 +152,7 @@ export default function SnapshotsTable() {
         </Button>
       </div>
 
+<div className="max-h-[500px] overflow-y-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -206,6 +208,9 @@ export default function SnapshotsTable() {
           )}
         </TableBody>
       </Table>
+      </div>
+      <div>Nodes Table</div>
+      <NodesTable/>
     </div>
   );
 }
