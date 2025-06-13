@@ -28,71 +28,109 @@ import {
 import React, { useState, useEffect, useRef } from "react";
 import NewMoveForm from "@/components/mine/NewMoveForm";
 import NewPurchaseForm from "@/components/mine/NewPurchasesForm";
-
 export default function Home() {
   const round = 1;
   const house = "บ้าน 06"; // ปรับตามผู้ใช้งานที่ login
   const houseT = "B6";
   const [autoRefresh, setAutoRefresh] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const refreshInterval = useRef<NodeJS.Timeout | null>(null);
+    
+      // Double-iframe logic
+        const [showOldIframe, setShowOldIframe] = useState(true);
+        const [iframeKeyNew, setIframeKeyNew] = useState(Date.now());
+        const [iframeKeyOld, setIframeKeyOld] = useState(Date.now());
+        const [refreshing, setRefreshing] = useState(false);
+        
   const lookerUrl =
     "https://lookerstudio.google.com/embed/reporting/40bbdd38-0ee7-4ac0-9e3b-ed5a76f8228b/page/RQqKF";
-  // Initialize autoRefresh from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem("autoRefresh");
-    setAutoRefresh(stored === "true");
-  }, []);
-
-  // Listen for localStorage changes from other tabs/pages
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "autoRefresh") {
-        setAutoRefresh(e.newValue === "true");
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
-
-  // Handle iframe reload interval based on autoRefresh
-  useEffect(() => {
-    if (autoRefresh) {
-      refreshInterval.current = setInterval(() => {
-        if (iframeRef.current) {
-          iframeRef.current.src = lookerUrl + "?t=" + new Date().getTime();
-        }
-      }, 20000);
-    } else {
-      if (refreshInterval.current) {
-        clearInterval(refreshInterval.current);
-        refreshInterval.current = null;
-      }
-    }
-
-    return () => {
-      if (refreshInterval.current) {
-        clearInterval(refreshInterval.current);
-        refreshInterval.current = null;
-      }
-    };
-  }, [autoRefresh, lookerUrl]);
+    
+    // Initialize autoRefresh from localStorage on mount
+       useEffect(() => {
+         const stored = localStorage.getItem("autoRefresh");
+         setAutoRefresh(stored === "true");
+       }, []);
+     
+       // Listen for localStorage changes from other tabs/pages
+       useEffect(() => {
+         const onStorage = (e: StorageEvent) => {
+           if (e.key === "autoRefresh") {
+             setAutoRefresh(e.newValue === "true");
+           }
+         };
+         window.addEventListener("storage", onStorage);
+         return () => window.removeEventListener("storage", onStorage);
+       }, []);
+     
+       // Auto-refresh logic with sequential iframe updates
+       useEffect(() => {
+         let interval: NodeJS.Timeout | null = null;
+         if (autoRefresh) {
+           interval = setInterval(() => {
+             setRefreshing(true);
+     
+             // Step 1: Load new iframe (hidden), show old iframe
+             setIframeKeyNew(Date.now());
+             setShowOldIframe(true);
+     
+             // Step 2: After 4 seconds, switch to new iframe
+             setTimeout(() => {
+               setShowOldIframe(false);
+               setRefreshing(false);
+     
+               // Step 3: After switching, refresh old iframe after ~4 seconds
+               setTimeout(() => {
+                 setIframeKeyOld(Date.now());
+               }, 4000);
+             }, 4000);
+           }, 20000);
+         }
+         return () => {
+           if (interval) clearInterval(interval);
+         };
+       }, [autoRefresh]);
 
   return (
     <RequireHouseAuth expectedHouse="06">
       <main className="p-6 space-y-6">
-        <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
-        <OwnedNodePopover houseId={houseT} />
-        <Map />
-        <iframe
-          ref={iframeRef}
-          width="900"
-          height="1200"
-          className="mx-auto"
-          src={lookerUrl}
-          title="Looker Studio Report"
-          allowFullScreen
-        ></iframe>
+              <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
+                <OwnedNodePopover houseId={houseT} />
+                <Map />
+                {/* Two iframes stacked */}
+              <div style={{ position: "relative", width: 900, height: 1200, margin: "0 auto" }}>
+                  {/* Old iframe */}
+                  <iframe
+                    key={iframeKeyOld}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: 900,
+                      height: 1200,
+                      opacity: showOldIframe ? 1 : 0,
+                      zIndex: showOldIframe ? 2 : 1,
+                      transition: "opacity 0.3s",
+                    }}
+                    src={lookerUrl + "?t=" + iframeKeyOld}
+                    title="Looker Studio Report (Old)"
+                    allowFullScreen
+                  />
+                  {/* New iframe */}
+                  <iframe
+                    key={iframeKeyNew}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: 900,
+                      height: 1200,
+                      opacity: showOldIframe ? 0 : 1,
+                      zIndex: showOldIframe ? 1 : 2,
+                      transition: "opacity 0.3s",
+                    }}
+                      src={lookerUrl + "?t=" + iframeKeyNew}
+                      title="Looker Studio Report (New)"
+                      allowFullScreen
+                  />
+              </div>
         <div className="w-min mx-auto">
           <Tabs defaultValue="account" className="w-fit max-md:w-9/12">
             <TabsList className="grid w-full grid-cols-2">
