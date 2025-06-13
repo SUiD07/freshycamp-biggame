@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import MoveForm from "@/components/mine/MoveForm";
 import Map from "@/app/map/page";
 import PurchaseForm from "@/components/mine/PurchasesForm";
@@ -33,11 +33,17 @@ export default function Home() {
   const house = "บ้าน 01"; // ปรับตามผู้ใช้งานที่ login
   const houseT = "B1";
   const [autoRefresh, setAutoRefresh] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const refreshInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Double-iframe logic
+  const [showOldIframe, setShowOldIframe] = useState(true);
+  const [iframeKeyNew, setIframeKeyNew] = useState(Date.now());
+  const [iframeKeyOld, setIframeKeyOld] = useState(Date.now());
+  const [refreshing, setRefreshing] = useState(false);
+
   const lookerUrl =
     "https://lookerstudio.google.com/embed/reporting/bb110558-9426-4faa-80e0-70bda8fcbe69/page/2YaKF";
-  // Initialize autoRefresh from localStorage on mount
+
+ // Initialize autoRefresh from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem("autoRefresh");
     setAutoRefresh(stored === "true");
@@ -54,28 +60,33 @@ export default function Home() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // Handle iframe reload interval based on autoRefresh
+  // Auto-refresh logic with sequential iframe updates
   useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
     if (autoRefresh) {
-      refreshInterval.current = setInterval(() => {
-        if (iframeRef.current) {
-          iframeRef.current.src = lookerUrl + "?t=" + new Date().getTime();
-        }
-      }, 20000);
-    } else {
-      if (refreshInterval.current) {
-        clearInterval(refreshInterval.current);
-        refreshInterval.current = null;
-      }
-    }
+      interval = setInterval(() => {
+        setRefreshing(true);
 
+        // Step 1: Load new iframe (hidden), show old iframe
+        setIframeKeyNew(Date.now());
+        setShowOldIframe(true);
+
+        // Step 2: After 4 seconds, switch to new iframe
+        setTimeout(() => {
+          setShowOldIframe(false);
+          setRefreshing(false);
+
+          // Step 3: After switching, refresh old iframe after ~4 seconds
+          setTimeout(() => {
+            setIframeKeyOld(Date.now());
+          }, 4000);
+        }, 4000);
+      }, 20000);
+    }
     return () => {
-      if (refreshInterval.current) {
-        clearInterval(refreshInterval.current);
-        refreshInterval.current = null;
-      }
+      if (interval) clearInterval(interval);
     };
-  }, [autoRefresh, lookerUrl]);
+  }, [autoRefresh]);
 
   return (
     <RequireHouseAuth expectedHouse="01">
@@ -83,15 +94,45 @@ export default function Home() {
         <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
         <OwnedNodePopover houseId={houseT} />
         <Map />
-         <iframe
-          ref={iframeRef}
-          width="900"
-          height="1200"
-          className="mx-auto"
-          src={lookerUrl}
-          title="Looker Studio Report"
-          allowFullScreen
-        ></iframe>
+        {/* Two iframes stacked */}
+        <div style={{ position: "relative", width: 900, height: 1200, margin: "0 auto" }}>
+          {/* Old iframe */}
+          <iframe
+            key={iframeKeyOld}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: 900,
+              height: 1200,
+              opacity: showOldIframe ? 1 : 0,
+              zIndex: showOldIframe ? 2 : 1,
+              transition: "opacity 0.3s",
+            }}
+            src={lookerUrl + "?t=" + iframeKeyOld}
+            title="Looker Studio Report (Old)"
+            allowFullScreen
+          />
+          {/* New iframe */}
+          <iframe
+            key={iframeKeyNew}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: 900,
+              height: 1200,
+              opacity: showOldIframe ? 0 : 1,
+              zIndex: showOldIframe ? 1 : 2,
+              transition: "opacity 0.3s",
+            }}
+            src={lookerUrl + "?t=" + iframeKeyNew}
+            title="Looker Studio Report (New)"
+            allowFullScreen
+          />
+        </div>
+
+        {/* Your existing tabs and forms below */}
         <div className="w-min mx-auto">
           <Tabs defaultValue="account" className="w-fit max-md:w-9/12">
             <TabsList className="grid w-full grid-cols-2">
