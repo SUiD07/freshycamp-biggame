@@ -80,7 +80,7 @@ export default function Home() {
           setTimeout(() => {
             setIframeKeyOld(Date.now());
           }, 4000);
-        }, 4000);
+        }, 6000);
       }, 20000);
     }
     return () => {
@@ -95,7 +95,7 @@ export default function Home() {
         <OwnedNodePopover houseId={houseT} />
         <Map />
         {/* Two iframes stacked */}
-        <div style={{ position: "relative", width: 900, height: 1200, margin: "0 auto" }}>
+        <div style={{ position: "relative", width: 1000, height: 1300, margin: "0 auto" }}>
           {/* Old iframe */}
           <iframe
             key={iframeKeyOld}
@@ -103,8 +103,8 @@ export default function Home() {
               position: "absolute",
               top: 0,
               left: 0,
-              width: 900,
-              height: 1200,
+              width: 1000,
+              height: 1300,
               opacity: showOldIframe ? 1 : 0,
               zIndex: showOldIframe ? 2 : 1,
               transition: "opacity 0.3s",
@@ -120,8 +120,8 @@ export default function Home() {
               position: "absolute",
               top: 0,
               left: 0,
-              width: 900,
-              height: 1200,
+              width: 1000,
+              height: 1300,
               opacity: showOldIframe ? 0 : 1,
               zIndex: showOldIframe ? 1 : 2,
               transition: "opacity 0.3s",
