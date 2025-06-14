@@ -88,7 +88,7 @@ export default function FightSnapshotsTable() {
       {loading ? (
         <div>Loading...</div>
       ) : (
-        <Accordion className="w-[500px]" type="single" collapsible defaultValue="fight-all">
+        <Accordion className="w-[500px]" type="single" collapsible>
           <AccordionItem value="fight-all">
             <AccordionTrigger>แสดงข้อมูลการต่อสู้ทั้งหมด</AccordionTrigger>
             <AccordionContent>
