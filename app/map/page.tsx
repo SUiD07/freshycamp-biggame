@@ -66,10 +66,13 @@ export default function Map() {
     B12: "#f9d4b4",
   };
   const nodeColorMap: Record<string, string> = {
-    ป้อม: "#9ff27e",
-    ทรัพยากร: "#f2ec7e",
-    ท่าเรือ: "#f2b3d8",
-    center: "#ff0303",
+    เริ่มเกม: "+3",
+    เหมือง: "+1",
+    น้ำพุ: "+1",
+    ป่า: "+1",
+    ท่าเรือ: "+1",
+    ธรรมดา: "+3",
+    เก็บแต้ม: "+5",
   };
   // ตัวอักษรสีขาว
   const whiteTextHouses = ["B1", "B3", "B6", "B8", "B9", "B10"];
@@ -139,28 +142,26 @@ export default function Map() {
             <SheetTitle>Node</SheetTitle>
             <SheetDescription>
               <Table>
-                <TableCaption>ตารางสีประจำบ้าน</TableCaption>
+                <TableCaption>ตารางค่าอิทธิพล</TableCaption>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Node</TableHead>
-                    <TableHead>สี</TableHead>
-                    <TableHead>ตัวอย่างสี</TableHead>
+                    <TableHead>ชื่อ</TableHead>
+                    <TableHead>ค่าอิทธิพล</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {Object.entries(nodeColorMap).map(([node, color]) => (
+                  {Object.entries(nodeColorMap).map(([node, color],index) => (
                     <TableRow key={node}>
+                      <TableCell>
+                        <img
+                          src={`/${index + 1}.jpg`}
+                          alt={`ภาพของ ${node}`}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">{node}</TableCell>
                       <TableCell>{color}</TableCell>
-                      <TableCell>
-                        <div
-                          className="w-6 h-6 rounded"
-                          style={{
-                            backgroundColor: color,
-                            border: "1px solid #ccc",
-                          }}
-                        ></div>
-                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -423,7 +424,7 @@ export default function Map() {
           google sheet กรณีหน้าจอไม่แสดงผลทรัพยากร
         </a>
         {/* การต่อสู้ */}
-        <FightSnapshotsTable/>
+        <FightSnapshotsTable />
       </main>
       {/* <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
         <Label htmlFor="email">Email</Label>
