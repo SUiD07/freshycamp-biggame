@@ -33,6 +33,7 @@ import CountdownTimer from "@/components/mine/CountdownTimer";
 import { supabase } from "@/lib/supabase";
 import { ClientPhaseDisplay } from "@/components/mine/ClientPhaseDisplay";
 import { ClientPhaseLogDisplay } from "@/components/mine/ClientPhaseLogDisplay";
+import FightSnapshotsTable from "@/components/mine/FightTable";
 // import ChatPage from "../chat/page";
 
 export default function Map() {
@@ -421,6 +422,8 @@ export default function Map() {
         >
           google sheet กรณีหน้าจอไม่แสดงผลทรัพยากร
         </a>
+        {/* การต่อสู้ */}
+        <FightSnapshotsTable/>
       </main>
       {/* <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
         <Label htmlFor="email">Email</Label>
