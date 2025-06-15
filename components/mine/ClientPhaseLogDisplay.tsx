@@ -15,6 +15,21 @@ export const ClientPhaseLogDisplay = () => {
   const [latest, setLatest] = useState<LogEntry | null>(null);
   const [highlight, setHighlight] = useState(false);
 
+  // ✅ ขอสิทธิ์แจ้งเตือน
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      Notification.requestPermission().then((permission) => {
+        console.log("🔔 Notification permission:", permission);
+      });
+    }
+  }, []);
+
   useEffect(() => {
     const fetchLatestLog = async () => {
       const { data } = await supabase
@@ -38,7 +53,13 @@ export const ClientPhaseLogDisplay = () => {
           const newLog = payload.new as LogEntry;
           setLatest(newLog);
           setHighlight(true);
-          setTimeout(() => setHighlight(false), 1000); // เน้น 1 วินาที
+          setTimeout(() => setHighlight(false), 3000); // เน้น 3 วินาที
+          if (Notification.permission === "granted") {
+            new Notification("📢 มี Phase ใหม่!", {
+              body: `${newLog.phase} - ${newLog.message}`,
+              icon: "/fortress.svg", // แนะนำใส่ไอคอนเล็ก ๆ
+            });
+          }
         }
       )
       .subscribe();
@@ -51,9 +72,11 @@ export const ClientPhaseLogDisplay = () => {
   if (!latest) return <div className="p-4">กำลังโหลดข้อความล่าสุด...</div>;
 
   return (
-    <div className={`p-4 transition-all duration-1000 ${
-          highlight ? "bg-blue-100" : "bg-yellow-100"
-        }`}>
+    <div
+      className={`p-4 transition-all duration-1000 ${
+        highlight ? "bg-blue-100" : "bg-yellow-100"
+      }`}
+    >
       {/* <h2 className="text-lg font-bold">Phase ปัจจุบัน</h2> */}
       {/* <div>
         <strong>Phase:</strong> {latest.status}

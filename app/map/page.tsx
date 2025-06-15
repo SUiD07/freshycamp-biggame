@@ -173,9 +173,9 @@ export default function Map() {
 
       {/* <ClientPhaseDisplay /> */}
       {/* 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯 */}
-      {/* <div className="sticky top-0 z-50 shadow">
+      <div className="sticky top-0 z-50 shadow">
         <ClientPhaseLogDisplay />
-      </div> */}
+      </div>
       {/* 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯 */}
 
       {/* <ChatPage/> */}
