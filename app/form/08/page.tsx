@@ -40,6 +40,9 @@ export default function Home() {
         const [iframeKeyOld, setIframeKeyOld] = useState(Date.now());
         const [refreshing, setRefreshing] = useState(false);
 
+        // Use ref to track refreshing synchronously and avoid race conditions
+        const refreshingRef = useRef(false);
+        
   const lookerUrl =
     "https://lookerstudio.google.com/embed/reporting/2c3d18cf-0cbb-492e-a963-328657086a7a/page/8UqKF";
 
@@ -60,42 +63,70 @@ export default function Home() {
              return () => window.removeEventListener("storage", onStorage);
            }, []);
          
-           // Auto-refresh logic with sequential iframe updates
-           useEffect(() => {
-             let interval: NodeJS.Timeout | null = null;
-             if (autoRefresh) {
-               interval = setInterval(() => {
+             // Extracted refresh logic function
+             const triggerRefresh = () => {
+             if (!refreshingRef.current) {
+               // Turn off auto-refresh when manual refresh starts
+               setAutoRefresh(false);
+           
+                 refreshingRef.current = true;
                  setRefreshing(true);
-         
+           
                  // Step 1: Load new iframe (hidden), show old iframe
                  setIframeKeyNew(Date.now());
                  setShowOldIframe(true);
-         
-                 // Step 2: After 4 seconds, switch to new iframe
+           
+                 // Step 2: After 6 seconds, switch to new iframe
                  setTimeout(() => {
                    setShowOldIframe(false);
                    setRefreshing(false);
-         
-                   // Step 3: After switching, refresh old iframe after ~4 seconds
-                   setTimeout(() => {
-                     setIframeKeyOld(Date.now());
-                   }, 4000);
-                 }, 6000);
-               }, 20000);
+                   refreshingRef.current = false;
+           
+                 setTimeout(() => {
+                   setIframeKeyOld(Date.now());
+                   // Re-enable auto-refresh after refresh completes
+                   setAutoRefresh(true);
+                 }, 1000);
+               }, 5000);
              }
-             return () => {
-               if (interval) clearInterval(interval);
-             };
-           }, [autoRefresh]);
-    
-
-  return (
-    <RequireHouseAuth expectedHouse="08">
-      <main className="p-6 space-y-6">
-              <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
-                <OwnedNodePopover houseId={houseT} />
-                <Map />
-                {/* Two iframes stacked */}
+           };
+           
+             // Auto-refresh logic with sequential iframe updates calling the same function
+             useEffect(() => {
+               let interval: NodeJS.Timeout | null = null;
+               if (autoRefresh) {
+                 interval = setInterval(() => {
+                   triggerRefresh();
+                 }, 20000);
+               }
+               return () => {
+                 if (interval) clearInterval(interval);
+               };
+             }, [autoRefresh]);
+           
+             return (
+               <RequireHouseAuth expectedHouse="08">
+                 <main className="p-6 space-y-6">
+                   <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
+                   <OwnedNodePopover houseId={houseT} />
+                   <Map />
+                    <div className="text-center mb-4">
+                     {/*<p>Auto-refresh: {autoRefresh ? "ON" : "OFF"}</p>
+                     <p>Currently showing: {showOldIframe ? "Old iframe" : "New iframe"}</p>
+                     <p>Refreshing: {refreshing ? "Yes" : "No"}</p>*/}
+                     <p>ถ้าใช้คอมไม่ต้องกดรีเฟรชนะ มันรีเฟรชเองอยู่แล้ว</p>
+                   </div>
+                  <div className=" flex justify-start ml-24 mb-8">
+                     <button
+                       onClick={triggerRefresh}
+                       disabled={refreshing}
+                       className="bg-yellow-300 px-4 py-2 rounded-md hover:bg-yellow-400 transition-colors"
+                     >
+                     {refreshing ? "Refreshing..." : "Refresh Now"}
+                     </button>
+                 </div>
+           
+                   {/* Iframe container with manual refresh button */}
               <div style={{ position: "relative", width: 1000, height: 1300, margin: "0 auto" }}>
                   {/* Old iframe */}
                   <iframe
