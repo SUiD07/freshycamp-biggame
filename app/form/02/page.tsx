@@ -86,8 +86,8 @@ export default function Home() {
         setIframeKeyOld(Date.now());
         // Re-enable auto-refresh after refresh completes
         setAutoRefresh(true);
-      }, 1000);
-    }, 5000);
+      }, 4000);
+    }, 6000);
   }
 };
 
@@ -111,10 +111,10 @@ export default function Home() {
         <OwnedNodePopover houseId={houseT} />
         <Map />
          <div className="text-center mb-4">
-          {/*<p>Auto-refresh: {autoRefresh ? "ON" : "OFF"}</p>
+          {/* <p>Auto-refresh: {autoRefresh ? "ON" : "OFF"}</p>
           <p>Currently showing: {showOldIframe ? "Old iframe" : "New iframe"}</p>
-          <p>Refreshing: {refreshing ? "Yes" : "No"}</p>*/}
-          <p>ถ้าใช้คอมไม่ต้องกดรีเฟรชนะ มันรีเฟรชเองอยู่แล้ว</p>
+          <p>Refreshing: {refreshing ? "Yes" : "No"}</p> */}
+          <p>ถ้าใช้คอมไม่ต้องกดรีเฟรชนะ มันรีเฟรชเองอยู่แล้ว ส่วนไอแพดบ้างเครื่องอาจรีเฟรช</p>
         </div>
        <div className=" flex justify-start ml-24 mb-8">
           <button
