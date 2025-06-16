@@ -400,7 +400,7 @@ export default function Map() {
         </div>
 
         <a
-          href="https://chula.zoom.us/j/95949815386?pwd=HhBKtW1im2IlMpNqLAS00CaaFtZT7j.1"
+          href="https://chula.zoom.us/j/93829743100?pwd=ylAofHJCubZ8QMsxYs3rJqJZNnNdPI.1"
           target="_blank"
           rel="noopener noreferrer"
           className="bg-slate-500 flex mx-auto text-white"
