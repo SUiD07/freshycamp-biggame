@@ -40,10 +40,13 @@ export default function Home() {
   const [iframeKeyOld, setIframeKeyOld] = useState(Date.now());
   const [refreshing, setRefreshing] = useState(false);
 
+  // Use ref to track refreshing synchronously and avoid race conditions
+  const refreshingRef = useRef(false);
+
   const lookerUrl =
     "https://lookerstudio.google.com/embed/reporting/bb110558-9426-4faa-80e0-70bda8fcbe69/page/2YaKF";
 
- // Initialize autoRefresh from localStorage on mount
+  // Initialize autoRefresh from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem("autoRefresh");
     setAutoRefresh(stored === "true");
@@ -60,27 +63,40 @@ export default function Home() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // Auto-refresh logic with sequential iframe updates
+  // Extracted refresh logic function
+  const triggerRefresh = () => {
+  if (!refreshingRef.current) {
+    // Turn off auto-refresh when manual refresh starts
+    setAutoRefresh(false);
+
+      refreshingRef.current = true;
+      setRefreshing(true);
+
+      // Step 1: Load new iframe (hidden), show old iframe
+      setIframeKeyNew(Date.now());
+      setShowOldIframe(true);
+
+      // Step 2: After 6 seconds, switch to new iframe
+      setTimeout(() => {
+        setShowOldIframe(false);
+        setRefreshing(false);
+        refreshingRef.current = false;
+
+      setTimeout(() => {
+        setIframeKeyOld(Date.now());
+        // Re-enable auto-refresh after refresh completes
+        setAutoRefresh(true);
+      }, 1000);
+    }, 5000);
+  }
+};
+
+  // Auto-refresh logic with sequential iframe updates calling the same function
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (autoRefresh) {
       interval = setInterval(() => {
-        setRefreshing(true);
-
-        // Step 1: Load new iframe (hidden), show old iframe
-        setIframeKeyNew(Date.now());
-        setShowOldIframe(true);
-
-        // Step 2: After 4 seconds, switch to new iframe
-        setTimeout(() => {
-          setShowOldIframe(false);
-          setRefreshing(false);
-
-          // Step 3: After switching, refresh old iframe after ~4 seconds
-          setTimeout(() => {
-            setIframeKeyOld(Date.now());
-          }, 4000);
-        }, 6000);
+        triggerRefresh();
       }, 20000);
     }
     return () => {
@@ -94,7 +110,23 @@ export default function Home() {
         <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
         <OwnedNodePopover houseId={houseT} />
         <Map />
-        {/* Two iframes stacked */}
+         <div className="text-center mb-4">
+          {/*<p>Auto-refresh: {autoRefresh ? "ON" : "OFF"}</p>
+          <p>Currently showing: {showOldIframe ? "Old iframe" : "New iframe"}</p>
+          <p>Refreshing: {refreshing ? "Yes" : "No"}</p>*/}
+          <p>ถ้าใช้คอมไม่ต้องกดรีเฟรชนะ มันรีเฟรชเองอยู่แล้ว</p>
+        </div>
+       <div className=" flex justify-start ml-24 mb-8">
+          <button
+            onClick={triggerRefresh}
+            disabled={refreshing}
+            className="bg-yellow-300 px-4 py-2 rounded-md hover:bg-yellow-400 transition-colors"
+          >
+          {refreshing ? "Refreshing..." : "Refresh Now"}
+          </button>
+      </div>
+
+        {/* Iframe container with manual refresh button */}
         <div style={{ position: "relative", width: 1000, height: 1300, margin: "0 auto" }}>
           {/* Old iframe */}
           <iframe
@@ -142,52 +174,31 @@ export default function Home() {
             <TabsContent value="account">
               <Card>
                 <CardHeader>
-                  <CardTitle className="bg-purple-300">
-                    กรอกการเคลื่อนที่
-                  </CardTitle>
-                  <CardDescription>
-                    เดิน เดิน เดิน เดินนนนนนนนนนนน
-                  </CardDescription>
+                  <CardTitle className="bg-purple-300">กรอกการเคลื่อนที่</CardTitle>
+                  <CardDescription>เดิน เดิน เดิน เดินนนนนนนนนนนน</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {/* <h1 className="text-xl font-bold bg-purple-300">
-                    กรอกการเคลื่อนที่ */}
-                  {/* (รอบ {round}) */}
-                  {/* </h1> */}
                   <NewMoveForm house={houseT} />
                 </CardContent>
-                {/* <CardFooter> */}
-                {/* <Button>Save changes</Button> */}
-                {/* </CardFooter> */}
               </Card>
             </TabsContent>
             <TabsContent value="password">
               <Card>
                 <CardHeader>
-                  <CardTitle className="bg-purple-300">
-                    กรอกการสร้างและชุบชีวิต
-                  </CardTitle>
+                  <CardTitle className="bg-purple-300">กรอกการสร้างและชุบชีวิต</CardTitle>
                   <CardDescription>ใช้ทรัพยากรรรรรรรรรร</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {/* <h1 className="text-xl font-bold bg-purple-300">
-                    กรอกการสร้าง */}
-                  {/* (รอบ {round}) */}
-                  {/* </h1> */}
-                  {/* <PurchaseForm house={house} /> */}
-                  <NewPurchaseForm house={house} houseT={houseT}/>
+                  <NewPurchaseForm house={house} houseT={houseT} />
                 </CardContent>
-                {/* <CardFooter> */}
-                {/* <Button>Save password</Button> */}
-                {/* </CardFooter> */}
               </Card>
             </TabsContent>
           </Tabs>
         </div>
+
         <MyMovesTable house={house} />
         <ShipTable house={house} />
         <PurchasesTable house={house} />
-        {/* <hr /> */}
       </main>
     </RequireHouseAuth>
   );
