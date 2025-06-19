@@ -317,6 +317,28 @@ export default function NewPurchaseForm({
 
   //     fetchValidReviveNodes();
   //   }, [house]);
+  useEffect(() => {
+    const channel = supabase
+      .channel("purchaseform-refresh")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "map_refresh_trigger",
+          filter: "id=eq.1", // ตรวจเฉพาะแถว id = 1
+        },
+        () => {
+          console.log("🔁 รีโหลด node ใหม่ใน NewPurchaseForm");
+          refreshNodes(); // เรียกโหลดใหม่
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-[500px]">
