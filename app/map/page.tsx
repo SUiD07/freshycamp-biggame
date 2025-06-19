@@ -47,9 +47,47 @@ export default function Map() {
     }
     setNodes(data);
   };
+  // ✅ โหลดแผนที่ตอนเปิดหน้า
   useEffect(() => {
     fetchUser();
   }, []);
+
+  // ✅ subscribe การรีเฟรชแผนที่จากแอดมิน
+  useEffect(() => {
+    const channel = supabase
+      .channel("map-refresh-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "map_refresh_trigger",
+          filter: "id=eq.1",
+        },
+        (payload) => {
+          console.log("ได้รับคำสั่งรีเฟรชแผนที่จากแอดมิน", payload);
+          fetchUser();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // ✅ ปุ่มสำหรับแอดมินเพื่อสั่งรีเฟรชแผนที่ทุกคน
+  const handleAdminRefresh = async () => {
+    await supabase
+      .from("map_refresh_trigger")
+      .update({ triggered_at: new Date().toISOString() })
+      .eq("id", 1);
+
+    toast({
+      title: "ส่งคำสั่งรีเฟรชแล้ว",
+      description: "ทุกเครื่องจะโหลดข้อมูลแผนที่ใหม่",
+    });
+  };
 
   const houseColorMap: Record<string, string> = {
     B1: "#c00000",
