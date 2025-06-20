@@ -139,12 +139,76 @@ export default function MoveForm({ house }: { house: string }) {
     }
     return true;
   };
+  // check backend ว่าข้อมูลnode ต้นทางตรงกับข้อมูลปัจจุบันไหม
+  const validateWithBackend = async () => {
+  const { data, error } = await supabase
+    .from("nodes")
+    .select("id, value")
+    .eq("selectedcar", house);
+
+  if (error || !data) {
+    setMessage("❌ ตรวจสอบข้อมูลล่าสุดจากระบบไม่สำเร็จ");
+    return false;
+  }
+
+  const backendNodeMap: Record<string, number> = {};
+  data.forEach((n) => {
+    backendNodeMap[n.id] = Number(n.value) || 0;
+  });
+
+  const frontendNodes = Object.keys(nodeValues);
+  const backendNodes = Object.keys(backendNodeMap);
+  const problems: string[] = [];
+
+  // 🔍 1. Node หายไปจากตาราง
+  for (const node of frontendNodes) {
+    if (!backendNodes.includes(node)) {
+      problems.push(`⚠️ Node ${node} ไม่มีอยู่ในข้อมูลล่าสุด กรุณากดรีเฟรชเพื่ออัพเดตข้อมูล`);
+    }
+  }
+
+  // 🔍 2. Node ใหม่เพิ่มเข้ามา
+  for (const node of backendNodes) {
+    if (!frontendNodes.includes(node)) {
+      problems.push(`⚠️ มี Node ใหม่ (${node}) ในข้อมูลล่าสุด กรุณากดรีเฟรชเพื่ออัพเดตข้อมูล`);
+    }
+  }
+
+  // 🔍 3. จำนวนคนเปลี่ยน
+  for (const node of frontendNodes) {
+    const local = nodeValues[node];
+    const backend = backendNodeMap[node];
+    if (local !== backend) {
+      problems.push(
+        `⚠️ จำนวนคนใน Node ${node} เปลี่ยนจาก ${local} เป็น ${backend} คน กรุณากดรีเฟรชเพื่ออัพเดตข้อมูล`
+      );
+    }
+  }
+
+  // ✅ ✅ ✅ 🔍 4. ตรวจสอบว่า fromNode ที่อยู่ใน moves มีอยู่ใน backend จริงไหม
+  const fromNodesInMoves = Array.from(new Set(moves.map((m) => m.fromNode)));
+  for (const fromNode of fromNodesInMoves) {
+    if (!backendNodeMap.hasOwnProperty(fromNode)) {
+      problems.push(
+        `❌ มี Node ${fromNode} อยู่ในฟอร์ม แต่ไม่มีในระบบ กรุณากดรีเฟรชเพื่ออัพเดตข้อมูล`
+      );
+    }
+  }
+  if (problems.length > 0) {
+    setMessage(problems.join("\n"));
+    return false;
+  }
+
+  return true;
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateCounts()) return;
     if (hasDuplicateToNodePerFromNode()) return;
+    const isValid = await validateWithBackend();
+    if (!isValid) return;
 
     const formattedHouse = formatHouseName(house);
 
@@ -450,7 +514,7 @@ export default function MoveForm({ house }: { house: string }) {
       >
         🔄 รีเฟรชข้อมูล
       </Button>
-      {message && <p className="text-red-600">{message}</p>}
+      {message && <p className="text-red-600 whitespace-pre-line">{message}</p>}
 
       <div>
         <label htmlFor="round-select">รอบ: </label>
@@ -643,7 +707,7 @@ export default function MoveForm({ house }: { house: string }) {
             ส่งข้อมูล
           </button>
 
-          {message && <p className="text-red-600">{message}</p>}
+          {message && <p className="text-red-600 whitespace-pre-line">{message}</p>}
           <div>
             กดส่งแล้วสามารถตรวจสอบได้ว่าข้อมูลถูกส่งไปถูกต้องหรือไม่ทางตารางด้านล่าง
             กดรีเฟรชที่มุม
