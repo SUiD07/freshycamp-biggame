@@ -66,6 +66,100 @@ export default function NewPurchaseForm({
 
     return { valid: totalSum <= 24, totalSum };
   };
+  const validateWithBackend = async (): Promise<boolean> => {
+    const { data, error } = await supabase
+      .from("nodes")
+      .select("id, towerOwner, selectedcar, tower, value");
+
+    if (error || !data) {
+      setMessage("❌ ตรวจสอบข้อมูลล่าสุดจากระบบไม่สำเร็จ");
+      return false;
+    }
+
+    console.log("✅ ดึงข้อมูล backend สำเร็จ");
+    console.log("🔎 Backend Nodes:", data);
+    console.log("📝 Frontend - forts:", forts);
+    console.log("📝 Frontend - ships:", ships);
+    console.log("📝 Frontend - revives:", revives);
+
+    const problems: string[] = [];
+
+    // 🔍 Step 1: ตรวจ forts
+    console.log("🔍 Step 1: ตรวจสร้างป้อม");
+    forts.forEach((item) => {
+      const node = data.find((n) => +n.id === item.node);
+      if (!node) {
+        console.log(`❌ Node ${item.node} ไม่พบใน backend`);
+        problems.push(`❌ Node ${item.node} หายไปจากระบบ`);
+      } else {
+        console.log(
+          `➡️ ตรวจ Node ${item.node}: selectedcar=${node.selectedcar}, tower=${node.tower}`
+        );
+        if (node.selectedcar !== houseT || node.tower === true) {
+          problems.push(`❌ Node ${item.node} ไม่สามารถสร้างป้อมได้อีกแล้ว กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`);
+        }
+      }
+    });
+
+    // 🔍 Step 2: ตรวจ ships
+    console.log("🔍 Step 2: ตรวจสร้างเรือ");
+    ships.forEach((item) => {
+      const node = data.find((n) => +n.id === item.node);
+      if (!node) {
+        console.log(`❌ Node ${item.node} ไม่พบใน backend`);
+        problems.push(`❌ Node ${item.node} หายไปจากระบบ`);
+      } else {
+        console.log(
+          `➡️ ตรวจ Node ${item.node}: selectedcar=${node.selectedcar}`
+        );
+        if (node.selectedcar !== houseT) {
+          problems.push(`❌ Node ${item.node} ไม่สามารถสร้างเรือได้ กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`);
+        }
+      }
+    });
+
+    // 🔍 Step 3: ตรวจ revives
+    console.log("🔍 Step 3: ตรวจชุบชีวิต");
+    revives.forEach((item) => {
+      const node = data.find((n) => +n.id === item.node);
+      if (!node) {
+        console.log(`❌ Node ${item.node} ไม่พบใน backend`);
+        problems.push(`❌ Node ${item.node} หายไปจากระบบ`);
+      } else {
+        console.log(`➡️ ตรวจ Node ${item.node}: towerOwner=${node.towerOwner}`);
+        if (node.towerOwner !== houseT) {
+          problems.push(`❌ Node ${item.node} ไม่สามารถใช้ชุบชีวิตได้ กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`);
+        }
+      }
+    });
+
+    // 🔍 Step 4: ตรวจรวมคนไม่เกิน 24
+    console.log("🔍 Step 4: ตรวจจำนวนคนรวม (value + revive)");
+
+    const reviveTotal = revives.reduce((sum, r) => sum + r.count, 0);
+    const currentTotal = data
+      .filter((n) => n.selectedcar === houseT)
+      .reduce((sum, n) => sum + (parseInt(n.value) || 0), 0);
+    const total = reviveTotal + currentTotal;
+
+    console.log(
+      `➡️ คนในสนาม: ${currentTotal}, คนที่จะชุบ: ${reviveTotal}, รวม: ${total}`
+    );
+    if (total > 24) {
+      problems.push(`❌ จำนวนคนรวมในสนาม + ชุบ (${total}) เกิน 24 คน กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`);
+    }
+
+    // ❗ สรุป
+    if (problems.length > 0) {
+      console.log("❗ พบปัญหา:");
+      problems.forEach((p) => console.log(p));
+      setMessage(problems.join("\n"));
+      return false;
+    }
+
+    console.log("✅ ผ่านการตรวจสอบ backend ทุกเงื่อนไข");
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,6 +209,9 @@ export default function NewPurchaseForm({
       );
       return;
     }
+    // ✅ ตรวจสอบข้อมูลล่าสุดจาก backend
+    const isValid = await validateWithBackend();
+    if (!isValid) return;
 
     const { data: existing } = await supabase
       .from("purchases")
@@ -345,7 +442,7 @@ export default function NewPurchaseForm({
       <Button type="button" onClick={refreshNodes} className="text-sm ml-2">
         🔄 รีเฟรชข้อมูล
       </Button>
-      {message && <p>{message}</p>}
+      {message && <p className="whitespace-pre-line">{message}</p>}
 
       <div className="text-red-600">
         <li>
@@ -383,7 +480,7 @@ export default function NewPurchaseForm({
       >
         ส่งข้อมูลทั้งหมด
       </button>
-      {message && <p>{message}</p>}
+      {message && <p className="whitespace-pre-line">{message}</p>}
       <div>
         กดส่งแล้วสามารถตรวจสอบได้ว่าข้อมูลถูกส่งไปถูกต้องหรือไม่ทางตารางด้านล่าง
         กดรีเฟรชที่มุม
