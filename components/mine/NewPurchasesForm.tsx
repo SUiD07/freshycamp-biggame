@@ -276,10 +276,6 @@ export default function NewPurchaseForm({
     e.preventDefault();
     setMessage("⏳ กำลังตรวจสอบข้อมูล...");
 
-    // ✅ ตรวจสอบข้อมูลล่าสุดจาก backend
-    const isValid = await validateWithBackend();
-    if (!isValid) return;
-    
     if (hasDuplicateNode(forts)) {
       setMessage("❌ สร้างป้อม: มี Node ซ้ำ");
       return;
@@ -325,6 +321,9 @@ export default function NewPurchaseForm({
       );
       return;
     }
+    // ✅ ตรวจสอบข้อมูลล่าสุดจาก backend
+    const isValid = await validateWithBackend();
+    if (!isValid) return;
 
     const { data: existing } = await supabase
       .from("purchases")
