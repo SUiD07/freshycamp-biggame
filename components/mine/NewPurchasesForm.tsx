@@ -66,6 +66,36 @@ export default function NewPurchaseForm({
 
     return { valid: totalSum <= 24, totalSum };
   };
+  const [initialFortOptions, setInitialFortOptions] = useState<number[]>([]);
+  const [initialShipOptions, setInitialShipOptions] = useState<number[]>([]);
+  const [initialReviveOptions, setInitialReviveOptions] = useState<number[]>(
+    []
+  );
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const { data, error } = await supabase
+        .from("nodes")
+        .select("id, towerOwner, selectedcar, tower");
+
+      if (error || !data) return;
+
+      setInitialFortOptions(
+        data
+          .filter((n) => n.selectedcar === houseT && !n.tower)
+          .map((n) => +n.id)
+      );
+      setInitialShipOptions(
+        data.filter((n) => n.selectedcar === houseT).map((n) => +n.id)
+      );
+      setInitialReviveOptions(
+        data.filter((n) => n.towerOwner === houseT).map((n) => +n.id)
+      );
+    };
+
+    fetchOptions();
+  }, [houseT]);
+
   const validateWithBackend = async (): Promise<boolean> => {
     const { data, error } = await supabase
       .from("nodes")
@@ -96,7 +126,9 @@ export default function NewPurchaseForm({
           `➡️ ตรวจ Node ${item.node}: selectedcar=${node.selectedcar}, tower=${node.tower}`
         );
         if (node.selectedcar !== houseT || node.tower === true) {
-          problems.push(`❌ Node ${item.node} ไม่สามารถสร้างป้อมได้อีกแล้ว กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`);
+          problems.push(
+            `❌ Node ${item.node} ไม่สามารถสร้างป้อมได้อีกแล้ว กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`
+          );
         }
       }
     });
@@ -113,7 +145,9 @@ export default function NewPurchaseForm({
           `➡️ ตรวจ Node ${item.node}: selectedcar=${node.selectedcar}`
         );
         if (node.selectedcar !== houseT) {
-          problems.push(`❌ Node ${item.node} ไม่สามารถสร้างเรือได้ กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`);
+          problems.push(
+            `❌ Node ${item.node} ไม่สามารถสร้างเรือได้ กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`
+          );
         }
       }
     });
@@ -128,7 +162,9 @@ export default function NewPurchaseForm({
       } else {
         console.log(`➡️ ตรวจ Node ${item.node}: towerOwner=${node.towerOwner}`);
         if (node.towerOwner !== houseT) {
-          problems.push(`❌ Node ${item.node} ไม่สามารถใช้ชุบชีวิตได้ กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`);
+          problems.push(
+            `❌ Node ${item.node} ไม่สามารถใช้ชุบชีวิตได้ กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`
+          );
         }
       }
     });
@@ -146,7 +182,82 @@ export default function NewPurchaseForm({
       `➡️ คนในสนาม: ${currentTotal}, คนที่จะชุบ: ${reviveTotal}, รวม: ${total}`
     );
     if (total > 24) {
-      problems.push(`❌ จำนวนคนรวมในสนาม + ชุบ (${total}) เกิน 24 คน กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`);
+      problems.push(
+        `❌ จำนวนคนรวมในสนาม + ชุบ (${total}) เกิน 24 คน กรุณากดรีเฟรชเพื่ออัพเดตข้อมูลให้เป็นปัจจุบัน`
+      );
+    }
+
+    // 🔍 Step 5: ตรวจสอบว่า option ที่โหลดมา ยังอยู่ใน backend
+    console.log(
+      "🔍 Step 5: ตรวจสอบว่าตัวเลือก Node ทั้งหมดที่ผู้ใช้เห็นตอนโหลดฟอร์ม ยังมีอยู่ในระบบ"
+    );
+
+    // 1. Backend ปัจจุบัน
+    const currentFortIds = data
+      .filter((n) => n.selectedcar === houseT && !n.tower)
+      .map((n) => +n.id);
+
+    const currentShipIds = data
+      .filter((n) => n.selectedcar === houseT)
+      .map((n) => +n.id);
+
+    const currentReviveIds = data
+      .filter((n) => n.towerOwner === houseT)
+      .map((n) => +n.id);
+
+    // 2. เปรียบเทียบกับ options ที่เคยโหลดไว้ตอนเปิด form
+    const missingFortIds = initialFortOptions.filter(
+      (id) => !currentFortIds.includes(id)
+    ); // หายไปจาก backend
+    const extraFortIds = currentFortIds.filter(
+      (id) => !initialFortOptions.includes(id)
+    ); // เพิ่มขึ้นจาก backend
+
+    const missingShipIds = initialShipOptions.filter(
+      (id) => !currentShipIds.includes(id)
+    );
+    const extraShipIds = currentShipIds.filter(
+      (id) => !initialShipOptions.includes(id)
+    );
+
+    const missingReviveIds = initialReviveOptions.filter(
+      (id) => !currentReviveIds.includes(id)
+    );
+    const extraReviveIds = currentReviveIds.filter(
+      (id) => !initialReviveOptions.includes(id)
+    );
+
+    if (missingFortIds.length > 0) {
+      problems.push(
+        `⚠️ Node สร้างป้อมบางจุด (์ Node ${missingFortIds.join(", ")}) ปัจจุบันสร้างป้อมไม่ได้ตรงนี้ กรุณากดทั้งปุ่ม"รีเฟรชข้อมูลแผนที่"และ"รีเฟรชฟอร์มกรอกข้อมูล"`
+      );
+    }
+    if (extraFortIds.length > 0) {
+      problems.push(
+        `⚠️ พบ Node สร้างป้อมใหม่ (${extraFortIds.join(", ")}) เพิ่มเข้ามา กรุณากดทั้งปุ่ม"รีเฟรชข้อมูลแผนที่"และ"รีเฟรชฟอร์มกรอกข้อมูล`
+      );
+    }
+
+    if (missingShipIds.length > 0) {
+      problems.push(
+        `⚠️ Node สร้างเรือบางจุด (${missingShipIds.join(", ")}) ปัจจุบันสร้างเรือไม่ได้ตรงนี้ กรุณากดทั้งปุ่ม"รีเฟรชข้อมูลแผนที่"และ"รีเฟรชฟอร์มกรอกข้อมูล`
+      );
+    }
+    if (extraShipIds.length > 0) {
+      problems.push(
+        `⚠️ พบ Node สร้างเรือใหม่ (${extraShipIds.join(", ")}) เพิ่มเข้ามา ปัจจุบันสร้างป้อมไม่ได้ตรงนี้ กรุณากดทั้งปุ่ม"รีเฟรชข้อมูลแผนที่"และ"รีเฟรชฟอร์มกรอกข้อมูล`
+      );
+    }
+
+    if (missingReviveIds.length > 0) {
+      problems.push(
+        `⚠️ Node ชุบชีวิตบางจุด (${missingReviveIds.join(", ")}) ปัจจุบันชุบชีวิตไม่ได้ตรงนี้ กรุณากดทั้งปุ่ม"รีเฟรชข้อมูลแผนที่"และ"รีเฟรชฟอร์มกรอกข้อมูล`
+      );
+    }
+    if (extraReviveIds.length > 0) {
+      problems.push(
+        `⚠️ พบ Node ชุบชีวิตใหม่ (${extraReviveIds.join(", ")}) เพิ่มเข้ามา กรุณากดทั้งปุ่ม"รีเฟรชข้อมูลแผนที่"และ"รีเฟรชฟอร์มกรอกข้อมูล`
+      );
     }
 
     // ❗ สรุป
@@ -163,7 +274,12 @@ export default function NewPurchaseForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage("⏳ กำลังตรวจสอบข้อมูล...");
 
+    // ✅ ตรวจสอบข้อมูลล่าสุดจาก backend
+    const isValid = await validateWithBackend();
+    if (!isValid) return;
+    
     if (hasDuplicateNode(forts)) {
       setMessage("❌ สร้างป้อม: มี Node ซ้ำ");
       return;
@@ -209,9 +325,6 @@ export default function NewPurchaseForm({
       );
       return;
     }
-    // ✅ ตรวจสอบข้อมูลล่าสุดจาก backend
-    const isValid = await validateWithBackend();
-    if (!isValid) return;
 
     const { data: existing } = await supabase
       .from("purchases")
@@ -383,6 +496,15 @@ export default function NewPurchaseForm({
         .map((node) => parseInt(node.id));
       setValidShipNodes(validShip);
 
+      setInitialFortOptions(validFort);
+      setInitialShipOptions(validShip);
+      setInitialReviveOptions(valid);
+
+      // *** รีเซ็ตฟอร์ม ***/
+      setForts([{ node: 0, count: 1 }]);
+      setShips([{ node: 0, count: 0 }]);
+      setRevives([{ node: 0, count: 0 }]);
+
       setMessage("✅ โหลดข้อมูลสำเร็จ");
     } else {
       setMessage("❌ ไม่สามารถดึงข้อมูล node ได้");
@@ -440,7 +562,7 @@ export default function NewPurchaseForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-[500px]">
       <Button type="button" onClick={refreshNodes} className="text-sm ml-2">
-        🔄 รีเฟรชข้อมูล
+        🔄 รีเฟรชฟอร์มกรอกข้อมูล
       </Button>
       {message && <p className="whitespace-pre-line">{message}</p>}
 

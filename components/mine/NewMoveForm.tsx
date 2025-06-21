@@ -204,6 +204,7 @@ export default function MoveForm({ house }: { house: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage("⏳ กำลังตรวจสอบข้อมูล...");
 
     if (!validateCounts()) return;
     if (hasDuplicateToNodePerFromNode()) return;
@@ -512,7 +513,7 @@ export default function MoveForm({ house }: { house: string }) {
         onClick={fetchNodes}
         className="px-3 py-1 rounded hover:bg-slate-600"
       >
-        🔄 รีเฟรชข้อมูล
+        🔄 รีเฟรชฟอร์มกรอกข้อมูล
       </Button>
       {message && <p className="text-red-600 whitespace-pre-line">{message}</p>}
 
