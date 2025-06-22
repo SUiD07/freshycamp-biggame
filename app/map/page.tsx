@@ -226,7 +226,7 @@ export default function Map() {
         <div className="relative w-full mb-10">
           <div className="w-full text-center">
             <img
-              src="/mapFinal.png"
+              src="/mapFinalReal.png"
               alt="map"
               className="inline-block w-[90%] h-auto"
             />
@@ -438,7 +438,7 @@ export default function Map() {
         </div>
 
         <a
-          href="https://chula.zoom.us/j/93829743100?pwd=ylAofHJCubZ8QMsxYs3rJqJZNnNdPI.1"
+          href="https://chula.zoom.us/j/91919227524?pwd=bUVn6m1ZrpXLRXnJaqZNAzmyLAg1vK.1"
           target="_blank"
           rel="noopener noreferrer"
           className="bg-slate-500 flex mx-auto text-white"
