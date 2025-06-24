@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import RoundResult from "@/components/mine/RoundResult";
 import PurchaseSummary from "@/components/mine/PurchasesSummary";
 import ClaimTowerPage from "../updateTower/page";
+import { PasswordProtectedRoute } from "@/components/mine/PasswordProtectedRoute";
 
 export default function Admin() {
   const [autoRefresh, setAutoRefresh] = useState(true); // default to true
@@ -57,8 +58,9 @@ export default function Admin() {
   };
 
   return (
-    <main className="flex flex-col items-center">
-      <div className="flex-1 w-full flex flex-col items-center">
+    <PasswordProtectedRoute>
+      <main className="flex flex-col items-center">
+        <div className="flex-1 w-full flex flex-col items-center">
           <div className="font-bold text-2xl text-center bg-gray-300">
             ดูผลการกรอก
           </div>
@@ -82,7 +84,8 @@ export default function Admin() {
           <RoundResult />
           <PurchaseSummary />
           <ClaimTowerPage />
-      </div>
-    </main>
+        </div>
+      </main>
+    </PasswordProtectedRoute>
   );
 }

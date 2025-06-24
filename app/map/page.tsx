@@ -35,6 +35,7 @@ import { ClientPhaseDisplay } from "@/components/mine/ClientPhaseDisplay";
 import { ClientPhaseLogDisplay } from "@/components/mine/ClientPhaseLogDisplay";
 import FightSnapshotsTable from "@/components/mine/FightTable";
 // import ChatPage from "../chat/page";
+import { PasswordProtectedRoute } from "@/components/mine/PasswordProtectedRoute";
 
 export default function Map() {
   // const supabase = createClient();
@@ -105,7 +106,7 @@ export default function Map() {
   // ตัวอักษรสีขาว
   const whiteTextHouses = ["B1", "B3", "B6", "B8", "B9", "B10"];
   return (
-    <>
+    <PasswordProtectedRoute>
       {/* <div className="text-center text-xl font-bold">map</div> */}
       <Button
         className="m-4"
@@ -473,6 +474,6 @@ export default function Map() {
           Submit
         </SubmitButton>
       </div> */}
-    </>
+    </PasswordProtectedRoute>
   );
 }

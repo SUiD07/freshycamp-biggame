@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/client";
 import React from "react";
 import NodeUpdater from "@/components/mine/NodeUpdater";
 import ClaimTowerPage from "../updateTower/page";
+import { PasswordProtectedRoute } from "@/components/mine/PasswordProtectedRoute";
 
 
 export default function admin() {
@@ -23,7 +24,7 @@ export default function admin() {
       fetchUser();
     }, []);
   return (
-    <>
+    <PasswordProtectedRoute>
       <div className="font-bold text-center text-xl bg-gray-300">admin</div>
       <ClaimTowerPage/>
       {/* <table>
@@ -56,6 +57,6 @@ export default function admin() {
         </table> */}
         {/* <h2 className="text-lg font-semibold">สรุปสถานะรอบ {round}</h2> */}
         <NodeUpdater/>
-    </>
+    </PasswordProtectedRoute>
   );
 }

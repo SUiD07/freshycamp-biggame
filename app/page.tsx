@@ -4,10 +4,11 @@ import SignUpUserSteps from "@/components/tutorial/sign-up-user-steps";
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import NextLink from "next/link";
 import { Link as LinkIcon } from "lucide-react";
+import { PasswordProtectedRoute } from "@/components/mine/PasswordProtectedRoute";
 
 export default async function Home() {
   return (
-    <>
+    <PasswordProtectedRoute>
       {/* <Hero /> */}
       <header className="min-h-screen flex flex-col items-center">
         <div className="flex-1 w-full flex flex-col gap-20 items-center">
@@ -36,6 +37,18 @@ export default async function Home() {
                 <div className="flex items-center space-x-2 hover:underline">
                   <LinkIcon size={20} />
                   <span>Result</span>
+                </div>
+              </NextLink>
+              <NextLink href="/snap">
+                <div className="flex items-center space-x-2 hover:underline">
+                  <LinkIcon size={20} />
+                  <span>Snap</span>
+                </div>
+              </NextLink>
+              <NextLink href="/emergency">
+                <div className="flex items-center space-x-2 hover:underline">
+                  <LinkIcon size={20} />
+                  <span>Emergency</span>
                 </div>
               </NextLink>
               <div>--------------------</div>
@@ -117,6 +130,6 @@ export default async function Home() {
           </main>
         </div>
       </header>
-    </>
+    </PasswordProtectedRoute>
   );
 }
