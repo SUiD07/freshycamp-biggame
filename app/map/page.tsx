@@ -40,13 +40,17 @@ import { PasswordProtectedRoute } from "@/components/mine/PasswordProtectedRoute
 export default function Map() {
   // const supabase = createClient();
   const [nodes, setNodes] = useState<any>([]);
+  const [lastRefreshTime, setLastRefreshTime] = useState<string | null>(null);
   const fetchUser = async () => {
-    console.log("🔄 Map version changed, reloading...");
+    console.log("🔄 reloading map...");
     let { data, error } = await supabase.from("nodes").select("*");
 
     if (!data || error) {
       console.log("error", error);
     }
+    // ✅ บันทึกเวลารีเฟรชใน localStorage
+    localStorage.setItem("lastMapRefresh", new Date().toISOString());
+    setLastRefreshTime(new Date().toISOString());
     setNodes(data);
   };
   const [loading, setLoading] = useState(false);
@@ -57,27 +61,31 @@ export default function Map() {
   }, []);
 
   // ✅ subscribe การรีเฟรชแผนที่จากแอดมิน
-  useEffect(() => {
-    const channel = supabase
-      .channel("map-refresh-channel")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "map_refresh_trigger",
-          filter: "id=eq.1",
-        },
-        (payload) => {
-          console.log("ได้รับคำสั่งรีเฟรชแผนที่จากแอดมิน", payload);
-          fetchUser();
-        }
-      )
-      .subscribe();
+  // useEffect(() => {
+  //   const channel = supabase
+  //     .channel("map-refresh-channel")
+  //     .on(
+  //       "postgres_changes",
+  //       {
+  //         event: "UPDATE",
+  //         schema: "public",
+  //         table: "map_refresh_trigger",
+  //         filter: "id=eq.1",
+  //       },
+  //       (payload) => {
+  //         console.log("ได้รับคำสั่งรีเฟรชแผนที่จากแอดมิน", payload);
+  //         fetchUser();
+  //       }
+  //     )
+  //     .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+  //   return () => {
+  //     supabase.removeChannel(channel);
+  //   };
+  // }, []);
+  useEffect(() => {
+    const last = localStorage.getItem("lastMapRefresh");
+    setLastRefreshTime(last);
   }, []);
 
   const houseColorMap: Record<string, string> = {
@@ -106,8 +114,19 @@ export default function Map() {
   // ตัวอักษรสีขาว
   const whiteTextHouses = ["B1", "B3", "B6", "B8", "B9", "B10"];
   return (
-    <PasswordProtectedRoute>
+    <>
+      {/* <PasswordProtectedRoute> */}
       {/* <div className="text-center text-xl font-bold">map</div> */}
+      {/* {lastRefreshTime && (
+        <div className="text-sm text-gray-500 mt-2">
+        🕒 แผนที่ถูกโหลดล่าสุดเมื่อ:{" "}
+        {new Date(lastRefreshTime).toLocaleString("th-TH", {
+          dateStyle: "medium",
+          timeStyle: "short",
+          })}
+          </div>
+      )} */}
+
       <Button
         className="m-4"
         disabled={loading}
@@ -214,8 +233,8 @@ export default function Map() {
 
       {/* <ClientPhaseDisplay /> */}
       {/* 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯 */}
-      <div className="sticky top-0 z-50 shadow">
-        <ClientPhaseLogDisplay />
+      <div className="sticky top-0 z-50">
+        <ClientPhaseLogDisplay lastRefreshTime={lastRefreshTime} />
       </div>
       {/* 🤯🤯🤯🤯🤯🤯🤯🤯🤯🤯 */}
 
@@ -338,22 +357,22 @@ export default function Map() {
                       top: `${parseFloat(node.top) - 6}%`,
                       left: `${parseFloat(node.left) + index * 2}%`,
                       transform: "translate(-50%, -50%)",
-                    }}
-                  >
+                      }}
+                      >
                     <div
-                      className="text-center text-purple-600 text-xs mt-1"
-                      style={{ fontSize: "1vw", padding: "0em" }}
+                    className="text-center text-purple-600 text-xs mt-1"
+                    style={{ fontSize: "1vw", padding: "0em" }}
                     >
-                      {ship}
+                    {ship}
                     </div>
                     <img
-                      src="/boat.svg"
-                      alt="ship"
-                      className="w-8 h-8"
-                      style={{ width: "3vw", height: "3vw" }}
+                    src="/boat.svg"
+                    alt="ship"
+                    className="w-8 h-8"
+                    style={{ width: "3vw", height: "3vw" }}
                     />
-                  </div>
-                ))} */}
+                    </div>
+                    ))} */}
 
               {/* การสู้ */}
               {node.fight &&
@@ -402,7 +421,7 @@ export default function Map() {
         ></iframe>{" "} */}
         {/* <table>
           <thead>
-            <tr>
+          <tr>
               <th>ID</th>
               <th>Top</th>
               <th>Left</th>
@@ -410,11 +429,11 @@ export default function Map() {
               <th>SElected car</th>
               <th>tower</th>
               <th>ship</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user: any) => (
-              <tr>
+              </tr>
+              </thead>
+              <tbody>
+              {users.map((user: any) => (
+                <tr>
                 <td>{user.id}</td>
                 <td>{user.top}</td>
                 <td>{user.left}</td>
@@ -422,9 +441,9 @@ export default function Map() {
                 <td>{user.selectedCar}</td>
                 <td>{user.tower ? "Yes" : "No"}</td>
                 <td>{JSON.stringify(user.ship)}</td>
-              </tr>
-            ))}
-          </tbody>
+                </tr>
+                ))}
+                </tbody>
         </table> */}
         {/* <CountdownTimer /> */}
         <div
@@ -473,7 +492,8 @@ export default function Map() {
         <SubmitButton pendingText="Signing In..." formAction={signInAction}>
           Submit
         </SubmitButton>
-      </div> */}
-    </PasswordProtectedRoute>
+        </div> */}
+      {/* </PasswordProtectedRoute> */}
+    </>
   );
 }

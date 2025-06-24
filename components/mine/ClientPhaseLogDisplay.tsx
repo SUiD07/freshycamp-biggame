@@ -10,8 +10,11 @@ type LogEntry = {
   status: string;
   created_at: string;
 };
+type Props = {
+  lastRefreshTime: string | null;
+};
 
-export const ClientPhaseLogDisplay = () => {
+export const ClientPhaseLogDisplay = ({ lastRefreshTime }: Props) => {
   const [latest, setLatest] = useState<LogEntry | null>(null);
   const [highlight, setHighlight] = useState(false);
 
@@ -96,44 +99,77 @@ export const ClientPhaseLogDisplay = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+  const isStale =
+    lastRefreshTime &&
+    latest?.created_at &&
+    new Date(lastRefreshTime) < new Date(latest.created_at);
 
   if (!latest) return <div className="p-4">กำลังโหลดข้อความล่าสุด...</div>;
 
   return (
-    <div
-      className={`p-4 transition-all duration-1000 ${
-        highlight ? "bg-blue-100" : "bg-yellow-100"
-      }`}
-    >
-      {/* <h2 className="text-lg font-bold">Phase ปัจจุบัน</h2> */}
-      {/* <div>
-        <strong>Phase:</strong> {latest.status}
-      </div> */}
+    <div className="mt-2">
       <div
-        className={`transition-all duration-1000 ${
+        className={`shadow p-4 transition-all duration-1000 ${
           highlight ? "bg-blue-100" : "bg-yellow-100"
         }`}
       >
-        <strong>Status:</strong>{" "}
-        {highlightMultipleKeywords(latest.phase, [
-          "เดิน",
-          "สู้",
-          "สร้าง",
-          "ชุบ",
-        ])}
-      </div>
-
-      <div className="text-sm text-gray-600">
-        {new Date(latest.created_at).toLocaleString()}
-      </div>
-
-      {latest.message && (
+        {/* <h2 className="text-lg font-bold">Phase ปัจจุบัน</h2> */}
+        {/* <div>
+        <strong>Phase:</strong> {latest.status}
+        </div> */}
         <div
-          className={`text-white p-2 border rounded transition-all duration-1000 ${
-            highlight ? "bg-blue-500" : "bg-red-600"
+          className={`transition-all duration-1000 ${
+            highlight ? "bg-blue-100" : "bg-yellow-100"
           }`}
         >
-          <strong>ข้อความ:</strong> {latest.message}
+          <strong>Status:</strong>{" "}
+          {highlightMultipleKeywords(latest.phase, [
+            "เดิน",
+            "สู้",
+            "สร้าง",
+            "ชุบ",
+          ])}
+        </div>
+
+        <div className="text-sm text-gray-600">
+          {new Date(latest.created_at).toLocaleString("th-TH", {
+            dateStyle: "medium",
+            timeStyle: "medium",
+          })}
+        </div>
+
+        {latest.message && (
+          <div
+            className={`text-white p-2 border rounded transition-all duration-1000 ${
+              highlight ? "bg-blue-500" : "bg-red-600"
+            }`}
+          >
+            <strong>ข้อความ:</strong> {latest.message}
+          </div>
+        )}
+      </div>
+      {latest && (
+        <div className="text-sm text-gray-600">
+          🔄 ข้อมูลระบบอัปเดตเมื่อ:{" "}
+          {new Date(latest.created_at).toLocaleString("th-TH", {
+            dateStyle: "medium",
+            timeStyle: "medium",
+          })}
+        </div>
+      )}
+      {lastRefreshTime && (
+        <div className="text-sm text-gray-500">
+          🕒 คุณโหลดแผนที่ล่าสุดเมื่อ:{" "}
+          {new Date(lastRefreshTime).toLocaleString("th-TH", {
+            dateStyle: "medium",
+            timeStyle: "medium",
+          })}
+        </div>
+      )}
+
+      {isStale && (
+        <div className="text-sm bg-red-600 text-white mt-1 font-bold">
+          ⚠️ ข้อมูลแผนที่ของคุณไม่เป็นปจบ กรุณากด"🔄 รีเฟรชข้อมูลแผนที่"
         </div>
       )}
     </div>

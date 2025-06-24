@@ -36,7 +36,7 @@ export default function Nan() {
             <CreateSnapshotMoveButton />
             <UpdateNodesFromSnapshotButton />
             <UpdateTowerOwnerButton />
-            <Button onClick={handleRefreshMap}>🔄 รีเฟรชข้อมูลแผนที่</Button>
+            {/* <Button onClick={handleRefreshMap}>🔄 รีเฟรชข้อมูลแผนที่</Button> */}
             {/* <AdminTimer/> */}
             <iframe
               src="https://keepthescore.com/embed/snhqhpqlmvtgp/"
