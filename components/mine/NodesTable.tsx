@@ -36,8 +36,15 @@ export default function NodesTable() {
   const handleCopy = (data: Node[] | Node) => {
     let textToCopy = "";
 
-    const dataArray = Array.isArray(data) ? data : [data];
+    // ถ้าเป็น Array (copy all) หรือ Object (copy row)
+    let dataArray = Array.isArray(data) ? data : [data];
 
+    // ✅ เรียงตาม id แบบตัวเลข
+    dataArray = [...dataArray].sort(
+      (a, b) => parseInt(a.id, 10) - parseInt(b.id, 10)
+    );
+
+    // ✅ Header
     textToCopy +=
       [
         "id",
@@ -61,7 +68,7 @@ export default function NodesTable() {
           item.selectedcar ?? "",
           item.tower === true ? "true" : "false",
           item.ship?.join(", ") ?? "",
-          (item.fight?.length ?? 0).toString(),
+          JSON.stringify(item.fight ?? []), // ✅ แสดง fight แบบ JSON
           item.towerOwner ?? "",
         ].join("\t") + "\n";
     });

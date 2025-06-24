@@ -47,28 +47,41 @@ export function NodeTableView({
               </TableCell>
             </TableRow>
           ) : (
-            nodes.map((node) => (
-              <TableRow key={node.id}>
-                <TableCell>{node.id}</TableCell>
-                <TableCell>{node.top ?? "-"}</TableCell>
-                <TableCell>{node.left ?? "-"}</TableCell>
-                <TableCell>{node.value ?? "-"}</TableCell>
-                <TableCell>{node.selectedcar ?? "-"}</TableCell>
-                <TableCell>{node.tower === true ? "true" : "false"}</TableCell>
-                <TableCell>{node.ship?.join(", ") ?? "-"}</TableCell>
-                <TableCell>{node.fight?.length ?? 0}</TableCell>
-                <TableCell>{node.towerOwner ?? "-"}</TableCell>
-                <TableCell>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => onCopyRow(node)}
-                  >
-                    <Copy className="w-4 h-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))
+            [...nodes]
+              .sort((a, b) => {
+                // แปลง id เป็น number เพื่อเรียงแบบเลข
+                const idA = parseInt(a.id, 10);
+                const idB = parseInt(b.id, 10);
+                return idA - idB;
+              })
+              .map((node) => (
+                <TableRow key={node.id}>
+                  <TableCell>{node.id}</TableCell>
+                  <TableCell>{node.top ?? "-"}</TableCell>
+                  <TableCell>{node.left ?? "-"}</TableCell>
+                  <TableCell>{node.value ?? "-"}</TableCell>
+                  <TableCell>{node.selectedcar ?? "-"}</TableCell>
+                  <TableCell>
+                    {node.tower === true ? "true" : "false"}
+                  </TableCell>
+                  <TableCell>{node.ship?.join(", ") ?? "-"}</TableCell>
+                  <TableCell>
+                    <pre className="whitespace-pre-wrap max-w-xs break-words">
+                      {JSON.stringify(node.fight, null, 2)}
+                    </pre>
+                  </TableCell>
+                  <TableCell>{node.towerOwner ?? "-"}</TableCell>
+                  <TableCell>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => onCopyRow(node)}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
           )}
         </TableBody>
       </Table>

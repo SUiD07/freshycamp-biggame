@@ -40,6 +40,7 @@ export default function Map() {
   // const supabase = createClient();
   const [nodes, setNodes] = useState<any>([]);
   const fetchUser = async () => {
+    console.log("🔄 Map version changed, reloading...");
     let { data, error } = await supabase.from("nodes").select("*");
 
     if (!data || error) {
@@ -47,6 +48,8 @@ export default function Map() {
     }
     setNodes(data);
   };
+  const [loading, setLoading] = useState(false);
+
   // ✅ โหลดแผนที่ตอนเปิดหน้า
   useEffect(() => {
     fetchUser();
@@ -75,19 +78,6 @@ export default function Map() {
       supabase.removeChannel(channel);
     };
   }, []);
-
-  // ✅ ปุ่มสำหรับแอดมินเพื่อสั่งรีเฟรชแผนที่ทุกคน
-  const handleAdminRefresh = async () => {
-    await supabase
-      .from("map_refresh_trigger")
-      .update({ triggered_at: new Date().toISOString() })
-      .eq("id", 1);
-
-    toast({
-      title: "ส่งคำสั่งรีเฟรชแล้ว",
-      description: "ทุกเครื่องจะโหลดข้อมูลแผนที่ใหม่",
-    });
-  };
 
   const houseColorMap: Record<string, string> = {
     B1: "#c00000",
@@ -119,19 +109,31 @@ export default function Map() {
       {/* <div className="text-center text-xl font-bold">map</div> */}
       <Button
         className="m-4"
+        disabled={loading}
         onClick={async () => {
-          await fetchUser();
-          toast({
-            title: "อัปเดตข้อมูลแล้ว",
-            description: "โหลดข้อมูลจากฐานข้อมูลสำเร็จ",
-            action: (
-              <ToastAction altText="Goto schedule to undo">Undo</ToastAction>
-            ),
-          });
+          setLoading(true);
+          try {
+            await fetchUser();
+            toast({
+              title: "อัปเดตข้อมูลแล้ว",
+              description: "โหลดข้อมูลจากฐานข้อมูลสำเร็จ",
+              action: (
+                <ToastAction altText="Goto schedule to undo">Undo</ToastAction>
+              ),
+            });
+          } catch (error) {
+            toast({
+              title: "เกิดข้อผิดพลาด",
+              description: "ไม่สามารถโหลดข้อมูลได้",
+            });
+          } finally {
+            setLoading(false);
+          }
         }}
       >
-        🔄 รีเฟรชข้อมูลแผนที่
+        {loading ? "🔄 กำลังโหลด..." : "🔄 รีเฟรชข้อมูลแผนที่"}
       </Button>
+
       <Sheet>
         <SheetTrigger className="bg-gray-300 p-2 rounded-md m-2 hover:bg-gray-400">
           คลิกเพื่อดูตารางสีแต่ละบ้าน
@@ -189,7 +191,7 @@ export default function Map() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {Object.entries(nodeColorMap).map(([node, color],index) => (
+                  {Object.entries(nodeColorMap).map(([node, color], index) => (
                     <TableRow key={node}>
                       <TableCell>
                         <img

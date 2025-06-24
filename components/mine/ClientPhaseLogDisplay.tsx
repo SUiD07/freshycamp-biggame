@@ -15,12 +15,40 @@ export const ClientPhaseLogDisplay = () => {
   const [latest, setLatest] = useState<LogEntry | null>(null);
   const [highlight, setHighlight] = useState(false);
 
+  const keywordColors: Record<string, string> = {
+    เดิน: "bg-sky-200 text-sky-800",
+    สู้: "bg-rose-200 text-rose-800",
+    สร้าง: "bg-emerald-200 text-emerald-800",
+    ชุบ: "bg-indigo-200 text-indigo-800",
+  };
+
+  const highlightMultipleKeywords = (text: string, keywords: string[]) => {
+    const regex = new RegExp(`(${keywords.join("|")})`, "g");
+    const parts = text.split(regex);
+    return (
+      <>
+        {parts.map((part, index) =>
+          keywords.includes(part) ? (
+            <span
+              key={index}
+              className={`font-semibold px-1 rounded ${keywordColors[part]}`}
+            >
+              {part}
+            </span>
+          ) : (
+            <span key={index}>{part}</span>
+          )
+        )}
+      </>
+    );
+  };
+
   // ✅ ขอสิทธิ์แจ้งเตือน
-  useEffect(() => {
-    if (typeof window !== "undefined" && "Notification" in window) {
-      Notification.requestPermission();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (typeof window !== "undefined" && "Notification" in window) {
+  //     Notification.requestPermission();
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
@@ -86,7 +114,13 @@ export const ClientPhaseLogDisplay = () => {
           highlight ? "bg-blue-100" : "bg-yellow-100"
         }`}
       >
-        <strong>Status:</strong> {latest.phase}
+        <strong>Status:</strong>{" "}
+        {highlightMultipleKeywords(latest.phase, [
+          "เดิน",
+          "สู้",
+          "สร้าง",
+          "ชุบ",
+        ])}
       </div>
 
       <div className="text-sm text-gray-600">

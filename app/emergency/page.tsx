@@ -68,9 +68,14 @@ export default function SnapshotsTable() {
     let textToCopy = "";
 
     // ถ้าเป็น Array (copy all) หรือ Object (copy row)
-    const dataArray = Array.isArray(data) ? data : [data];
+    let dataArray = Array.isArray(data) ? data : [data];
 
-    // เพิ่ม header
+    // ✅ เรียงตาม node โดยแปลงเป็นเลขก่อน
+    dataArray = [...dataArray].sort(
+      (a, b) => parseInt(a.node, 10) - parseInt(b.node, 10)
+    );
+
+    // ✅ เพิ่ม header
     textToCopy +=
       [
         "node",
@@ -96,7 +101,7 @@ export default function SnapshotsTable() {
           item.selectedcar ?? "",
           item.tower === true ? "true" : "false",
           item.ship?.join(", ") ?? "",
-          (item.fight?.length ?? 0).toString(),
+          JSON.stringify(item.fight ?? []), // ✅ แสดง fight เต็มแบบ JSON
           item.towerOwner ?? "",
           new Date(item.created_at).toLocaleString(),
         ].join("\t") + "\n";
@@ -212,35 +217,52 @@ export default function SnapshotsTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              snapshots.map((snap, idx) => (
-                <TableRow
-                  key={`${snap.node}-${snap.round}-${snap.phase}-${idx}`}
-                >
-                  <TableCell>{snap.node}</TableCell>
-                  <TableCell>{snap.phase}</TableCell>
-                  <TableCell>{snap.round}</TableCell>
-                  <TableCell>{snap.value ?? "-"}</TableCell>
-                  <TableCell>{snap.selectedcar ?? "-"}</TableCell>
-                  <TableCell>
-                    {snap.tower === true ? "true" : "false"}
-                  </TableCell>
-                  <TableCell>{snap.ship?.join(", ") ?? "-"}</TableCell>
-                  <TableCell>{snap.fight?.length ?? 0}</TableCell>
-                  <TableCell>{snap.towerOwner ?? "-"}</TableCell>
-                  <TableCell>
-                    {new Date(snap.created_at).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleCopy(snap)}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+              [...snapshots]
+                .sort((a, b) => {
+                  // แปลง node เป็น number เพื่อเรียงแบบเลข
+                  const nodeA = parseInt(a.node, 10);
+                  const nodeB = parseInt(b.node, 10);
+                  if (nodeA !== nodeB) return nodeA - nodeB;
+
+                  // ถ้า node เท่ากัน ให้เรียง round
+                  if (a.round !== b.round) return a.round - b.round;
+
+                  // ถ้า round เท่ากัน เรียง phase ตามตัวอักษร
+                  return a.phase.localeCompare(b.phase);
+                })
+                .map((snap, idx) => (
+                  <TableRow
+                    key={`${snap.node}-${snap.round}-${snap.phase}-${idx}`}
+                  >
+                    <TableCell>{snap.node}</TableCell>
+                    <TableCell>{snap.phase}</TableCell>
+                    <TableCell>{snap.round}</TableCell>
+                    <TableCell>{snap.value ?? "-"}</TableCell>
+                    <TableCell>{snap.selectedcar ?? "-"}</TableCell>
+                    <TableCell>
+                      {snap.tower === true ? "true" : "false"}
+                    </TableCell>
+                    <TableCell>{snap.ship?.join(", ") ?? "-"}</TableCell>
+                    <TableCell>
+                      <pre className="whitespace-pre-wrap max-w-xs break-words">
+                        {JSON.stringify(snap.fight, null, 2)}
+                      </pre>
+                    </TableCell>
+                    <TableCell>{snap.towerOwner ?? "-"}</TableCell>
+                    <TableCell>
+                      {new Date(snap.created_at).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleCopy(snap)}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
             )}
           </TableBody>
         </Table>

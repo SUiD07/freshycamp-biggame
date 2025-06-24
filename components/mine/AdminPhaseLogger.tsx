@@ -1,10 +1,49 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
-const phases = ['อัพเดตผลการเดินเรียบร้อยแล้ว refresh map ได้เลย', 'อัพเดตผลการสู้เรียบร้อยแล้ว refresh map ได้เลย', 'อัพเดตผลการสร้างป้อมเรียบร้อยแล้ว refresh map ได้เลย', 'อัพเดตผลการสร้างป้อมและชุบชีวิตเรียบร้อยแล้ว refresh map ได้เลย', 'รอ'];
+// phase message ทั้งหมด
+const phases = [
+  "อัพเดตผลการเดินเรียบร้อยแล้ว refresh map ได้เลย",
+  "อัพเดตผลการสู้เรียบร้อยแล้ว refresh map ได้เลย",
+  "อัพเดตผลการสร้างป้อมเรียบร้อยแล้ว refresh map ได้เลย",
+  "อัพเดตผลการสร้างป้อมและชุบชีวิตเรียบร้อยแล้ว refresh map ได้เลย",
+  "รอ",
+];
+
 const statuses = ['Preparing Phase', 'Fighting Phase'];
+
+// กำหนดสีแต่ละ keyword
+const keywordColors: Record<string, string> = {
+  เดิน: "bg-sky-200 text-sky-800",
+  สู้: "bg-rose-200 text-rose-800",
+  สร้าง: "bg-emerald-200 text-emerald-800",
+  ชุบ: "bg-indigo-200 text-indigo-800",
+};
+
+// ฟังก์ชันไฮไลต์คำด้วยสีที่กำหนด
+const highlightMultipleKeywords = (text: string, keywords: string[]) => {
+  const regex = new RegExp(`(${keywords.join("|")})`, "g");
+  const parts = text.split(regex);
+
+  return (
+    <>
+      {parts.map((part, index) =>
+        keywords.includes(part) ? (
+          <span
+            key={index}
+            className={`font-semibold px-1 rounded ${keywordColors[part]}`}
+          >
+            {part}
+          </span>
+        ) : (
+          <span key={index}>{part}</span>
+        )
+      )}
+    </>
+  );
+};
 
 export const AdminPhaseLogger = () => {
   const [loading, setLoading] = useState(false);
@@ -17,12 +56,12 @@ export const AdminPhaseLogger = () => {
     const { error } = await supabase
       .from('phase_logs')
       .insert([
-        {
-          phase: selectedPhase,
-          message: message,
-          status: selectedStatus,
-        },
-      ]);
+      {
+        phase: selectedPhase,
+        message: message,
+        status: selectedStatus,
+      },
+    ]);
     setLoading(false);
     if (error) alert('Error: ' + error.message);
     else setMessage('');
@@ -34,6 +73,19 @@ export const AdminPhaseLogger = () => {
 
       <div>
         <label className="block mb-1 font-medium">เลือก Phase</label>
+
+        {/* แสดง preview ที่ไฮไลต์ */}
+        <div className="mb-2">
+          <strong>แสดงตัวอย่าง:</strong>{" "}
+          {highlightMultipleKeywords(selectedPhase, [
+            "เดิน",
+            "สู้",
+            "สร้าง",
+            "ชุบ",
+          ])}
+        </div>
+
+        {/* dropdown */}
         <select
           value={selectedPhase}
           onChange={(e) => setSelectedPhase(e.target.value)}
