@@ -33,136 +33,146 @@ export default function Home() {
   const house = "บ้าน 08"; // ปรับตามผู้ใช้งานที่ login
   const houseT = "B8";
   const [autoRefresh, setAutoRefresh] = useState(false);
-    
-      // Double-iframe logic
-        const [showOldIframe, setShowOldIframe] = useState(true);
-        const [iframeKeyNew, setIframeKeyNew] = useState(Date.now());
-        const [iframeKeyOld, setIframeKeyOld] = useState(Date.now());
-        const [refreshing, setRefreshing] = useState(false);
 
-        // Use ref to track refreshing synchronously and avoid race conditions
-        const refreshingRef = useRef(false);
-        
+  // Double-iframe logic
+  const [showOldIframe, setShowOldIframe] = useState(true);
+  const [iframeKeyNew, setIframeKeyNew] = useState(Date.now());
+  const [iframeKeyOld, setIframeKeyOld] = useState(Date.now());
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Use ref to track refreshing synchronously and avoid race conditions
+  const refreshingRef = useRef(false);
+
   const lookerUrl =
     "https://lookerstudio.google.com/embed/reporting/2c3d18cf-0cbb-492e-a963-328657086a7a/page/8UqKF";
 
   // Initialize autoRefresh from localStorage on mount
-           useEffect(() => {
-             const stored = localStorage.getItem("autoRefresh");
-             setAutoRefresh(stored === "true");
-           }, []);
-         
-           // Listen for localStorage changes from other tabs/pages
-           useEffect(() => {
-             const onStorage = (e: StorageEvent) => {
-               if (e.key === "autoRefresh") {
-                 setAutoRefresh(e.newValue === "true");
-               }
-             };
-             window.addEventListener("storage", onStorage);
-             return () => window.removeEventListener("storage", onStorage);
-           }, []);
-         
-             // Extracted refresh logic function
-             const triggerRefresh = () => {
-             if (!refreshingRef.current) {
-               // Turn off auto-refresh when manual refresh starts
-               setAutoRefresh(false);
-           
-                 refreshingRef.current = true;
-                 setRefreshing(true);
-           
-                 // Step 1: Load new iframe (hidden), show old iframe
-                 setIframeKeyNew(Date.now());
-                 setShowOldIframe(true);
-           
-                 // Step 2: After 6 seconds, switch to new iframe
-                 setTimeout(() => {
-                   setShowOldIframe(false);
-                   setRefreshing(false);
-                   refreshingRef.current = false;
-           
-                 setTimeout(() => {
-                   setIframeKeyOld(Date.now());
-                   // Re-enable auto-refresh after refresh completes
-                   setAutoRefresh(true);
-                 }, 4000);
-               }, 6000);
-             }
-           };
-           
-             // Auto-refresh logic with sequential iframe updates calling the same function
-             useEffect(() => {
-               let interval: NodeJS.Timeout | null = null;
-               if (autoRefresh) {
-                 interval = setInterval(() => {
-                   triggerRefresh();
-                 }, 20000);
-               }
-               return () => {
-                 if (interval) clearInterval(interval);
-               };
-             }, [autoRefresh]);
-           
-             return (
-               <RequireHouseAuth expectedHouse="08">
-                 <main className="p-6 space-y-6">
-                   <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
-                   <OwnedNodePopover houseId={houseT} />
-                   <Map />
-                    <div className="text-center mb-4">
-                     {/*<p>Auto-refresh: {autoRefresh ? "ON" : "OFF"}</p>
+  useEffect(() => {
+    const stored = localStorage.getItem("autoRefresh");
+    setAutoRefresh(stored === "true");
+  }, []);
+
+  // Listen for localStorage changes from other tabs/pages
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "autoRefresh") {
+        setAutoRefresh(e.newValue === "true");
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // Extracted refresh logic function
+  const triggerRefresh = () => {
+    if (!refreshingRef.current) {
+      // Turn off auto-refresh when manual refresh starts
+      setAutoRefresh(false);
+
+      refreshingRef.current = true;
+      setRefreshing(true);
+
+      // Step 1: Load new iframe (hidden), show old iframe
+      setIframeKeyNew(Date.now());
+      setShowOldIframe(true);
+
+      // Step 2: After 6 seconds, switch to new iframe
+      setTimeout(() => {
+        setShowOldIframe(false);
+        setRefreshing(false);
+        refreshingRef.current = false;
+
+        setTimeout(() => {
+          setIframeKeyOld(Date.now());
+          // Re-enable auto-refresh after refresh completes
+          setAutoRefresh(true);
+        }, 4000);
+      }, 6000);
+    }
+  };
+
+  // Auto-refresh logic with sequential iframe updates calling the same function
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (autoRefresh) {
+      interval = setInterval(() => {
+        triggerRefresh();
+      }, 20000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [autoRefresh]);
+
+  return (
+    <RequireHouseAuth expectedHouse="08">
+      <main className="p-6 space-y-6">
+        <h1 className="font-bold text-2xl text-center bg-slate-300">{house}</h1>
+        <OwnedNodePopover houseId={houseT} />
+        <Map />
+        <div className="text-center mb-4">
+          {/*<p>Auto-refresh: {autoRefresh ? "ON" : "OFF"}</p>
                      <p>Currently showing: {showOldIframe ? "Old iframe" : "New iframe"}</p>
                      <p>Refreshing: {refreshing ? "Yes" : "No"}</p>*/}
-                     <p>ถ้าใช้คอมไม่ต้องกดรีเฟรชนะ มันรีเฟรชเองอยู่แล้ว ส่วนไอแพดบ้างเครื่องอาจรีเฟรช</p>
-                   </div>
-                  <div className=" flex justify-start ml-24 mb-8">
-                     <button
-                       onClick={triggerRefresh}
-                       disabled={refreshing}
-                       className="bg-yellow-300 px-4 py-2 rounded-md hover:bg-yellow-400 transition-colors"
-                     >
-                     {refreshing ? "Refreshing..." : "Refresh Now"}
-                     </button>
-                 </div>
-           
-                   {/* Iframe container with manual refresh button */}
-              <div style={{ position: "relative", width: 1000, height: 1300, margin: "0 auto" }}>
-                  {/* Old iframe */}
-                  <iframe
-                    key={iframeKeyOld}
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: 1000,
-                      height: 1300,
-                      opacity: showOldIframe ? 1 : 0,
-                      zIndex: showOldIframe ? 2 : 1,
-                      transition: "opacity 0.3s",
-                    }}
-                    src={lookerUrl + "?t=" + iframeKeyOld}
-                    title="Looker Studio Report (Old)"
-                    allowFullScreen
-                  />
-                  {/* New iframe */}
-                  <iframe
-                    key={iframeKeyNew}
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: 1000,
-                      height: 1300,
-                      opacity: showOldIframe ? 0 : 1,
-                      zIndex: showOldIframe ? 1 : 2,
-                      transition: "opacity 0.3s",
-                    }}
-                      src={lookerUrl + "?t=" + iframeKeyNew}
-                      title="Looker Studio Report (New)"
-                      allowFullScreen
-                  />
-              </div>
+          <p>
+            ถ้าใช้คอมไม่ต้องกดรีเฟรชนะ มันรีเฟรชเองอยู่แล้ว
+            ส่วนไอแพดบ้างเครื่องอาจรีเฟรช
+          </p>
+        </div>
+        <div className=" flex justify-start ml-24 mb-8">
+          <button
+            onClick={triggerRefresh}
+            disabled={refreshing}
+            className="bg-yellow-300 px-4 py-2 rounded-md hover:bg-yellow-400 transition-colors"
+          >
+            {refreshing ? "Refreshing..." : "Refresh Now"}
+          </button>
+        </div>
+
+        {/* Iframe container with manual refresh button */}
+        <div
+          style={{
+            position: "relative",
+            margin: "0 auto",
+            width: "70%",
+            aspectRatio: "4 / 5",
+          }}
+        >
+          {/* Old iframe */}
+          <iframe
+            key={iframeKeyOld}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              opacity: showOldIframe ? 1 : 0,
+              zIndex: showOldIframe ? 2 : 1,
+              transition: "opacity 0.3s",
+            }}
+            src={lookerUrl + "?t=" + iframeKeyOld}
+            title="Looker Studio Report (Old)"
+            allowFullScreen
+          />
+          {/* New iframe */}
+          <iframe
+            key={iframeKeyNew}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              opacity: showOldIframe ? 0 : 1,
+              zIndex: showOldIframe ? 1 : 2,
+              transition: "opacity 0.3s",
+            }}
+            src={lookerUrl + "?t=" + iframeKeyNew}
+            title="Looker Studio Report (New)"
+            allowFullScreen
+          />
+        </div>
         <div className="w-min mx-auto">
           <Tabs defaultValue="account" className="w-fit max-md:w-9/12">
             <TabsList className="grid w-full grid-cols-2">

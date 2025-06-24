@@ -372,98 +372,98 @@ export default function NewPurchaseForm({
     prefix: string
   ) => (
     <div className="border p-4 rounded space-y-2">
-      <h3 className="font-bold">{label}</h3>
-      <div>
-        <label htmlFor={`${prefix}-round-select`}>รอบ: </label>{" "}
-        <select
-          id={`${prefix}-round-select`}
-          value={round}
-          onChange={(e) => setRound(+e.target.value)}
-          className="border px-2"
-        >
-          {Array.from({ length: 50 }, (_, i) => (
-            <option key={i + 1} value={i + 1}>
-              {i + 1}
-            </option>
-          ))}
-        </select>
-      </div>
-      {items.map((item, index) => (
-        <div key={index} className="flex gap-2 items-center">
-          <div>
-            <label htmlFor={`${prefix}-node-select-${index}`}>
-              เลือก Node:{" "}
-            </label>{" "}
-            <select
-              id={`${prefix}-node-select-${index}`}
-              value={item.node > 0 ? item.node : ""}
-              onChange={(e) =>
-                handleChange(index, "node", +e.target.value, setter)
-              }
-              className="border px-2 py-1"
-            >
-              <option value="">-- กรุณาเลือก --</option>
-              {(label.includes("กรอกการสร้างป้อม")
-                ? validFortNodes
-                : label.includes("กรอกการสร้างเรือ")
-                  ? validShipNodes
-                  : label.includes("กรอกการชุบชีวิต")
-                    ? validReviveNodes
-                    : Array.from({ length: 60 }, (_, i) => i + 1)
-              ).map((nodeId) => (
-                <option key={nodeId} value={nodeId}>
-                  {nodeId}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor={`${prefix}-count-select-${index}`}>จำนวน: </label>{" "}
-            {label.includes("กรอกการสร้างป้อม") ? (
-              <>
-                <span className="px-2 py-1 border rounded bg-gray-100">1</span>
-                <input type="hidden" value={1} onChange={() => {}} />
-              </>
-            ) : (
+        <h3 className="font-bold">{label}</h3>
+        <div>
+          <label htmlFor={`${prefix}-round-select`}>รอบ: </label>{" "}
+          <select
+            id={`${prefix}-round-select`}
+            value={round}
+            onChange={(e) => setRound(+e.target.value)}
+            className="border px-2"
+          >
+            {Array.from({ length: 50 }, (_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
+          </select>
+        </div>
+        {items.map((item, index) => (
+          <div key={index} className="flex flex-wrap sm:flex-nowrap gap-2 items-center">
+            <div>
+              <label htmlFor={`${prefix}-node-select-${index}`}>
+                เลือก Node:{" "}
+              </label>{" "}
               <select
-                id={`${prefix}-count-select-${index}`}
-                value={item.count > 0 ? item.count : ""}
+                id={`${prefix}-node-select-${index}`}
+                value={item.node > 0 ? item.node : ""}
                 onChange={(e) =>
-                  handleChange(index, "count", +e.target.value, setter)
+                  handleChange(index, "node", +e.target.value, setter)
                 }
                 className="border px-2 py-1"
               >
                 <option value="">-- กรุณาเลือก --</option>
-                {Array.from({ length: 20 }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {label.includes("กรอกการสร้างเรือ")
-                      ? `${i + 1} ลำ`
-                      : label.includes("กรอกการชุบชีวิต")
-                        ? `${i + 1} คน`
-                        : i + 1}
+                {(label.includes("กรอกการสร้างป้อม")
+                  ? validFortNodes
+                  : label.includes("กรอกการสร้างเรือ")
+                    ? validShipNodes
+                    : label.includes("กรอกการชุบชีวิต")
+                      ? validReviveNodes
+                      : Array.from({ length: 60 }, (_, i) => i + 1)
+                ).map((nodeId) => (
+                  <option key={nodeId} value={nodeId}>
+                    {nodeId}
                   </option>
                 ))}
               </select>
-            )}
-          </div>
+            </div>
+            <div>
+              <label htmlFor={`${prefix}-count-select-${index}`}>จำนวน: </label>{" "}
+              {label.includes("กรอกการสร้างป้อม") ? (
+                <>
+                <span className="px-2 py-1 border rounded bg-gray-100">1</span>
+                  <input type="hidden" value={1} onChange={() => {}} />
+                </>
+              ) : (
+                <select
+                  id={`${prefix}-count-select-${index}`}
+                  value={item.count > 0 ? item.count : ""}
+                  onChange={(e) =>
+                    handleChange(index, "count", +e.target.value, setter)
+                  }
+                  className="border px-2 py-1"
+                >
+                  <option value="">-- กรุณาเลือก --</option>
+                  {Array.from({ length: 20 }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {label.includes("กรอกการสร้างเรือ")
+                        ? `${i + 1} ลำ`
+                        : label.includes("กรอกการชุบชีวิต")
+                          ? `${i + 1} คน`
+                          : i + 1}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
 
-          <button
-            type="button"
-            onClick={() => removeItem(index, setter)}
-            className="text-red-500"
-          >
-            ลบ
-          </button>
-        </div>
-      ))}
-      <button
-        type="button"
-        onClick={() => addItem(setter, label)}
-        className="bg-green-500 text-white px-4 py-1 rounded"
-      >
-        ➕ เพิ่ม Node
-      </button>
-    </div>
+            <button
+              type="button"
+              onClick={() => removeItem(index, setter)}
+              className="text-red-500"
+            >
+              ลบ
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => addItem(setter, label)}
+          className="bg-green-500 text-white px-4 py-1 rounded"
+        >
+          ➕ เพิ่ม Node
+        </button>
+      </div>
   );
   //   เฉพาะnode ที่มีป้อม
   const refreshNodes = async () => {
@@ -559,7 +559,10 @@ export default function NewPurchaseForm({
   }, []);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-[500px]">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 w-[500px] max-sm:w-full max-sm:max-w-[600px] max-sm:mx-auto max-sm:px-4"
+    >
       <Button type="button" onClick={refreshNodes} className="text-sm ml-2">
         🔄 รีเฟรชฟอร์มกรอกข้อมูล "สร้าง/ชุบ"
       </Button>

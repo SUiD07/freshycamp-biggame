@@ -614,7 +614,7 @@ export default function MoveForm({ house }: { house: string }) {
   }, []);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-[600px]">
+    <form onSubmit={handleSubmit} className="space-y-6 w-[600px] max-sm:w-full max-sm:max-w-[600px] max-sm:mx-auto max-sm:px-4">
       <div>
         สตาฟแจ้งrefresh map{"->"}กด refresh map ด้านบน{"->"}กดปุ่ม refresh
         ข้อมูลที่บรรทัดถัดไป
@@ -671,7 +671,7 @@ export default function MoveForm({ house }: { house: string }) {
               const destinations = allowedDestinations[fromNode] ?? [];
               const validHarbors = harborsPerNode[fromNode] ?? [];
               return (
-                <div key={m.idx} className="flex items-center gap-2 my-1">
+                <div key={m.idx} className="flex flex-wrap md:flex-nowrap items-center gap-2 my-1">
                   <label htmlFor={`toNode-${n.node}-${m.idx}`}>ไป Node:</label>
                   <select
                     id={`toNode-${n.node}-${m.idx}`}
