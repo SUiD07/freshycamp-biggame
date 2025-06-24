@@ -174,7 +174,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="w-min mx-auto">
+        <div className="w-min mx-auto max-sm:w-full">
           <Tabs defaultValue="account" className="w-fit max-md:w-9/12">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="account">เดิน</TabsTrigger>
