@@ -3,7 +3,7 @@
 
 import { useState, createContext, useContext, ReactNode } from 'react'
 
-const PASSWORD = 'fishsnakefish'
+const PASSWORD = 'PASSWORD'
 
 const AuthContext = createContext({
   isAuthenticated: false,
